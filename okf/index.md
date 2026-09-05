@@ -10,4 +10,5 @@ okf_version: "0.2"
 - [意味層の分離と反証実験](research/semantic-separation.md)
 - [SemanticCompiler の実装範囲](design/semantic-compiler.md)
 - [未解決課題](research/open-questions.md)
+- [Issue 自動開発](operations/issue-automation.md)
 - [更新履歴](log.md)

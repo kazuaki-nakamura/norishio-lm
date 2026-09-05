@@ -64,3 +64,7 @@ This development knowledge is separate from the language model's semantic layers
 
 See [setup and verification](docs/ai-foundation.md) for the metadata index,
 read-only local MCP server, maintenance rules, and upstream provenance.
+
+Issues labeled `ai-ready` are handled by the local Codex development automation.
+See [Issue automation](docs/issue-automation.md) for the posting contract,
+execution requirements, retry labels, and human PR review boundary.
