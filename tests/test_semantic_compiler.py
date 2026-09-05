@@ -14,7 +14,7 @@ def test_sei_keeps_glyph_and_sense_separate() -> None:
     record = compiler().compile("性")
     assert record.subcharacters["性"] == ("忄", "生")
     assert len(record.senses) >= 2
-    assert "literal" not in record.etymology_notes["性"].lower()
+    assert "Do not infer the modern lexical meaning" in record.etymology_notes["性"]
 
 
 def test_seiki_has_anatomy_concept() -> None:
