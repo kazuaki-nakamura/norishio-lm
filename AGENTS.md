@@ -65,3 +65,12 @@ The repository must remain experimentally falsifiable. Do not add semantic layer
 - Generated outputs belong in ignored `codex/work_output/`; do not edit them manually. Keep secrets, personal contacts, conversation transcripts, and training artifacts out of OKF and indexes.
 - Record recurring operational failures as improvement candidates, without treating a missing metric as zero. Do not automatically escalate publishing, authentication, paid compute, or destructive actions.
 - Run `python -m pytest` for both compiler and foundation tests, and the project MCP live check documented in `docs/ai-foundation.md` when MCP behavior or knowledge changes.
+
+## Delegation to Luna
+
+- Proactively delegate concrete, independent subtasks to `gpt-5.6-luna`. This is an explicit project request for sub-agent delegation, including automated Issue development.
+- The parent owns requirement interpretation, decomposition, integration, final verification, and GitHub state changes. One Issue worker may coordinate several sub-agents; sub-agents must not claim other Issues or create automations/tasks.
+- Give each sub-agent the exact worktree, applicable rules, bounded scope, owned files, acceptance criteria, and expected deliverable. Use focused context (`fork_turns="none"` or a bounded history) when selecting Luna explicitly.
+- Prefer independent implementation, regression-test design, or review work that can proceed alongside useful parent work. Avoid overlapping file ownership. The parent inspects all returned changes and verifies the integrated result rather than assuming a sub-agent's success report is sufficient.
+- Account for handoff, verification, and rework cost. Keep trivial edits and inseparable work local; briefly record the reason when a substantial task cannot use delegation.
+- If Luna is unavailable, report that fact and continue locally within the authorized scope; do not silently claim delegation or substitute another model. Record actual delegate model, assigned scope, and verification in the Issue/PR result when delegation was used.
