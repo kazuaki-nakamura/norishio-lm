@@ -1,0 +1,68 @@
+{
+  "性": {
+    "tokens": ["性"],
+    "morphemes": ["性"],
+    "characters": ["性"],
+    "subcharacters": {"性": ["忄", "生"]},
+    "etymology_notes": {
+      "性": "Glyph/etymology channel only. Do not infer the modern lexical meaning by composing 忄 and 生 literally."
+    },
+    "senses": [
+      {
+        "sense_id": "sei:nature-property",
+        "gloss": "nature, property, disposition",
+        "sememes": ["PROPERTY", "DISPOSITION"],
+        "concepts": ["ATTRIBUTE"]
+      },
+      {
+        "sense_id": "sei:sex-sexuality",
+        "gloss": "sex / sexuality related sense",
+        "sememes": ["SEX", "HUMAN"],
+        "concepts": ["BIOLOGICAL_OR_SOCIAL_SEX"]
+      }
+    ]
+  },
+  "性器": {
+    "tokens": ["性", "器"],
+    "morphemes": ["性", "器"],
+    "characters": ["性", "器"],
+    "subcharacters": {"性": ["忄", "生"]},
+    "senses": [
+      {
+        "sense_id": "seiki:anatomy",
+        "gloss": "sex/reproductive organ",
+        "sememes": ["BODY_PART", "SEX", "REPRODUCTION"],
+        "concepts": ["ANATOMY"]
+      }
+    ],
+    "relations": [
+      ["ANATOMY", "HAS_FUNCTION", "REPRODUCTION"]
+    ]
+  },
+  "心生": {
+    "tokens": ["心", "生"],
+    "morphemes": ["心", "生"],
+    "characters": ["心", "生"],
+    "senses": [
+      {
+        "sense_id": "shin-sei:poetic",
+        "gloss": "experimental poetic compound: emergence of mind/heart",
+        "sememes": ["MIND", "EMERGENCE"],
+        "concepts": ["MIND_EMERGENCE"]
+      }
+    ]
+  },
+  "ハナレナイ": {
+    "tokens": ["ハナレ", "ナイ"],
+    "morphemes": ["離れる", "ない"],
+    "characters": ["ハ", "ナ", "レ", "ナ", "イ"],
+    "senses": [
+      {
+        "sense_id": "hanarenai:neg-separation",
+        "gloss": "not separate / do not want to part, depending on context",
+        "sememes": ["SEPARATION", "NEGATION"],
+        "concepts": ["PROXIMITY_MAINTENANCE"]
+      }
+    ]
+  }
+}
