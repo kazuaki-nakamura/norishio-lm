@@ -1,0 +1,7 @@
+{
+  "source_roots": ["docs", "src", "data", "tests"],
+  "source_files": ["AGENTS.md", "README.md", "pyproject.toml", "foundation.json"],
+  "exclude_parts": ["__pycache__", ".pytest_cache", ".venv", ".git", "norishio_lm.egg-info"],
+  "exclude_suffixes": [".pyc", ".pyo"],
+  "description": "Research sources only; OKF is development knowledge, not model concepts or training data."
+}

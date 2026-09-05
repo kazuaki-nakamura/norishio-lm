@@ -7,3 +7,12 @@ dist/
 build/
 checkpoints/
 runs/
+.foundation-source/
+codex/work_output/
+okf/events.jsonl
+.env
+.env.*
+!.env.example
+.codex/config.toml
+*.pem
+*.key

@@ -55,3 +55,12 @@ pytest
 5. Can concept-level planning be decoded into multiple surface forms or languages while preserving meaning?
 
 See [docs/architecture.md](docs/architecture.md).
+
+## AI development foundation
+
+Project knowledge starts at [okf/index.md](okf/index.md). It records verified
+implementation facts, research constraints, and open questions with source links.
+This development knowledge is separate from the language model's semantic layers.
+
+See [setup and verification](docs/ai-foundation.md) for the metadata index,
+read-only local MCP server, maintenance rules, and upstream provenance.

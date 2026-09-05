@@ -52,3 +52,16 @@ The repository must remain experimentally falsifiable. Do not add semantic layer
 - pytest
 - small, inspectable modules
 - no hidden network access in tests
+
+## AI project foundation
+
+- Use the repository's Python environment (`.venv/Scripts/python.exe` on Windows).
+- Start with `python codex/tools/check_knowledge.py --mode quick`. If the index is absent, run `python codex/tools/build_context.py`. Invalid indexes are not evidence: inspect original sources and resolve differences before rebuilding.
+- Enter via `okf/index.md` and read only relevant concepts. With MCP, use `okf_search` -> `okf_get_concept` -> `okf_trace` as needed. Verify important claims against the cited source and section.
+- OKF records development knowledge. It is separate from the model's lexical senses, sememes, and concept bottleneck; do not silently feed it into training or benchmarks.
+- Distinguish implemented behavior, research hypotheses, test observations, and unverified claims. A hand-authored dictionary is not learned model output.
+- When implementation or evidence changes, review affected OKF concepts, update sources, generated.at, status, stale_after and okf/log.md. Never add human verification without explicit human review.
+- After source changes rebuild the metadata index; after OKF changes run `validate_okf.py` and `check_knowledge.py --mode full`. Use scripts for hashes and counts; do not load the entire manifest into conversation.
+- Generated outputs belong in ignored `codex/work_output/`; do not edit them manually. Keep secrets, personal contacts, conversation transcripts, and training artifacts out of OKF and indexes.
+- Record recurring operational failures as improvement candidates, without treating a missing metric as zero. Do not automatically escalate publishing, authentication, paid compute, or destructive actions.
+- Run `python -m pytest` for both compiler and foundation tests, and the project MCP live check documented in `docs/ai-foundation.md` when MCP behavior or knowledge changes.
