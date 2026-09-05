@@ -15,7 +15,9 @@ def main() -> None:
 
     root = Path(__file__).resolve().parents[2]
     compiler = SemanticCompiler.from_json(root / "data" / "demo_lexicon.json")
-    for text in ["性", "性器", "心生", "ハナレナイ"]:
+    print("Hand-authored demo dictionary; tokens are demo splits, not a learned tokenizer.")
+    print("All senses are unselected candidates; no trained model or contextual selector is used.")
+    for text in ["性", "性器", "心生", "ハナレナイ", "離れない", "離れたくない"]:
         print(f"\n=== {text} ===")
         pprint(compiler.compile(text))
 

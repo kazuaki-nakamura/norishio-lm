@@ -1,68 +1,664 @@
 {
-  "性": {
-    "tokens": ["性"],
-    "morphemes": ["性"],
-    "characters": ["性"],
-    "subcharacters": {"性": ["忄", "生"]},
-    "etymology_notes": {
-      "性": "Glyph/etymology channel only. Do not infer the modern lexical meaning by composing 忄 and 生 literally."
-    },
-    "senses": [
-      {
-        "sense_id": "sei:nature-property",
-        "gloss": "nature, property, disposition",
-        "sememes": ["PROPERTY", "DISPOSITION"],
-        "concepts": ["ATTRIBUTE"]
+  "schema_version": "1.0",
+  "entries": {
+    "性": {
+      "tokens": [
+        "性"
+      ],
+      "morphemes": [
+        "性"
+      ],
+      "characters": [
+        "性"
+      ],
+      "subcharacters": {
+        "性": [
+          "忄",
+          "生"
+        ]
       },
-      {
-        "sense_id": "sei:sex-sexuality",
-        "gloss": "sex / sexuality related sense",
-        "sememes": ["SEX", "HUMAN"],
-        "concepts": ["BIOLOGICAL_OR_SOCIAL_SEX"]
+      "etymology_notes": {
+        "性": "Glyph/etymology channel only. Do not infer the modern lexical meaning by composing 忄 and 生 literally."
+      },
+      "senses": [
+        {
+          "sense_id": "sei:nature-property",
+          "gloss": "nature, property, disposition",
+          "sememes": [
+            "PROPERTY",
+            "DISPOSITION"
+          ],
+          "concepts": [
+            "ATTRIBUTE"
+          ],
+          "provenance": {
+            "sense": [
+              {
+                "kind": "authored_demo",
+                "source": "data/demo_lexicon.json",
+                "revision": "demo-v1"
+              }
+            ],
+            "sememes": [
+              {
+                "kind": "authored_demo",
+                "source": "data/demo_lexicon.json",
+                "revision": "demo-v1"
+              }
+            ],
+            "concepts": [
+              {
+                "kind": "authored_demo",
+                "source": "data/demo_lexicon.json",
+                "revision": "demo-v1"
+              }
+            ]
+          }
+        },
+        {
+          "sense_id": "sei:sex-sexuality",
+          "gloss": "sex / sexuality related sense",
+          "sememes": [
+            "SEX",
+            "HUMAN"
+          ],
+          "concepts": [
+            "BIOLOGICAL_OR_SOCIAL_SEX"
+          ],
+          "provenance": {
+            "sense": [
+              {
+                "kind": "authored_demo",
+                "source": "data/demo_lexicon.json",
+                "revision": "demo-v1"
+              }
+            ],
+            "sememes": [
+              {
+                "kind": "authored_demo",
+                "source": "data/demo_lexicon.json",
+                "revision": "demo-v1"
+              }
+            ],
+            "concepts": [
+              {
+                "kind": "authored_demo",
+                "source": "data/demo_lexicon.json",
+                "revision": "demo-v1"
+              }
+            ]
+          }
+        }
+      ],
+      "provenance": {
+        "tokens": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "morphemes": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "characters": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "subcharacters": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "etymology_notes": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "senses": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "sememes": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "concepts": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ]
       }
-    ]
-  },
-  "性器": {
-    "tokens": ["性", "器"],
-    "morphemes": ["性", "器"],
-    "characters": ["性", "器"],
-    "subcharacters": {"性": ["忄", "生"]},
-    "senses": [
-      {
-        "sense_id": "seiki:anatomy",
-        "gloss": "sex/reproductive organ",
-        "sememes": ["BODY_PART", "SEX", "REPRODUCTION"],
-        "concepts": ["ANATOMY"]
+    },
+    "性器": {
+      "tokens": [
+        "性",
+        "器"
+      ],
+      "morphemes": [
+        "性",
+        "器"
+      ],
+      "characters": [
+        "性",
+        "器"
+      ],
+      "subcharacters": {
+        "性": [
+          "忄",
+          "生"
+        ]
+      },
+      "senses": [
+        {
+          "sense_id": "seiki:anatomy",
+          "gloss": "sex/reproductive organ",
+          "sememes": [
+            "BODY_PART",
+            "SEX",
+            "REPRODUCTION"
+          ],
+          "concepts": [
+            "ANATOMY"
+          ],
+          "provenance": {
+            "sense": [
+              {
+                "kind": "authored_demo",
+                "source": "data/demo_lexicon.json",
+                "revision": "demo-v1"
+              }
+            ],
+            "sememes": [
+              {
+                "kind": "authored_demo",
+                "source": "data/demo_lexicon.json",
+                "revision": "demo-v1"
+              }
+            ],
+            "concepts": [
+              {
+                "kind": "authored_demo",
+                "source": "data/demo_lexicon.json",
+                "revision": "demo-v1"
+              }
+            ]
+          }
+        }
+      ],
+      "relations": [
+        [
+          "ANATOMY",
+          "HAS_FUNCTION",
+          "REPRODUCTION"
+        ]
+      ],
+      "provenance": {
+        "tokens": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "morphemes": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "characters": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "subcharacters": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "senses": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "relations": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "sememes": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "concepts": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ]
       }
-    ],
-    "relations": [
-      ["ANATOMY", "HAS_FUNCTION", "REPRODUCTION"]
-    ]
-  },
-  "心生": {
-    "tokens": ["心", "生"],
-    "morphemes": ["心", "生"],
-    "characters": ["心", "生"],
-    "senses": [
-      {
-        "sense_id": "shin-sei:poetic",
-        "gloss": "experimental poetic compound: emergence of mind/heart",
-        "sememes": ["MIND", "EMERGENCE"],
-        "concepts": ["MIND_EMERGENCE"]
+    },
+    "心生": {
+      "tokens": [
+        "心",
+        "生"
+      ],
+      "morphemes": [
+        "心",
+        "生"
+      ],
+      "characters": [
+        "心",
+        "生"
+      ],
+      "senses": [
+        {
+          "sense_id": "shin-sei:poetic",
+          "gloss": "experimental poetic compound: emergence of mind/heart",
+          "sememes": [
+            "MIND",
+            "EMERGENCE"
+          ],
+          "concepts": [
+            "MIND_EMERGENCE"
+          ],
+          "usage": "experimental_poetic",
+          "provenance": {
+            "sense": [
+              {
+                "kind": "authored_demo",
+                "source": "data/demo_lexicon.json",
+                "revision": "demo-v1"
+              }
+            ],
+            "sememes": [
+              {
+                "kind": "authored_demo",
+                "source": "data/demo_lexicon.json",
+                "revision": "demo-v1"
+              }
+            ],
+            "concepts": [
+              {
+                "kind": "authored_demo",
+                "source": "data/demo_lexicon.json",
+                "revision": "demo-v1"
+              }
+            ]
+          }
+        }
+      ],
+      "provenance": {
+        "tokens": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "morphemes": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "characters": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "senses": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "sememes": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "concepts": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ]
       }
-    ]
-  },
-  "ハナレナイ": {
-    "tokens": ["ハナレ", "ナイ"],
-    "morphemes": ["離れる", "ない"],
-    "characters": ["ハ", "ナ", "レ", "ナ", "イ"],
-    "senses": [
-      {
-        "sense_id": "hanarenai:neg-separation",
-        "gloss": "not separate / do not want to part, depending on context",
-        "sememes": ["SEPARATION", "NEGATION"],
-        "concepts": ["PROXIMITY_MAINTENANCE"]
+    },
+    "ハナレナイ": {
+      "tokens": [
+        "ハナレ",
+        "ナイ"
+      ],
+      "morphemes": [
+        "離れる",
+        "ない"
+      ],
+      "characters": [
+        "ハ",
+        "ナ",
+        "レ",
+        "ナ",
+        "イ"
+      ],
+      "senses": [
+        {
+          "sense_id": "hanarenai:neg-separation",
+          "gloss": "not separate / do not part (negation; no desire is asserted)",
+          "sememes": [
+            "SEPARATION",
+            "NEGATION"
+          ],
+          "concepts": [
+            "NEGATED_SEPARATION"
+          ],
+          "provenance": {
+            "sense": [
+              {
+                "kind": "authored_demo",
+                "source": "data/demo_lexicon.json",
+                "revision": "demo-v1"
+              }
+            ],
+            "sememes": [
+              {
+                "kind": "authored_demo",
+                "source": "data/demo_lexicon.json",
+                "revision": "demo-v1"
+              }
+            ],
+            "concepts": [
+              {
+                "kind": "authored_demo",
+                "source": "data/demo_lexicon.json",
+                "revision": "demo-v1"
+              }
+            ]
+          }
+        }
+      ],
+      "provenance": {
+        "tokens": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "morphemes": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "characters": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "senses": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "sememes": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "concepts": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ]
       }
-    ]
+    },
+    "離れない": {
+      "tokens": [
+        "離れ",
+        "ない"
+      ],
+      "morphemes": [
+        "離れる",
+        "ない"
+      ],
+      "characters": [
+        "離",
+        "れ",
+        "な",
+        "い"
+      ],
+      "senses": [
+        {
+          "sense_id": "hanarenai:neg-separation",
+          "gloss": "not separate / do not part (negation; no desire is asserted)",
+          "sememes": [
+            "SEPARATION",
+            "NEGATION"
+          ],
+          "concepts": [
+            "NEGATED_SEPARATION"
+          ],
+          "provenance": {
+            "sense": [
+              {
+                "kind": "authored_demo",
+                "source": "data/demo_lexicon.json",
+                "revision": "demo-v1"
+              }
+            ],
+            "sememes": [
+              {
+                "kind": "authored_demo",
+                "source": "data/demo_lexicon.json",
+                "revision": "demo-v1"
+              }
+            ],
+            "concepts": [
+              {
+                "kind": "authored_demo",
+                "source": "data/demo_lexicon.json",
+                "revision": "demo-v1"
+              }
+            ]
+          }
+        }
+      ],
+      "provenance": {
+        "tokens": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "morphemes": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "characters": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "senses": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "sememes": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "concepts": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ]
+      }
+    },
+    "離れたくない": {
+      "tokens": [
+        "離れ",
+        "たく",
+        "ない"
+      ],
+      "morphemes": [
+        "離れる",
+        "たい",
+        "ない"
+      ],
+      "characters": [
+        "離",
+        "れ",
+        "た",
+        "く",
+        "な",
+        "い"
+      ],
+      "senses": [
+        {
+          "sense_id": "hanaretakunai:negative-desire",
+          "gloss": "do not want to part (negative desire, not an assertion of staying)",
+          "sememes": [
+            "SEPARATION",
+            "DESIRE",
+            "NEGATION"
+          ],
+          "concepts": [
+            "NEGATED_DESIRE_TO_SEPARATE"
+          ],
+          "provenance": {
+            "sense": [
+              {
+                "kind": "authored_demo",
+                "source": "data/demo_lexicon.json",
+                "revision": "demo-v1"
+              }
+            ],
+            "sememes": [
+              {
+                "kind": "authored_demo",
+                "source": "data/demo_lexicon.json",
+                "revision": "demo-v1"
+              }
+            ],
+            "concepts": [
+              {
+                "kind": "authored_demo",
+                "source": "data/demo_lexicon.json",
+                "revision": "demo-v1"
+              }
+            ]
+          }
+        }
+      ],
+      "provenance": {
+        "tokens": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "morphemes": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "characters": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "senses": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "sememes": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ],
+        "concepts": [
+          {
+            "kind": "authored_demo",
+            "source": "data/demo_lexicon.json",
+            "revision": "demo-v1"
+          }
+        ]
+      }
+    }
   }
 }

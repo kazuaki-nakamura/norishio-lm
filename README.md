@@ -38,6 +38,11 @@ Initial demo expressions:
 
 ## Quick start
 
+This is a validated **dictionary-based SemanticCompiler**, not a trained language
+model. Demo tokens are hand-authored splits, not learned tokenizer output.
+The four original examples remain; `離れない` and `離れたくない` are also shown
+to distinguish negation from negative desire. `心生` is marked experimental/poetic.
+
 ```bash
 python -m venv .venv
 source .venv/bin/activate
@@ -45,6 +50,19 @@ pip install -e '.[dev]'
 python -m norishio_lm.demo
 pytest
 ```
+
+On Windows, use `.venv\Scripts\python.exe` directly after creating the environment:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -e '.[dev]'
+.\.venv\Scripts\python.exe -m norishio_lm.demo
+.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider
+```
+
+Schema 1.0 validates types, required sense fields, duplicate IDs, relation triples
+and provenance. Legacy unversioned dictionaries remain readable. Records support
+JSON round trips, unselected sense candidates, optional context/span metadata and
+non-destructive layer removal. See [schema and API contract](docs/semantic-schema.md).
 
 ## Research questions
 
