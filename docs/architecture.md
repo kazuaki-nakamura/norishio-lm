@@ -26,7 +26,7 @@ Historical formation and diachronic notes. This is evidence about history, not a
 Context-dependent current senses.
 
 ### Sememe channel
-Smaller reusable semantic primitives attached to a selected sense.
+Smaller reusable semantic primitives attached to each candidate sense. The current compiler does not select a sense.
 
 ### Concept channel
 Entities, events, attributes, relations, intentions, temporal structure, etc.
@@ -88,5 +88,10 @@ Evaluate:
 If G does not beat simpler systems on targeted tasks, the extra hierarchy is not justified.
 
 ## 6. First milestone
+
+The implemented dictionary compiler now has schema validation, provenance,
+JSON round trips, candidate-preserving context/span metadata, and a layer-removal
+API. See [schema 1.0](semantic-schema.md). These are infrastructure, not evidence
+that any added semantic layer improves modeling performance.
 
 Turn `SemanticRecord` into tensors while preserving provenance of every feature. Then train a tiny model that predicts both next token and explicit semantic labels.
