@@ -2,8 +2,8 @@
 type: OpenQuestion
 title: 未解決課題と次の実験
 status: draft
-generated: { by: ai-assisted-source-review, at: 2026-09-05 }
-stale_after: 2026-10-05
+generated: { by: ai-assisted-source-review, at: 2026-09-10 }
+stale_after: 2026-10-10
 sources:
   - id: handoff
     resource: docs/handoff.md
@@ -20,7 +20,8 @@ sources:
 - 未実装: 外部辞書・形態素解析アダプター、文脈による語義選択。
 - 要確認: 曖昧語・誤誘導する字形・未知複合語・言い換えを含む評価セットと分割方法。
 - 実装済み: レコードの補助層を除外する API。
-- 未実装: テンソル化、CPU ベースライン、同条件の ablation 実験。
+- 実装済み: 出典と候補を保持する10チャネルのテンソル化、独立encoder、masked gated fusion、CPU forward。
+- 未実装: CPU 学習ベースライン、同条件の ablation 実験、順序/グラフを反映する表現。
 - 未確認: 明示的な各意味層が単純なベースラインより役立つか。デモや単体テストの成功で代替しない。
 
 実験の順序は [意味層の分離](semantic-separation.md) と既存 architecture に従う。
