@@ -42,6 +42,7 @@ PADとUNKは別ID。fit後のencodeで語彙は増やさず、training splitだ�
 字形/字源は語義ラベルを書き換えず、欠損・無効チャネルの寄与はゼロ。
 全無効時の有限ゼロ、勾配分離、オフライン動作をテストで確認する。
 
-ランダム初期値のforwardのみ。性能改善、WSD、学習済み意味理解の根拠ではない。
-順序と候補対応を構造として学習するencoder、graph encoder、bottleneck、生成は未実装。
+encoder_demoはランダム初期値のforwardのみ。性能改善、WSD、学習済み意味理解の根拠ではない。
+Issue #3の学習・bottleneckは [toy実験](concept-toy.md) を参照。
+順序と候補対応を構造として学習するencoder、graph encoderは未実装。
 意味層の有効性は [比較実験](../research/semantic-separation.md) で検証が必要。

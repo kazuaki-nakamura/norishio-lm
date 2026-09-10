@@ -103,6 +103,10 @@ See [tensor shapes, ablation and limitations](multichannel-encoder.md).
 This first encoder pools features without order or graph structure. Candidate
 association is preserved as metadata, not resolved by contextual WSD. Glyph and
 etymology do not rewrite modern labels; enabled glyphs can affect the fused
-latent and must be tested by ablation. Trainable wiring is implemented, while
-semantic usefulness, training losses, a concept bottleneck and generation remain
-future work.
+latent and must be tested by ablation. Issue #3 adds named concept heads, masked
+LM/sense/sememe/concept losses, and a tiny conditional GRU decoder. A/B can read
+the complete source prefix; strict C reads target history plus predicted concept
+probabilities only. Auxiliary sense/sememe predictions never bypass that boundary.
+See [the toy experiment](concept-toy.md). Semantic usefulness and general language
+generation quality remain unverified; the source encoder still has no sequence
+or graph structure.

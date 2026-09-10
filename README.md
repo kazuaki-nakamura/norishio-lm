@@ -75,6 +75,24 @@ it is not a trained language model or evidence of improved semantic understandin
 
 ## Research questions
 
+The optional [concept bottleneck toy experiment](docs/concept-toy.md) compares a
+source-prefix GRU, encoder bypass, and a strict predicted-concept decoder on the
+same authored dataset. It includes CPU training, masked auxiliary losses and
+ablation reports. **This is a toy model and does not demonstrate LLM performance.**
+Run from a source checkout with the optional model dependencies installed:
+
+```powershell
+.\.venv\Scripts\python.exe -m norishio_lm.toy_experiment --seed 7 --steps 60 --out codex/work_output/issue3-seed7.json
+```
+
+The output path must be new. Reports contain named concept predictions and
+train/validation/test observations; generated data and model artifacts are ignored.
+
+A separate validation-only [control experiment](docs/concept-toy.md#follow-up-controls-and-free-generation)
+matches initialization and training budgets against constant concept conditioning
+and measures reference-free greedy generation. The initial run failed to produce
+valid completed text; teacher-forced loss is not evidence of generation quality.
+
 1. Does explicit semantic decomposition improve rare/novel compound understanding?
 2. Does a sememe/concept bottleneck improve paraphrase and compositional generalization?
 3. Can sub-character information help without contaminating modern semantics with etymological overreach?
