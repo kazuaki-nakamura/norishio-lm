@@ -57,6 +57,17 @@ optional candidate sense ID. Missing provenance stays `unknown`; no confidence
 or source is invented. Metadata is retained by `.to(device)` but never fed into
 the neural model. Inputs are validated and detached from the source record.
 
+`ChannelBatch.layer_provenance[b]` holds the complete record-level declaration
+for that row's channel, including rows with no features. For `senses`, `sememes`
+and `concepts`, `Feature.provenance` separately holds the candidate-specific
+declaration. A candidate's `unknown` is never promoted to a layer's `sourced`
+declaration or merged with it. Other channels have only layer-scoped declarations,
+also copied into their features. `etymology` uses the `etymology_notes` declaration.
+Both scopes survive `.to(device)`; provenance never affects IDs, masks or gates.
+The tensorizer always emits one layer-provenance tuple per row. Manually assembled
+legacy `ChannelBatch(ids, mask, features)` instances default this field to `()`
+(row-level metadata not supplied). Vocabulary checkpoint format is unchanged.
+
 Fit deterministic, separate vocabularies on the **training split only**. Encoding
 never grows them. ID 0 is padding (mask false); ID 1 is an observed out-of-vocabulary
 feature (mask true). Missing semantics produce no feature. Save `to_dict()` as

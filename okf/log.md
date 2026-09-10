@@ -2,6 +2,8 @@
 
 ## 2026-09-10
 
+- PR #5レビュー対応: 候補側unknownの正規化で層全体の出典が失われる問題を再現。行単位のlayer_provenanceと候補Feature.provenanceを分離して保持する契約へ修正。
+
 - Issue #2: 出典・候補対応を保持するtensorizerと10チャネルencoder、masked gated fusionを実装。CPU配線検査と意味性能の未検証を区別し、次の比較実験を整理。Lunaの実装・テスト・レビューを親が統合（人の検証印なし）。
 
 ## 2026-09-05

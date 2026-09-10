@@ -4,6 +4,22 @@
 
 ## 最新の実装状態: Issue #2
 
+### PR #5 出典レビュー対応（2026-09-10）
+
+層全体に出典を指定し候補には指定しない入力で、senses/sememes/conceptsの出典が
+tensor化後に失われる問題を再現した。候補出典をunknownで正規化するとgetのfallbackが
+使われないことが原因。`ChannelBatch.layer_provenance` に全行の層出典を保持し、
+候補固有の `Feature.provenance` と分けた。候補unknownを既知出典へ昇格しない。
+特徴が空の行や `.to(device)` 後も層出典を保持する。既存の語彙checkpoint形式は変更なし。
+
+Luna (`gpt-5.6-luna`) が独立回帰テストを作成。修正前の初版検査は15 failed / 1 passed。
+親が実装修正とテストレビューを担当し、省略出典の正規化、異なるsource/revision、
+3チャネル、空行、層除外、device移動、元入力の変更、出力不変性を補強した。
+修正後の回帰検査は20 passed。統合全スイートは **136 passed, 2 subtests passed**、skipなし。
+実行は下記と同じ専用venvで `python -m pytest -q -p no:cacheprovider`（Windows Temp用許可付き）。
+両デモ終了コード0。encoderのNumPy未導入警告は継続するが、NumPy変換は使用していない。
+この節より下の116件・24原本は初回実装時の履歴。
+
 `codex/multichannel-encoder`、基点 `dfddf315168e81e11dde52007e5267ba5de6413e`。
 以下の Issue #1 / 初期引き継ぎ節は履歴。この節と [encoder契約](multichannel-encoder.md) を現在の実装範囲として優先する。
 

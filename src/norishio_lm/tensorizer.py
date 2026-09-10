@@ -31,9 +31,13 @@ class ChannelBatch:
     ids: torch.Tensor
     mask: torch.Tensor
     features: tuple[tuple[Feature, ...], ...]
+    # Record-level declarations, one tuple per row even when no features exist.
+    # Empty outer tuple means not supplied by a manual/legacy constructor.
+    layer_provenance: tuple[tuple[Provenance, ...], ...] = ()
 
     def to(self, device: str | torch.device) -> ChannelBatch:
-        return ChannelBatch(self.ids.to(device), self.mask.to(device), self.features)
+        return ChannelBatch(self.ids.to(device), self.mask.to(device), self.features,
+                            self.layer_provenance)
 
 
 @dataclass(frozen=True)
@@ -99,7 +103,7 @@ class SemanticTensorizer:
             raise ValueError("cannot fit on an empty batch")
         values = {channel: set() for channel in CHANNELS}
         for record in records:
-            for channel, features in cls._features_for(record).items():
+            for channel, features in cls._features_for(cls._validated(record)).items():
                 values[channel].update(_vocab_key(feature.value) for feature in features)
         vocabs = {}
         for channel in CHANNELS:
@@ -113,8 +117,8 @@ class SemanticTensorizer:
         return SemanticRecord.from_dict(record.to_dict())
 
     @classmethod
-    def _features_for(cls, original: SemanticRecord) -> dict[str, tuple[Feature, ...]]:
-        record = cls._validated(original)
+    def _features_for(cls, record: SemanticRecord) -> dict[str, tuple[Feature, ...]]:
+        """Extract features from a validated snapshot; preserve candidate scope."""
         excluded = set(record.excluded_layers)
         result: dict[str, tuple[Feature, ...]] = {}
         def prov(layer: str) -> tuple[Provenance, ...]:
@@ -132,13 +136,13 @@ class SemanticTensorizer:
             Feature(_json([key, note]), f"$.etymology_notes[{key!r}]", prov("etymology_notes"))
             for key, note in record.etymology_notes.items())
         result["senses"] = () if "senses" in excluded else tuple(
-            Feature(sense.sense_id, f"$.senses[{i}].sense_id", sense.provenance.get("sense", prov("senses")), sense.sense_id)
+            Feature(sense.sense_id, f"$.senses[{i}].sense_id", sense.provenance["sense"], sense.sense_id)
             for i, sense in enumerate(record.senses))
         result["sememes"] = () if "sememes" in excluded else tuple(
-            Feature(value, f"$.senses[{i}].sememes[{j}]", sense.provenance.get("sememes", prov("sememes")), sense.sense_id)
+            Feature(value, f"$.senses[{i}].sememes[{j}]", sense.provenance["sememes"], sense.sense_id)
             for i, sense in enumerate(record.senses) for j, value in enumerate(sense.sememes))
         result["concepts"] = () if "concepts" in excluded else tuple(
-            Feature(value, f"$.senses[{i}].concepts[{j}]", sense.provenance.get("concepts", prov("concepts")), sense.sense_id)
+            Feature(value, f"$.senses[{i}].concepts[{j}]", sense.provenance["concepts"], sense.sense_id)
             for i, sense in enumerate(record.senses) for j, value in enumerate(sense.concepts))
         result["relations"] = () if "relations" in excluded else tuple(
             Feature(_json(list(value)), f"$.relations[{i}]", prov("relations"))
@@ -158,7 +162,8 @@ class SemanticTensorizer:
             raise RuntimeError("SemanticTensorizer.encode requires torch")
         if not records:
             raise ValueError("cannot encode an empty batch")
-        all_features = [self._features_for(record) for record in records]
+        snapshots = [self._validated(record) for record in records]
+        all_features = [self._features_for(record) for record in snapshots]
         channels = {}
         for channel in CHANNELS:
             rows = [features[channel] for features in all_features]
@@ -170,7 +175,9 @@ class SemanticTensorizer:
                 for col, feature in enumerate(row):
                     ids[row_index, col] = vocab.get(_vocab_key(feature.value), 1)
                     mask[row_index, col] = True
-            channels[channel] = ChannelBatch(ids, mask, tuple(rows))
+            layer = "etymology_notes" if channel == "etymology" else channel
+            layer_provenance = tuple(record.provenance[layer] for record in snapshots)
+            channels[channel] = ChannelBatch(ids, mask, tuple(rows), layer_provenance)
         return SemanticBatch(channels)
 
     def to_dict(self) -> dict[str, Any]:

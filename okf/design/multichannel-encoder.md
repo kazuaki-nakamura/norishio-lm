@@ -20,6 +20,9 @@ sources:
   - id: offline-tests
     resource: tests/test_encoder_offline.py
     title: Offline forward/backward and candidate ID separation
+  - id: provenance-tests
+    resource: tests/test_tensorizer_provenance.py
+    title: Separate row-level and candidate provenance regression tests
   - id: contract
     resource: docs/multichannel-encoder.md
     title: Channel contract and limitations
@@ -31,6 +34,9 @@ sources:
 # Multi-channel encoder の実装範囲
 
 表記から関係まで10チャネルを独立語彙でtensor化。出典と候補対応はmetadataに保持する。
+層全体の出典はChannelBatch.layer_provenanceに行単位で保持し、語義・sememe・conceptの
+候補個別のFeature.provenanceと分ける。候補側unknownを層出典で上書きしない。
+特徴がない行も層の出典宣言を保持し、device移動後も両スコープを維持する。
 PADとUNKは別ID。fit後のencodeで語彙は増やさず、training splitだけでfitする。
 独立Embedding・masked mean・projectionから入力依存gateを計算して融合する。
 字形/字源は語義ラベルを書き換えず、欠損・無効チャネルの寄与はゼロ。
