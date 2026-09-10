@@ -80,3 +80,12 @@ the same observable characters with separate embeddings, not linguistic analysis
 The initial [measured results](handoff.md) include two identical complete seed=7
 runs, excluding wall time, and explicit limitations. There is no saved pretrained
 checkpoint or free-running generation quality result at this milestone.
+
+The [external AI review](https://github.com/kazuaki-nakamura/norishio-lm/pull/6#issuecomment-5621273041)
+reports that validation concept accuracy nearly matches a train-majority baseline,
+and replacing per-input concept predictions with their fixed train mean barely
+changes LM loss. These are reviewer-run post-hoc diagnostics, not additional local
+verification. Zero interventions also change probability mass: their effect alone
+does not prove semantic content is used. Next comparisons should retrain constant
+conditioning with matched decoder initialization/budget, permute input-concept
+alignment and assess free generation while preserving the v1 data and results.

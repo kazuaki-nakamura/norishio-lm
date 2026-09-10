@@ -2,8 +2,8 @@
 type: Implementation
 title: Concept bottleneck toy実験
 status: draft
-generated: { by: ai-assisted-source-review, at: 2026-09-10 }
-stale_after: 2026-10-10
+generated: { by: ai-assisted-source-review, at: 2026-09-11 }
+stale_after: 2026-10-11
 sources:
   - id: model
     resource: src/norishio_lm/concept_model.py
@@ -47,3 +47,7 @@ train/validation/test、各損失、対象数、概念accuracy、チャネル除
 普遍的意味、自由生成品質を証明しない。soft確率にはargmax以上の情報が残り得る。
 入力の語義/sememe/概念/形態素/字形/字源/関係は空。空チャネル除去は有効性比較ではない。
 OKF、外部辞書、私的ログは教材に使わない。人による検証の記録ではない。
+
+handoffの外部AIレビュー記録ではvalidation概念accuracyはtrain多数派基準とほぼ同じ。
+予測conceptをtrain固定平均に置換しても生成損失はほぼ不変との報告。ローカル再検証と
+区別し、内容依存の有効性は未実証とする。次は定数条件の再学習、対応置換、自由生成。
