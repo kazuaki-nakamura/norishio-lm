@@ -90,8 +90,10 @@ train/validation/test observations; generated data and model artifacts are ignor
 
 A separate validation-only [control experiment](docs/concept-toy.md#follow-up-controls-and-free-generation)
 matches initialization and training budgets against constant concept conditioning
-and measures reference-free greedy generation. The initial run failed to produce
-valid completed text; teacher-forced loss is not evidence of generation quality.
+and measures reference-free greedy generation. At 60 updates it failed to produce
+valid completed text. A fixed 600-update diagnosis recovered UTF-8 and EOS but
+still produced one sentence for all inputs with zero exact matches. Teacher-forced
+loss is not evidence of conditional generation quality.
 
 1. Does explicit semantic decomposition improve rare/novel compound understanding?
 2. Does a sememe/concept bottleneck improve paraphrase and compositional generalization?
