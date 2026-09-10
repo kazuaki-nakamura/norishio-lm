@@ -1,5 +1,9 @@
 # OKF 更新履歴
 
+- 2026-09-10: Issue #3のCPU条件付きtoy学習、厳密C入力境界、masked損失、比較測定を追加。
+  原本・検査とhandoffの実測に基づくAI確認。soft概念・短い単一seed・空意味入力層の限界を記録。
+  人による検証の追加はない。
+
 ## 2026-09-10
 
 - PR #5レビュー対応: 候補側unknownの正規化で層全体の出典が失われる問題を再現。行単位のlayer_provenanceと候補Feature.provenanceを分離して保持する契約へ修正。

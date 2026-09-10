@@ -2,7 +2,118 @@
 
 検証日: 2026-09-10
 
-## 最新の実装状態: Issue #2
+## 最新の実装状態: Issue #3
+
+ブランチ `codex/issue-3`、基点 `bf0a0b94f8026b68f37b1f53833085e8ecdc04f5`。
+提供教材 `e080504082946dbcc584b10f638eb066785db9b1` を
+`6530153` としてcherry-pick。実装・検査のコミットは
+`498035f13c553a5aaea24ba411d525a906e4a071`。以下のIssue #2節は履歴。
+
+実装済み: train-only概念語彙、7つの名前付き概念head、語義/sememe補助head、
+masked個別損失、GRU A/B/C、source-only adapter、CPU学習・比較ハーネス。
+C decoderは過去targetと予測concept確率だけを受け取り、sourceやencoder latent、
+語義/sememe予測の抜け道を持たない。概念はsoft確率であり離散意味の証明ではない。
+詳細は [契約と限界](concept-toy.md)。教材・分割・採点規則は変更していない。
+
+Luna (`gpt-5.6-luna`) へモデル/損失と独立検査、入力adapter/入力漏洩レビューを委譲。
+親は実験ハーネス、統合レビュー、厳密C境界の修正指示、未来target/誤字形の回帰追加、
+最終実行、文書とGitHubを担当。サブエージェントの成功報告だけでは完了扱いにしていない。
+
+### 検証環境と実行
+
+Windows、Python 3.11.15、PyTorch 2.14.0+cpu、pytest 9.1.1。
+専用worktreeの`.venv`を使用。GPU/外部辞書/大規模学習/OKF教材投入はなし。
+最初のvenv作成はサンドボックスのensurepipで失敗し、許可付き実行で復旧した。
+途中のサブテストはtorch未導入のskipとWindows Temp権限失敗があったが、
+依存導入と許可付き全検証で解消。初回失敗を成功に数えていない。
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install 'torch>=2.5,<3' --index-url https://download.pytorch.org/whl/cpu
+.\.venv\Scripts\python.exe -m pip install -e '.[dev,model]' --disable-pip-version-check
+.\.venv\Scripts\python.exe data/issue3/toy_corpus.py --check
+.\.venv\Scripts\python.exe data/issue3/toy_corpus.py --out codex/work_output/norishio-toy-v1
+.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider
+.\.venv\Scripts\python.exe -m norishio_lm.demo
+.\.venv\Scripts\python.exe -m norishio_lm.encoder_demo
+.\.venv\Scripts\python.exe -m norishio_lm.toy_experiment --seed 7 --steps 60 --out codex/work_output/issue3-seed7.json
+```
+
+環境作成の先頭`python`はWindowsAppsエイリアスではなく既存プロジェクトの実Pythonを使う。
+全pytest **179 passed, 2 subtests passed**、skipなし、7.44秒。両既存デモ終了0。
+全注釈欠損テストのzero-element tensor警告1件。デモ/学習時のNumPy未導入警告は
+既存環境と同じで、NumPy変換は使わない。無警告と偽らない。
+教材のmanifest JSON内容と4 JSONLのSHA256はexpected-manifestと一致。
+manifest自体の生バイトhashはWindows改行差があるためJSON内容で比較した。
+
+### seed=7、60 step、batch=16、CPU 1 threadの観測
+
+Adam lr=0.003、gradient clip=1、hidden=32。各条件960行を復元抽出で観測。
+全条件で同じseed・学習行順・step数。パラメータ数とsource-prefix処理量は異なる。
+train=450、validation=150、test=150、診断=24。testは全条件の学習後に評価し、
+選択・調整へ戻していない。LMは有効target byte+EOSあたり自然対数のcross entropy。
+train 30,015 token、validation/testは各10,005 token。同じ参照を全経路で採点。
+
+| 条件 | train LM | validation LM | test LM | test概念項目accuracy | 登録parameter数 | 学習秒 |
+|---|---:|---:|---:|---:|---:|---:|
+| A source-prefix GRU | 2.187229 | 2.194592 | 2.191837 | 対象headなし | 24,292 | 5.258 |
+| B encoder bypass | 2.136073 | 2.135584 | 2.136616 | 0.550476 | 42,423 | 6.233 |
+| C strict concept | 2.086730 | 2.088277 | 2.087212 | 0.551429 | 42,423 | 4.683 |
+| C LM無効 | 5.530803 | 5.531502 | 5.530769 | 0.545714 | 42,423 | 4.689 |
+| C sense無効 | 2.101513 | 2.102988 | 2.102009 | 0.544762 | 42,423 | 4.491 |
+| C sememe無効 | 2.089069 | 2.090601 | 2.089551 | 0.549524 | 42,423 | 4.606 |
+| C concept loss無効 | 2.089810 | 2.091323 | 2.090292 | 0.414286 | 42,423 | 4.621 |
+| C LMのみ | 2.101546 | 2.103019 | 2.102020 | 0.414286 | 42,423 | 4.492 |
+
+上記loss ablationは初期化から再学習。Cの各lossはtestでLM=2.087212、
+sense=0.865284、sememe=0.419663、concept=1.044530。補助注釈は各150行、
+conceptは7項目計1,050件。項目別accuracyはevent .60、operators .30、agent .80、
+participant .26、time .20、location .80、repeat_marked .90。多数派の強い項目を含み、
+約55%という平均だけで文の意味を理解したと結論しない。
+
+チャネル除去は**学習済みCへのvalidation時介入**で再学習ではない。
+LMはsurface除去2.088261、tokens除去2.088428、characters除去2.088268。
+他7チャネルは空なので全て元と同じ2.088277。空層の有効性の反証にはならない。
+tokens/charactersは同じ観測文字列の別embeddingであり形態素解析ではない。
+surfaceの全文カテゴリはheld-outでUNKになる。語彙はtrainのみから452/77/77、
+残り7層はPAD/UNKの2項目で構成する。
+
+Cの概念ゼロ介入でvalidation LM=2.131895、hard argmax介入で2.088078。
+診断例1件のlogit最大差はゼロ介入2.601220、hard介入0.055858。
+予測concept固定・source差替えは差0、意図的誤字形fixture有効時0.009778、
+subcharacters無効時0。fixtureは未知IDへの入力で、実字源を学習した証拠ではない。
+診断24件のLM=2.960399、1,362 token。補助ラベルは全nullでaccuracyは採点しない。
+解釈自由文や正解ラベルを通常のモデル入力に使っていない。
+
+詳細ログ・名前付き概念dumpはignoredの`codex/work_output/issue3-seed7.json`。
+SHA256 `ce939b6d0f7983a26dba8679f3b16aeec2464f17be4e6fc775c6f65a9aea77c6`。
+学習済み重みは保存・公開していない。再現は原稿・コード・seed・設定から行う。
+同コマンドの出力先を`issue3-seed7-repeat.json`に変えて全8条件を再実行し、
+時間項目を除く全metrics・trace・概念dumpが完全一致した。同一環境内の再現検査であり、
+異なるOS/PyTorch版での一致は未確認。
+
+知識検査は以下全て終了0。index原本39件、OKF 8files/6concepts・error/warning 0、
+full check healthy、MCP live check ok=true・6tools・stale/obsolete 0。
+Git diffの空白検査も終了0。GitHub Actions/人による研究検証の成功とは区別する。
+
+```powershell
+.\.venv\Scripts\python.exe codex/tools/build_context.py
+.\.venv\Scripts\python.exe codex/tools/validate_okf.py
+.\.venv\Scripts\python.exe codex/tools/check_knowledge.py --mode full
+.\.venv\Scripts\python.exe codex/okf_mcp/tests/live_check.py --server codex/okf_mcp/server.py --root okf
+git diff --check
+```
+
+### 残る課題
+
+単一seed、短時間、同テンプレートの未見組合せ、作者共通の例文/採点ラベル。
+Cが低損失でもconcept層の一般的優位性やLLM性能を示さない。soft確率の余剰情報、
+順序を失うencoder、入力semantic層の欠損、自由生成品質は未解決。
+次候補は複数seedと多数派ラベルbaseline、語順/作用域を扱うsource encoder、
+hard概念の学習比較、別作者/未見テンプレート評価、greedy生成の品質点検。
+testを調整に流用せず、評価設計を別版として固定して進める。
+
+## 以前の実装状態: Issue #2
 
 ### PR #5 出典レビュー対応（2026-09-10）
 
