@@ -1,8 +1,67 @@
 # Norishio-LM 引き継ぎ記録
 
-検証日: 2026-09-05
+検証日: 2026-09-10
 
-## 最新の実装状態: Issue #1
+## 最新の実装状態: Issue #2
+
+### PR #5 出典レビュー対応（2026-09-10）
+
+層全体に出典を指定し候補には指定しない入力で、senses/sememes/conceptsの出典が
+tensor化後に失われる問題を再現した。候補出典をunknownで正規化するとgetのfallbackが
+使われないことが原因。`ChannelBatch.layer_provenance` に全行の層出典を保持し、
+候補固有の `Feature.provenance` と分けた。候補unknownを既知出典へ昇格しない。
+特徴が空の行や `.to(device)` 後も層出典を保持する。既存の語彙checkpoint形式は変更なし。
+
+Luna (`gpt-5.6-luna`) が独立回帰テストを作成。修正前の初版検査は15 failed / 1 passed。
+親が実装修正とテストレビューを担当し、省略出典の正規化、異なるsource/revision、
+3チャネル、空行、層除外、device移動、元入力の変更、出力不変性を補強した。
+修正後の回帰検査は20 passed。統合全スイートは **136 passed, 2 subtests passed**、skipなし。
+実行は下記と同じ専用venvで `python -m pytest -q -p no:cacheprovider`（Windows Temp用許可付き）。
+両デモ終了コード0。encoderのNumPy未導入警告は継続するが、NumPy変換は使用していない。
+この節より下の116件・24原本は初回実装時の履歴。
+
+`codex/multichannel-encoder`、基点 `dfddf315168e81e11dde52007e5267ba5de6413e`。
+以下の Issue #1 / 初期引き継ぎ節は履歴。この節と [encoder契約](multichannel-encoder.md) を現在の実装範囲として優先する。
+
+実装済み: 10チャネルの独立した固定語彙・tensorizer、特徴ごとの原本パスと出典・候補対応、
+PAD/UNKの分離、入力文字列と予約IDの衝突防止、語彙checkpointの往復。
+独立Embedding/mean pooling/projectionと入力依存のscalar gateで融合するCPU encoderを追加した。
+各チャネルの無効化、欠損時のゼロ寄与、全無効時の有限ゼロ出力、勾配分離を検証する。
+字形・字源から語義ラベルを生成しない。語義IDを外した比較にsememe/concept値経由で同IDを混入しない。
+
+隔離worktreeの専用venvへCPU版PyTorchをインストールし、editable import先を確認。
+Python 3.11.15 / PyTorch 2.14.0+cpu / pytest 9.1.1。
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install 'torch>=2.5,<3' --index-url https://download.pytorch.org/whl/cpu
+.\.venv\Scripts\python.exe -m pip install -e '.[dev,model]' --disable-pip-version-check
+.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider
+.\.venv\Scripts\python.exe -m norishio_lm.demo
+.\.venv\Scripts\python.exe -m norishio_lm.encoder_demo
+.\.venv\Scripts\python.exe codex/tools/build_context.py
+.\.venv\Scripts\python.exe codex/tools/validate_okf.py
+.\.venv\Scripts\python.exe codex/tools/check_knowledge.py --mode full
+.\.venv\Scripts\python.exe codex/okf_mcp/tests/live_check.py --server codex/okf_mcp/server.py --root okf
+```
+
+全テスト **116 passed, 2 subtests passed**（モデル検査のskipなし）。既存のWindows Temp制限のため
+全テストは許可付きで実行。CPU forward/backwardのネットワーク禁止注入検査も成功。
+既存辞書デモ6例が正常終了。encoderデモはseed=7、6入力でfused `[6,32]`、gate `[6,10]`、
+有限値・字形/字源無効化・全無効時ゼロを確認。ランダム初期値の配線検査であり学習成果ではない。
+PyTorchの直接import/デモ時にNumPy未導入警告が出るが終了コード0。NumPy変換は使用していない。
+知識索引24原本、full=healthy、OKF files=7 / concepts=5 / errors=0 / warnings=0。
+MCP実プロセスの検索・原本追跡検査も成功。GitHub Actionsでの検証は未実行。
+
+Luna (`gpt-5.6-luna`) にtensorizer/同テストとencoder回帰テスト・独立レビューを分担。
+親が予約文字列衝突などをレビューして修正を統合し、encoder・デモ・文書・最終全テストを担当。
+AIレビューのみで、人の研究内容検証印は追加していない。
+
+未実装: 候補選択、順序/グラフを反映するencoder、概念ボトルネック、decoder、学習loss、比較実験。
+語彙はtraining splitでfitし、モデルと対応する語彙checkpointを必ず保持する。
+外部辞書・性能改善・大規模学習・GPU起動は含まない。次は本PRのレビュー・マージ後にIssue #3の
+toy baseline / bypass / concept bottleneck比較へ進む。
+
+## Issue #1 の実装履歴
 
 辞書ベース SemanticCompiler に schema 1.0 を導入した。キー・型・同一表現内の重複語義ID・relation三つ組・JSON重複キーを検証し、位置と原因を持つ SchemaError を返す。
 旧辞書の読み込み互換性、レコードJSON保存・復元、層と語義別の由来/source/revision、未選択候補、context/span、元レコードを保持する層除外を実装。

@@ -94,4 +94,15 @@ JSON round trips, candidate-preserving context/span metadata, and a layer-remova
 API. See [schema 1.0](semantic-schema.md). These are infrastructure, not evidence
 that any added semantic layer improves modeling performance.
 
-Turn `SemanticRecord` into tensors while preserving provenance of every feature. Then train a tiny model that predicts both next token and explicit semantic labels.
+Issue #2 implements `SemanticTensorizer` and `MultiChannelEncoder`: ten separate
+categorical vocabularies, provenance metadata, masked mean channel encoders and
+learned scalar gates. Missing and disabled channels contribute zero; all-disabled
+rows are finite zeros. The CPU forward demo uses random weights.
+See [tensor shapes, ablation and limitations](multichannel-encoder.md).
+
+This first encoder pools features without order or graph structure. Candidate
+association is preserved as metadata, not resolved by contextual WSD. Glyph and
+etymology do not rewrite modern labels; enabled glyphs can affect the fused
+latent and must be tested by ablation. Trainable wiring is implemented, while
+semantic usefulness, training losses, a concept bottleneck and generation remain
+future work.

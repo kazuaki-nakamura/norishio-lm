@@ -2,8 +2,8 @@
 type: ResearchConstraint
 title: 意味層の分離と反証実験
 status: draft
-generated: { by: ai-assisted-source-review, at: 2026-09-05 }
-stale_after: 2026-10-05
+generated: { by: ai-assisted-source-review, at: 2026-09-10 }
+stale_after: 2026-10-10
 sources:
   - id: project-rules
     resource: AGENTS.md

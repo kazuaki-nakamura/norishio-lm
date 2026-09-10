@@ -2,8 +2,8 @@
 type: Implementation
 title: SemanticCompiler の実装範囲
 status: draft
-generated: { by: ai-assisted-source-review, at: 2026-09-05 }
-stale_after: 2026-10-05
+generated: { by: ai-assisted-source-review, at: 2026-09-10 }
+stale_after: 2026-10-10
 sources:
   - id: compiler
     resource: src/norishio_lm/semantic_compiler.py
@@ -36,7 +36,8 @@ schema 1.0 の型・キー・重複語義ID・relation検証、レコードJSON�
 旧辞書は互換読み込みし、由来の欠測を unknown にする。候補は未選択で保持する。
 context / span は入力位置付きメタデータであり選択器ではない。補助層は元のレコードを保持して除外できる。
 「離れない」の否定と「離れたくない」の願望の否定を区別し、心生は experimental_poetic として保持する。
-文脈による語義選択、テンソル化、学習器、生成器は未実装。
+文脈による語義選択、学習器、生成器は未実装。
+テンソル化と独立encoderは [別モジュール](multichannel-encoder.md) に追加した。
 既存3テストの意図を維持し、入力検証・JSON往復・出典・意味の独立性・層の除外等を追加検証した。意味理解の性能は実証しない。
 
 [分離原則](../research/semantic-separation.md) と [未解決課題](../research/open-questions.md) を参照。

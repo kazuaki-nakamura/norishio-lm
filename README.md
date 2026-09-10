@@ -64,6 +64,15 @@ and provenance. Legacy unversioned dictionaries remain readable. Records support
 JSON round trips, unselected sense candidates, optional context/span metadata and
 non-destructive layer removal. See [schema and API contract](docs/semantic-schema.md).
 
+## Optional CPU encoder
+
+`SemanticTensorizer` and `MultiChannelEncoder` preserve ten independent channels,
+feature provenance and candidate associations, then combine channel vectors with
+masked learned gates. Every channel can be disabled for ablation. Install the
+optional PyTorch model dependencies and run the CPU forward demo using the
+[encoder guide](docs/multichannel-encoder.md). The demo is randomly initialized;
+it is not a trained language model or evidence of improved semantic understanding.
+
 ## Research questions
 
 1. Does explicit semantic decomposition improve rare/novel compound understanding?
