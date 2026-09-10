@@ -2,8 +2,8 @@
 type: OpenQuestion
 title: 未解決課題と次の実験
 status: draft
-generated: { by: ai-assisted-source-review, at: 2026-09-10 }
-stale_after: 2026-10-10
+generated: { by: ai-assisted-source-review, at: 2026-09-11 }
+stale_after: 2026-10-11
 sources:
   - id: handoff
     resource: docs/handoff.md
@@ -22,7 +22,9 @@ sources:
 - 実装済み: レコードの補助層を除外する API。
 - 実装済み: 出典と候補を保持する10チャネルのテンソル化、独立encoder、masked gated fusion、CPU forward。
 - 実装済み: authored toy用CPU学習、A/B/C比較、損失再学習ablation、チャネル除去・概念介入測定。
-- 未実装: 順序/グラフを反映するencoder、外部辞書による意味層の比較、自由生成品質評価。
+- 未実装: 順序/グラフを反映するencoder、外部辞書による意味層の比較。
+- 実装済み: 同初期値の定数concept再学習とvalidation自由生成診断。短期学習では正常生成に失敗。
+- 未解決: 自由生成のbyte崩壊/EOS未生成の原因、十分な学習量と複数seedでの比較。
 - 未確認: 複数seed・別作者/未見テンプレートでの再現、soft conceptの余剰情報と因果的意味。
 - 未確認: 明示的な各意味層が単純なベースラインより役立つか。デモや単体テストの成功で代替しない。
 

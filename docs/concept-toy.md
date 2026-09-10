@@ -79,7 +79,8 @@ the same observable characters with separate embeddings, not linguistic analysis
 
 The initial [measured results](handoff.md) include two identical complete seed=7
 runs, excluding wall time, and explicit limitations. There is no saved pretrained
-checkpoint or free-running generation quality result at this milestone.
+checkpoint at this milestone. Initial teacher-forced results and the later failed
+free-generation controls are recorded separately.
 
 The [external AI review](https://github.com/kazuaki-nakamura/norishio-lm/pull/6#issuecomment-5621273041)
 reports that validation concept accuracy nearly matches a train-majority baseline,
@@ -89,3 +90,38 @@ verification. Zero interventions also change probability mass: their effect alon
 does not prove semantic content is used. Next comparisons should retrain constant
 conditioning with matched decoder initialization/budget, permute input-concept
 alignment and assess free generation while preserving the v1 data and results.
+
+## Follow-up controls and free generation
+
+```powershell
+.\.venv\Scripts\python.exe -m norishio_lm.toy_controls --seed 7 --steps 60 --max-new-tokens 128 --out codex/work_output/issue3-controls-seed7.json
+```
+
+This separate command trains two copies of the identical initial C model with the
+same sample schedule and optimizer settings. The constant arm freezes the mean
+of the initial model's train-source predictions; it is not gold conditioning or
+the final trained model's mean. Both retain the original auxiliary objectives.
+The control severs the LM gradient into the encoder while retaining auxiliary
+gradients. The shared global clipping recipe is unchanged, not an assertion of
+identical per-parameter updates.
+
+Validation compares normal predictions, the final train-prediction mean, globally
+reversed concept alignment, and the separately retrained constant arm. Reversal
+is over the complete validation order before batching. A majority baseline fits
+train labels only, uses smallest vocabulary ID for ties and excludes missing labels.
+No test or diagnostic split is scored by this follow-up command.
+
+`toy_generation.greedy_generate(decoder, concept_probs, max_new_tokens=128)`
+accepts no references or source rows. It initializes strict C's GRU from concepts,
+starts with BOS and feeds back its own output tokens. EOS stops each row separately.
+Incremental decoding is checked against full-history decoding. Raw argmax is not
+masked to force valid UTF-8 or hide reserved-token emissions. Results retain raw
+token IDs, UTF-8 validity, decoded display text, EOS and invalid-special diagnostics.
+The report scores exact reference bytes plus EOS only after generation and records
+all 150 validation examples for every condition. The cap is fixed independently
+of reference length; failure to emit EOS is counted as failure to finish.
+
+The local follow-up found near-identical validation losses, while all four arms
+failed free generation (0 exact matches, 0 EOS completions, 0 valid UTF-8 sequences).
+These are retained negative results, not repaired or described as fluent outputs.
+See handoff for numeric results, two-run reproducibility, hashes and limitations.

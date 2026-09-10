@@ -4,6 +4,71 @@
 
 ## 最新の実装状態: Issue #3
 
+### 2026-09-11: 対照実験と自由生成のローカル追試
+
+追加実装 `e6d037141917f55b3b8b7d4934df07d61219feb9`。
+`toy_controls`は既存v1ハーネスと別のコマンド。モデル・教材・v1結果を変更せず、
+trainとvalidationだけを使い、testの再評価・選択・調整は行わない。
+
+通常Cと定数条件Cを同一初期stateのdeepcopyから学習。初期state SHA256は両方
+`f07d83adec88a37040886e1374800b17b56b7d2f3f49cea3f1b801c4b61b4b70`。
+全パラメータ42,423、seed7、60step、batch16、同一復元抽出順960行、Adam .003、
+clip1、CPU1thread。定数は**初期モデルのtrainソース予測の平均をdetachして固定**。
+gold由来ではなく、学習中に平均を更新しない。両条件とも補助損失は有効。
+定数条件のLM勾配はencoderへ戻らないが、auxiliary勾配は戻る。
+共通のglobal gradient clippingを含む学習処方であり、両条件の勾配ノルムを同一にはしない。
+
+学習後、通常Cにtrain予測平均を与える対照と、validation全体のconcept対応を反転する
+対照も実施。これは定数条件の再学習とは別の推論時介入。
+validation150行、LM対象10,005 byte/EOS、概念項目1,050判断。
+
+| 条件 | validation LM | 通常Cとの差 |
+|---|---:|---:|
+| 通常C | 2.088276588 | 0 |
+| 学習後のtrain予測平均を固定 | 2.088286604 | +0.000010015 |
+| validation対応を全体で反転 | 2.088276439 | -0.000000149 |
+| 初期train予測平均の定数条件で再学習 | 2.088902805 | +0.000626217 |
+
+train多数派概念基準は570/1,050=0.542857143、通常Cは571/1,050=0.543809524。
+レビューの多数派・平均・反転結果をこのWindows環境でも再現した。定数で再学習しても
+差は小さく、今回の設定で入力別概念内容の有効利用は示せていない。
+学習時間は通常4.931秒、定数4.477秒（同一環境での観測、速度優位性の主張なし）。
+
+自由生成は正解文を渡さず、予測conceptからGRU状態を作り、BOSの後は自身の出力のみを
+入力。argmax、最大128生成token、EOSで行ごとに停止。PAD/BOS/SEPを後処理で禁止せず
+出現を数える。厳密UTF-8復号に失敗した表示だけreplacement文字とし、元token列を保持。
+正解参照は生成が完了してからbyte+EOS完全一致の採点にだけ使う。
+
+4条件ともvalidation150件で、完全一致0%、EOS終了0%、有効UTF-8 0%、
+各条件内の生成列は1種類、全件128token上限到達。不適切な特殊token出力は0件。
+この結果は正常な文章生成の成功ではない。teacher forcing中の低損失と自由生成の失敗を
+分けて報告し、得点改善のために教材・上限・採点規則を変更していない。
+
+```powershell
+.\.venv\Scripts\python.exe -m norishio_lm.toy_controls --seed 7 --steps 60 --max-new-tokens 128 --out codex/work_output/issue3-controls-seed7.json
+.\.venv\Scripts\python.exe -m norishio_lm.toy_controls --seed 7 --steps 60 --max-new-tokens 128 --out codex/work_output/issue3-controls-seed7-repeat.json
+```
+
+時間項目を除く全metrics、初期state、trace、生成token列が2回で完全一致。
+レポートSHA256 `19682dd80aa6ecbd3936281646773e8ad400bb97766dc22067ffa4a19bef125c`。
+生成例600件を含むJSONはignored work_outputに保持し、重みや生成物はGitへ追加しない。
+PyTorch 2.14.0+cpu、Python3.11.15。今回もNumPy未導入警告があるが変換は未使用。
+
+Luna (`gpt-5.6-luna`) は自由生成と独立対照テストを担当。親は対照ハーネス、
+指標・入力境界レビュー、UTF-8/完全一致回帰補強、統合実行を担当。
+検証件数は親の最終実行結果を採用する。
+`python -m pytest -q -p no:cacheprovider`は **194 passed, 2 subtests passed**、
+skipなし、9.73秒（全aux欠損ケースのzero-element警告1件）。既存両デモ終了0。
+`build_context.py`原本43件、`validate_okf.py` errors/warnings 0、knowledge full healthy、
+MCP live check ok=true/6tools/stale0、`git diff --check`成功。
+これらはローカル検証で、GitHub Actionsや人による研究内容検証ではない。
+
+次の焦点は、まず自由生成のbyte列崩壊とEOS未生成の原因分析、その後に複数seed・
+学習量を事前固定した比較、語順/作用域encoderの検討。小さい差や失敗だけで概念層の
+一般的可能性を断定しない。現在のvalidationは既に診断に使ったことを明記して扱う。
+
+### 初回実装とレビューの履歴
+
 ブランチ `codex/issue-3`、基点 `bf0a0b94f8026b68f37b1f53833085e8ecdc04f5`。
 提供教材 `e080504082946dbcc584b10f638eb066785db9b1` を
 `6530153` としてcherry-pick。実装・検査のコミットは

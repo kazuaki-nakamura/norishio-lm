@@ -88,6 +88,11 @@ Run from a source checkout with the optional model dependencies installed:
 The output path must be new. Reports contain named concept predictions and
 train/validation/test observations; generated data and model artifacts are ignored.
 
+A separate validation-only [control experiment](docs/concept-toy.md#follow-up-controls-and-free-generation)
+matches initialization and training budgets against constant concept conditioning
+and measures reference-free greedy generation. The initial run failed to produce
+valid completed text; teacher-forced loss is not evidence of generation quality.
+
 1. Does explicit semantic decomposition improve rare/novel compound understanding?
 2. Does a sememe/concept bottleneck improve paraphrase and compositional generalization?
 3. Can sub-character information help without contaminating modern semantics with etymological overreach?

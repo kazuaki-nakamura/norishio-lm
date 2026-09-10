@@ -5,6 +5,18 @@ status: draft
 generated: { by: ai-assisted-source-review, at: 2026-09-11 }
 stale_after: 2026-10-11
 sources:
+  - id: controls
+    resource: src/norishio_lm/toy_controls.py
+    title: Matched initialization and validation-only content controls
+  - id: generation
+    resource: src/norishio_lm/toy_generation.py
+    title: Reference-free strict C greedy generation
+  - id: control-tests
+    resource: tests/test_toy_controls.py
+    title: Fixed gradients, train-only means and majority, aligned metrics
+  - id: generation-tests
+    resource: tests/test_toy_generation.py
+    title: Incremental causality, EOS, raw invalid UTF-8 retention
   - id: model
     resource: src/norishio_lm/concept_model.py
     title: Named concept heads and strict C decoder
@@ -50,4 +62,9 @@ OKF、外部辞書、私的ログは教材に使わない。人による検証�
 
 handoffの外部AIレビュー記録ではvalidation概念accuracyはtrain多数派基準とほぼ同じ。
 予測conceptをtrain固定平均に置換しても生成損失はほぼ不変との報告。ローカル再検証と
-区別し、内容依存の有効性は未実証とする。次は定数条件の再学習、対応置換、自由生成。
+区別し、内容依存の有効性は未実証とする。
+
+続くローカルtoy_controls追試は同初期state/学習順の定数条件再学習、対応反転、
+自由生成を実装。test未使用、validationだけで比較。定数再学習の損失も通常Cと近く、
+自由生成4条件は全て150件中EOS終了/有効UTF-8/完全一致0。低いteacher-forced損失を
+意味内容の利用や流暢な生成の証明としない。詳細値と出典hashはhandoff参照。
