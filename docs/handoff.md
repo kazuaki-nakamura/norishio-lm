@@ -6,6 +6,10 @@
 
 ### 2026-09-11: byte崩壊・EOS未生成の切り分け
 
+追補ブランチ `codex/byte-eos-diagnosis`。PR #6は別途`1e0a6c7`でマージ済み
+（master `6e521daf9cf03f4a9a090e8cef96306381e25ea6`）。以下の診断追加はその後の
+別PR対象で、PR #6のマージ内容には含まれない。
+
 診断実装 `894f3ebb022155eb014fb6a02b766e43168d9d45`。
 新しい`toy_diagnosis`コマンドで、seed7、batch16、cap128、更新回数60/600を
 実行前に固定。同一初期stateと同じ抽出順のprefixを使用し、通常C/定数Cを各予算で
