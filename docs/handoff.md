@@ -1,8 +1,73 @@
 # Norishio-LM 引き継ぎ記録
 
-検証日: 2026-09-11
+検証日: 2026-09-12
 
-## 最新の実装状態: Issue #26
+## 最新の実装状態: Issue #28
+
+`codex/issue-28`、PR27 merge `1c34f73c27a9652b657834f42fc2fef50f6e230f` から開始。
+事前計画 `f02f190`、実装 `08f0077`、保存guard補強 `a429120`。
+[固定条件](pair-head.md)と[全seed・calibration・75factorial表](pair-head-results.md)。
+
+### 実装と固定境界
+
+Aは保存済みD seed7/17/29のhead・predicted/both-gold全評価とstateを厳密再現。
+Bはfused latent32から25-way pair headを追加（825増、43514parameter）。train vocab直積順を使い、
+softmax25の人物/time marginalだけを既存局所gateへ投入。独立headは診断用に残しCE各1を維持。
+既存4損失各1 + pair CE1、600更新/batch16/Adam .003/clip1/CPU1thread。
+common初期化/sampling seed7/17/29、拡張seed20とpair seed28は全seed共通。
+train450のみfit、validation150全未見pair、test未評価。未見10pairにはpair CE正例がない。
+
+### 実数値（validation分母150）
+
+| seed | B pair正解 | B marginal joint | B独立head joint | B通常 人物/time/両slot/全frame | B両head gold 人物/time/両slot/全frame |
+|---|---:|---:|---:|---|---|
+| 7 | 0 | 0 | 0 | 39 / 35 / 0 / 0 | 67 / 91 / 61 / 12 |
+| 17 | 0 | 3 | 29 | 38 / 39 / 0 / 0 | 56 / 72 / 36 / 6 |
+| 29 | 0 | 0 | 24 | 39 / 43 / 0 / 0 | 47 / 90 / 47 / 17 |
+
+B train pair正解446/450・450/450・438/450。validation pair平均NLL8.14916054、Brier1.2500376、
+ECE0.39609727、gold確率0.000495385041、gold rank21.2022222/25。
+通常両slotはA/B全seed0。B gold両slot平均48、全frame11.667（Aは52.667/16）。
+B通常LM平均0.172167103、gold0.125643320。B全4条件/全seedのEOS/UTF8は150/150、special0。
+単独oracle・個別head accuracy/balanced/calibration、全factorialの値は結果表に記録。
+train未見群/validation既見群は0例で率null。成功を前提に条件を調整していない。
+
+### 検証・保存
+
+report SHA256 `902545c14f91c68845d45b0af880432aa8c004137e5ff9cbd458ae84506f69c1`。
+ignored出力 `codex/work_output/issue28-fixed-v1/`。各checkpoint/初期値/schedule SHAは結果表参照。
+全3保存物でstate/旧concept/独立head/pair/marginal/logits/greedyが完全一致。
+保存guard補強後も3保存物のload成功。全pytest379 passed + 2 subtests passed（18.75秒）、
+既存zero-element警告1。両demo exit0、NumPy未導入警告は既存で今回の処理には不要。
+知識索引127件healthy、OKF errors0/warnings0、MCP live check成功（6tools、stale0）。
+最終索引作成時、権限を広げると旧テストcheckpoint13件が混入し140件になることを発見。
+foundation.jsonで.pt/.pth/.safetensorsを除外し、保存物を索引から分離。権限による索引差は運用改善対象。
+
+```powershell
+.\.venv\Scripts\python.exe -m norishio_lm.toy_pair_head --baseline-report codex/work_output/issue26-fixed-v1/report.json --out-dir codex/work_output/issue28-fixed-v1
+.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider
+.\.venv\Scripts\python.exe -m norishio_lm.demo
+.\.venv\Scripts\python.exe -m norishio_lm.encoder_demo
+.\.venv\Scripts\python.exe codex/tools/build_context.py
+.\.venv\Scripts\python.exe codex/tools/validate_okf.py
+.\.venv\Scripts\python.exe codex/tools/check_knowledge.py --mode full
+.\.venv\Scripts\python.exe codex/okf_mcp/tests/live_check.py --server codex/okf_mcp/server.py --root okf
+git diff --check
+```
+
+### 委譲と残課題
+
+gpt-5.6-lunaへpair metricsとpair model/checkpoint・回帰テストを独立委譲。
+モデル担当が利用上限で停止した後、親がRNG隔離・入力検証・保存guard・勾配/因果/再現テストを補完。
+親が全変更を点検しharness・実験・最終検証を実行。自動merge/close、worker再開、有料GPUなし。
+
+通常経路の同時保持は未解決。次候補は別Issueでfactorized/compositional objective、
+独立soft headをdecoderに戻す固定対照。今回の容量/目的/入力分布の効果は未分離。
+未見pair正例不在・n3・共通拡張seed・文法priorを一般意味理解の結論へ拡張しない。
+既存Issue26 scorerのteacher_forced組立が到達不能でnullだった点を発見し、過去結果文書を訂正。
+そのbyte診断は未測定。旧reportを保持し、修復後の追加測定と区別することが残課題。
+
+## 過去の実装状態: Issue #26
 
 `codex/issue-26`、PR25 merge `3880c85555f876d05d7ef481a5efde7ac73258d8` から開始。
 事前計画 `c95375e`、実装SHA `0c0141abaee77dc594b64cc35809afaabfffd14c`。

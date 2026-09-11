@@ -2,9 +2,21 @@
 type: Implementation
 title: Concept bottleneck toy実験
 status: draft
-generated: { by: ai-assisted-source-review, at: 2026-09-11 }
-stale_after: 2026-10-11
+generated: { by: ai-assisted-source-review, at: 2026-09-12 }
+stale_after: 2026-10-12
 sources:
+  - id: pair-head-results
+    resource: docs/pair-head-results.md
+    title: Joint pair head fails unseen pairs across three fixed seeds
+  - id: pair-head-plan
+    resource: docs/pair-head.md
+    title: Fixed joint marginal route and pair CE protocol
+  - id: pair-head-experiment
+    resource: src/norishio_lm/toy_pair_head.py
+    title: Historical replay and three-seed joint head control
+  - id: pair-slot-model
+    resource: src/norishio_lm/pair_slot_model.py
+    title: Joint distribution marginals with unchanged local gate
   - id: head-following-results
     resource: docs/head-following-results.md
     title: Three-seed ordinary failure and partial oracle following
@@ -265,3 +277,10 @@ Issue #26はD固定でseed7を厳密再現、17/29を600更新。同時head正�
 confident train correct263例で両slot210、wrong群0で評価null。閾値は両head0.8固定、validation選択なし。
 全base入力zeroでは文頭崩壊でgate開始0、parse0。event zero + goldは両slot72へ増えるが全frame12へ低下。
 入力group診断と意味層全体の有効性を区別し、n3/共通拡張seed20/文法priorの限界を保持する。
+
+Issue #28はA保存Dの3seedを厳密再現し、825parameter追加の25-way pair head Bを比較。
+独立head CEを保ち、joint marginalのみdecoder局所注入。train pair正解446/450・450/450・438/450だが
+validation全未見pairは全seed0、gold確率平均0.000495385。B通常両slotも全seed0。
+gold両slot61/36/47で部分追随するが平均48はA52.667より低い。factorized目的は未実施。
+容量/目的/入力分布の交絡、未見pairへのCE正例不在を保持する。全379テストと保存物再現を確認。
+Issue26の追加teacher_forced byte診断は到達不能コードでnullだったため未測定として訂正。修復は残課題。

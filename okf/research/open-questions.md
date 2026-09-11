@@ -2,8 +2,8 @@
 type: OpenQuestion
 title: 未解決課題と次の実験
 status: draft
-generated: { by: ai-assisted-source-review, at: 2026-09-11 }
-stale_after: 2026-10-11
+generated: { by: ai-assisted-source-review, at: 2026-09-12 }
+stale_after: 2026-10-12
 sources:
   - id: handoff
     resource: docs/handoff.md
@@ -46,6 +46,9 @@ sources:
 - 観測: confident train correct263例でも両slot210、wrong群は0例で比較不能。全base zeroは文頭崩壊でgate未開始。
 - 未解決: soft/hard headの情報差、headの組合せ一般化と文法prefix依存の分離。入力group推論ablationと意味層再学習は別。
 - 未確認: 拡張headのseedも独立にした再現、別作者/未見テンプレート、soft conceptの余剰情報と因果的意味。
+- 観測: Issue28の25-way headはtrain高精度だが未見pair全seed0、通常生成両slotも0。gold平均48/150。
+- 未実施: factorized/compositional目的と独立soft head入力の固定対照。容量/損失/入力分布の効果分離。
+- 要修復: Issue26の追加teacher_forced byte診断は到達不能組立でnull。過去reportを成功扱いせず保持し、追加測定を区別。
 - 未確認: 明示的な各意味層が単純なベースラインより役立つか。デモや単体テストの成功で代替しない。
 
 実験の順序は [意味層の分離](semantic-separation.md) と既存 architecture に従う。
