@@ -1,5 +1,9 @@
 # OKF 更新履歴
 
+- 2026-09-11: Issue #26のjoint/calibration、train confidence subset、base入力除去、seed7/17/29比較を追加。
+  Luna指標/採点を親が補修統合し、366テストと過去D・追加seed保存物再現を確認。
+  通常両slot0とgold48/46/64、空wrong群、prefix失敗によるgate未開始を記録。人の印なし。
+
 - 2026-09-11: Issue #24の重複除去Cと因果的なprefix局所注入Dを追加。
   Lunaモデル/保存形式を親が補修・統合し、356テスト、A/B歴史評価、C/D再読込を確認。
   通常両slot0と両head goldでC6/D48、先行timeへの構造的0感度とparse分母の影響を記録。人の印なし。
