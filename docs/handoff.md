@@ -2,7 +2,79 @@
 
 検証日: 2026-09-11
 
-## 最新の実装状態: Issue #22
+## 最新の実装状態: Issue #24
+
+`codex/issue-24`、PR23 merge `615fc29db1dc0ccef21ab9d4e1c044005e582e16` から開始。
+事前計画 `3eeebd7`、実装SHA `e86a7c5d66cec75fd11cce577d6bfda3cd613844`。
+[事前固定条件](local-slot-injection.md)と[全結果表](local-slot-results.md)。
+
+### 実装・測定結果
+
+A（Issue20 C）/B（Issue22）は再学習せず、保存物hash/stateと過去の全評価を厳密再現。
+Cは旧concept内のparticipant/time各6次元をdecoder投影から除外。有効31次元、外部transport43。
+DはCと同じ重みで、h0はbaseだけ、生成済みの既知文頭からtime6byte/person6byteの注入窓を決める。
+未来token・正解span・reference長・sourceによる位置選択は使わず、壊れた文頭ではgateを開かない。
+対象外stepで直接寄与0でもGRU過去状態経由の作用は残る。教師強制と自己履歴生成を区別。
+C/Dは各42689parameter、A/B比384減。C/D共通初期state完全一致、seed7/600更新/batch16/Adam .003/clip1/CPU1thread。
+既存4損失各1+head CE各1、slot byte CEなし。train450のみfit、validation150全未見pair、seen群率null。
+
+- C通常: LM 0.163995881、人物15/time37、両slot0/全frame0（各分母150）。
+  EOS150/UTF8150、26種類、parse120/150。
+  participant_gold: 人物46/time29、両slot0/150。
+  time_gold: 人物2/time126、両slot2/150。
+  both_gold: 人物12/time108、両slot6/150。
+- D通常: LM 0.164825604、人物57/time43、両slot0/全frame0（各分母150）。
+  EOS150/UTF8150、26種類、parse120/150。
+  participant_gold: 人物95/time39、両slot18/150。
+  time_gold: 人物20/time120、両slot20/150。
+  both_gold: 人物48/time99、両slot48/150。
+
+各arm8条件のgold/zero/permutation、cross-slot感度と25組factorialの指定pair追随を保存。
+通常の両slotはC/Dとも0。Dは両head goldで48/150まで回復するが、未見5組中3組のfactorialは0。
+source headの同時argmax正解は補足集計C1/D0（/150）。予測側とdecoder側の両方に失敗が残る。
+Dの人物介入→先行time logitは0変化で、全150行の人物注入前tokenも不変。
+人物goldによるtime採点43→39は全体parse失敗を含むため、過去byteへの逆因果作用とは呼ばない。
+両新checkpointでstate/旧concept/head/logits/greedyの再読込が完全一致。
+report SHA256: `eb2c1fc26c35e429d25b3815f15060e7fd481cf9ff5cca62f0e36198ae335af8`。
+
+C.pt SHA256: `0532e7c1e859b50cc86d2de541da42f8a9e9f311a77800b7e7fe4b686ebef68e`。
+D.pt SHA256: `abed886085e2a862be1a8015ca910adbc77e687c09c10de52411cbc3e8bbe143`。
+
+重み/reportはignored `codex/work_output/issue24-seed7-v1/`。Gitに学習artifactや会話を追加しない。
+
+### 実行コマンド・検証
+
+Windows本worktreeのPython3.11.15 / Torch2.14.0+cpu。
+
+```powershell
+.\.venv\Scripts\python.exe -m norishio_lm.toy_local_slots --baseline-report codex/work_output/issue22-seed7-v1/report.json --historical-report codex/work_output/issue20-seed7-v1/report.json --out-dir codex/work_output/issue24-seed7-v1
+.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider
+.\.venv\Scripts\python.exe -m norishio_lm.demo
+.\.venv\Scripts\python.exe -m norishio_lm.encoder_demo
+.\.venv\Scripts\python.exe codex/tools/build_context.py
+.\.venv\Scripts\python.exe codex/tools/validate_okf.py
+.\.venv\Scripts\python.exe codex/tools/check_knowledge.py --mode full
+.\.venv\Scripts\python.exe codex/okf_mcp/tests/live_check.py --server codex/okf_mcp/server.py --root okf
+git diff --check
+```
+
+全pytest 356 passed + 2 subtests passed（20.45秒）、既存zero-element警告1。両demoと実験exit0。
+TorchのNumPy未導入警告は出たがNumPyを必要とせず完走。Windows Temp制限は承認済み実行で回避。
+索引110件、OKF errors0/warnings0、knowledge full 110 sources healthy、MCP live6 toolsでok。
+ローカル検証をGitHub CIと混同しない。
+
+Luna (`gpt-5.6-luna`) にモデル/生成とcheckpointを委譲。親は要件/計画・初期値照合・統合harness・
+因果性/直接寄与の回帰テスト・実測・全検証を担当。委譲成果のC保存不可と特殊token処理を測定前に補修した。
+レビュー用PRまで作成し、自動merge/closeや停止中workerの再開はしない。
+
+### 未実装・制約と次候補
+
+Cは入力情報とparameter数が同時に変わる。Dは既知文法と注入時刻/h0が同時に変わる。
+単一原因の確証や一般意味理解の証明とは呼ばない。seen-validation群はなく、複数seedも未実施。
+次候補は別Issueで、得られた失敗に応じたhead予測/decoder追随の分離、既知grammar以外の位置推定、
+複数seedの事前固定追試と意味層ablation。教材/split/testは結果後に変更せず、有料GPUは起動しない。
+
+## 過去の実装状態: Issue #22
 
 `codex/issue-22`、PR #21 merge `10768943bf9e52afc7929dc8557172a0024d03ca` から開始。
 事前計画 `e021418`、実装SHA `7f4ede9ead6fcad2d1a5899bf5850b538fe000d2`。
