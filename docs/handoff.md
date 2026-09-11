@@ -2,7 +2,146 @@
 
 検証日: 2026-09-11
 
-## 最新の実装状態: Issue #16
+## 最新の実装状態: Issue #18
+
+`codex/issue-18`、PR #17 merge `545b81fd035182376f44cdbdc5dad50cae08a180` から開始。
+[事前計画](slot-objective.md) `81ba65e`、実装SHA
+`915374ace3de9c6198e0bf3099b36ca227d4a3ec`。
+
+### 損失と固定比較
+
+Aは従来per_step_additiveでslot追加損失なし。IssueでいうLM-onlyは新slot損失なしの意味とし、
+従来のLM/concept/sense/sememeの4損失（各重み1）はA/B両方に残した。
+Bは同じ4損失に `1.0 * slot CE` を追加。人物/timeのUTF-8 byte半開区間の和集合だけで
+CEをbyte数加重平均する。EOS/padding/他位置は追加損失から除外し、重複spanは拒否する。
+通常LMは従来どおり全target byte+EOSを含むため、slot byteは追加の重みを受ける。
+各slot6byte、1例12byte、batch16の追加分母192byte。train全450例の対象は5400byte。
+
+構造・parameter増分0、両モデル42423parameters。Bは学習済みAからでなく共通初期値から開始。
+seed7/600更新/batch16/Adam .003/clip1/CPU1thread、同sampling schedule。
+train450だけでtensorizer/語彙fit、validation150のみ評価、test未使用。重み探索はしない。
+任意C（専用slot head）は事前に見送り、損失のみの対照とした。
+共通初期state SHA256:
+`f07d83adec88a37040886e1374800b17b56b7d2f3f49cea3f1b801c4b61b4b70`。
+共通sampling SHA256:
+`6c3ae94191450c6c60d8ea3375711f56b241475b5da890940855f999d7e95e66`。
+A/Bとも正味変更parameter要素30416。学習秒A43.256/B65.334は各1回の実測であり、
+バックグラウンド負荷を統制した速度比較ではない。
+B最終sampled batchはbase .728921、slot .251303、total .980224、追加対象192byte。
+traceは10更新ごとと初回/最終を保存。最後のbatch損失はvalidation平均ではない。
+
+### 通常生成とoracle診断
+
+各条件はBOSから自己生成。正解conceptは明示oracleだけへ渡す。LMは正解履歴下の10005token平均。
+slotは既存target文型採点、各分母150、parseできない行も失敗として残す。
+
+| arm / concept | LM | 生成種類 | EOS /150 | UTF-8 /150 | parse /150 | 人物 /150 | 時点 /150 | 全frame /150 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| A / predicted | 0.168318838 | 9 | 150 | 150 | 109 | 20 | 22 | 0 |
+| A / participant_oracle | 0.171052042 | 16 | 150 | 150 | 110 | 15 | 23 | 0 |
+| A / time_oracle | 0.171685302 | 19 | 150 | 150 | 98 | 7 | 22 | 0 |
+| A / full_oracle | 0.174590945 | 23 | 144 | 144 | 99 | 6 | 21 | 0 |
+| B / predicted | 0.172247004 | 6 | 149 | 149 | 125 | 26 | 25 | 0 |
+| B / participant_oracle | 0.174796121 | 11 | 147 | 147 | 127 | 27 | 23 | 0 |
+| B / time_oracle | 0.174279768 | 11 | 145 | 145 | 125 | 24 | 9 | 0 |
+| B / full_oracle | 0.178736054 | 11 | 141 | 141 | 135 | 27 | 9 | 0 |
+
+全条件の特殊token行0、完全一致文0/150。条件付きparse分母と全項目の詳細はreportに保持。
+
+### 正解履歴のslot byte / concept head
+
+以下のbyte値はteacher-forcedであり、自由生成品質と同一ではない。各slotは900byte/150例。
+
+| arm / concept | slot | NLL | 正解確率 | rank | argmax /900 |
+|---|---|---:|---:|---:|---:|
+| A / predicted | participant | 0.708228 | 0.749411 | 1.435556 | 691 |
+| A / predicted | time | 0.308307 | 0.804247 | 1.173333 | 780 |
+| A / participant_oracle | participant | 0.695442 | 0.750715 | 1.456667 | 696 |
+| A / participant_oracle | time | 0.311334 | 0.803454 | 1.174444 | 779 |
+| A / time_oracle | participant | 0.700678 | 0.750282 | 1.410000 | 711 |
+| A / time_oracle | time | 0.308493 | 0.803817 | 1.156667 | 780 |
+| A / full_oracle | participant | 0.686247 | 0.751157 | 1.430000 | 702 |
+| A / full_oracle | time | 0.312590 | 0.803110 | 1.170000 | 774 |
+| B / predicted | participant | 0.630132 | 0.778445 | 1.367778 | 719 |
+| B / predicted | time | 0.289612 | 0.816971 | 1.170000 | 780 |
+| B / participant_oracle | participant | 0.627049 | 0.778731 | 1.356667 | 729 |
+| B / participant_oracle | time | 0.290176 | 0.816697 | 1.174444 | 776 |
+| B / time_oracle | participant | 0.630727 | 0.778346 | 1.380000 | 708 |
+| B / time_oracle | time | 0.289869 | 0.816576 | 1.190000 | 762 |
+| B / full_oracle | participant | 0.630297 | 0.776873 | 1.376667 | 711 |
+| B / full_oracle | time | 0.290704 | 0.816096 | 1.190000 | 762 |
+
+concept headはdecoder byteと別採点。class support/confusion/soft確率/balanced値も保存。
+
+| field | A正解 /150 | B正解 /150 | A balanced | B balanced |
+|---|---:|---:|---:|---:|
+| event | 150 | 150 | 1.000000 | 1.000000 |
+| operators | 97 | 99 | 0.512963 | 0.524074 |
+| agent | 150 | 150 | 1.000000 | 1.000000 |
+| participant | 41 | 44 | 0.273333 | 0.293333 |
+| time | 43 | 44 | 0.286667 | 0.293333 |
+| location | 150 | 150 | 1.000000 | 1.000000 |
+| repeat_marked | 140 | 141 | 0.666667 | 0.700000 |
+
+### 再現・保存物
+
+Aは過去Issue #12のper-step state、通常生成全150例・LM・slot採点と完全一致。
+A/Bとも保存再読込のstate/concept/validation logits/greedy全150例が厳密一致。
+既存教材・scorer・過去reportは変更していない。
+
+- 参照report SHA256: `3b08a5982c89fd63b4c5887f03ee7c1276a9ce51b3e9f8b072e830c448b791d2`
+- 今回 `codex/work_output/issue18-seed7-v1/report.json` SHA256: `9db04ef46231cfb79439f1dc4f90883567b3f80433a7b8fc295cb2f2fcc1a382`
+- A checkpoint（過去と同hash）: `0bb375a82b62baac367d76b6ecf344835de013ca0cb61e1217979937eac42057`
+- B checkpoint: `123fb938ba20ba4aec3c3557b2a49e704f5e62ebe5397c76092b8a0be66c7776`
+- A state: `92b21ac06055b99733e1114b6ea0cd57de316d9b4ec2c19ebb565b54c76afb58`
+- B state: `046ff50de199f053cc7b420fea67d1902974c08c9458056753bb141fcbd71699`
+
+checkpointと詳細reportはignoredローカル保存物でありGitには含めない。
+再実行には同hashの過去report/checkpointが必要。別出力先を使用し上書きしない。
+
+### 解釈・未実装・次候補
+
+slot追加損失で通常人物byte NLL .708228→.630132、時点 .308307→.289612。
+自由生成人物20→26、時点22→25/150だが、全frame0のまま。全体LM .168319→.172247、
+EOS/有効UTF-8は150→149、生成種類9→6。headも人物41→44、時点43→44と変化するため、
+改善をdecoder単独の効果とは断定しない。parse率の変化もslot正解数に影響する。
+Bで時点oracleは時点25→9/150へ悪化し、gold条件での回復も示せていない。
+
+一部byte/slot指標の改善と全体劣化を併記し、有効な意味保持方式を確立したとはしない。
+単一seed・教材共有template・one-hot oracle分布差・未見組合せの限界を残す。
+追加の意味層やデモ辞書の有効性を示す比較ではない。
+次候補は事前固定した専用slot head対照（未実装C）や、概念抽出とdecoderの寄与を分ける対照。
+予算/重みの事後探索やtest評価は行わない。
+
+### コマンド・検証・委譲
+
+worktreeルートで実行:
+
+```powershell
+.\.venv\Scripts\python.exe -m norishio_lm.toy_slot_objective --baseline-report codex/work_output/issue12-seed7-v1/report.json --baseline-checkpoint codex/work_output/issue12-seed7-v1/per_step_additive.pt --out-dir codex/work_output/issue18-seed7-v1
+.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider
+.\.venv\Scripts\python.exe -m norishio_lm.demo
+.\.venv\Scripts\python.exe -m norishio_lm.encoder_demo
+.\.venv\Scripts\python.exe codex/tools/build_context.py
+.\.venv\Scripts\python.exe codex/tools/validate_okf.py
+.\.venv\Scripts\python.exe codex/tools/check_knowledge.py --mode full
+.\.venv\Scripts\python.exe codex/okf_mcp/tests/live_check.py --server codex/okf_mcp/server.py --root okf
+git diff --check
+```
+
+A/B実験v1終了0。全pytest **315 passed, 2 subtests passed**、14.18秒、終了0。
+knowledge84原本full=healthy、OKF8 files/6 concepts errors0/warnings0、
+MCP実プロセス6 toolsとgit diff --checkも終了0。
+既存zero-element警告1、両デモ終了0、encoder/実験の既存NumPy未導入警告。
+Temp依存の全テストは許可付きで実行。12追加テストにはslot-onlyのGRU/lm_head非ゼロ勾配、
+非slot logit勾配0、未来input/label非干渉、source境界、重み0の両mode既存学習一致を含む。
+
+`gpt-5.6-luna`へslot loss/学習ループと境界テストを独立委譲。
+親がA/Bハーネス、byte数加重の独立検査、per-step/label境界修正、統合検証を担当。
+Luna最終読取レビューはblockerなし。人の検証印は追加せず、PRレビュー待ちまで進める。
+定期worker再開、有料GPU、外部辞書/private logs、自動merge/closeは行わない。
+
+## 過去の実装状態: Issue #16
 
 `codex/issue-16`、PR #15 merge `631bf70e263218ac1531e75c05ae99e2fdffa811` から開始。
 [事前計画](prefix-intervention.md)は `ba454e6` と `52f9495`、実装SHAは

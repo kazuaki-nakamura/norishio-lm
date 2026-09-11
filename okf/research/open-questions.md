@@ -32,6 +32,8 @@ sources:
 - 観測: 凍結per-stepの人物/時点単独gold置換で自由生成の対象slotは回復しない。
 - 観測: Issue #16の人物直前prefixでも人物0/150、時点直前は30/150。履歴修復だけでは回復しない。
 - 未解決: decoderのslot表現・出力head・学習目的の原因分離。counterfactual prefix、長さ/内容効果、soft/oracle分布差。
+- 観測: slot CE重み1の同容量対照は人物26/時点25へ微増、全frame0のまま、全体LM/EOSは悪化。
+- 未実装: 専用slot head対照。slot損失によるhead変化とdecoder変化の寄与分離。
 - 未確認: 複数seed・別作者/未見テンプレートでの再現、soft conceptの余剰情報と因果的意味。
 - 未確認: 明示的な各意味層が単純なベースラインより役立つか。デモや単体テストの成功で代替しない。
 

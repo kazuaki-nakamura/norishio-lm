@@ -5,6 +5,15 @@ status: draft
 generated: { by: ai-assisted-source-review, at: 2026-09-11 }
 stale_after: 2026-10-11
 sources:
+  - id: slot-objective-plan
+    resource: docs/slot-objective.md
+    title: Fixed matched A/B objective and baseline preservation
+  - id: slot-objective
+    resource: src/norishio_lm/slot_objective.py
+    title: Byte-weighted slot CE and train-only matched control
+  - id: slot-objective-experiment
+    resource: src/norishio_lm/toy_slot_objective.py
+    title: Historical baseline replay and oracle-separated validation
   - id: prefix-plan
     resource: docs/prefix-intervention.md
     title: Preregistered oracle prefix boundaries and denominators
@@ -163,3 +172,9 @@ Issue #16は凍結per-stepに6境界×4conceptのprefix介入を比較。元repo
 人物直前prefixの人物0/150、時点直前の時点30/150。人物を既に与えた後の文末成功は
 人物保持の証拠ではない。履歴修復だけの回復は未確認で、decoder/目的の原因は未分離。
 任意counterfactual prefix未実施、長さ/内容効果・one-hot分布差・単一seedの限界が残る。
+
+Issue #18は既存4損失を維持したper-step Aと、人物/time byte CE重み1を加えたBの同初期値/
+同schedule対照。構造増分0、Aの過去結果と両checkpoint再読込を厳密再現。
+Bはslot byte損失が低下し人物20→26/時点22→25だが、全frame0、全体LM/EOSは悪化。
+headも変化するためdecoder単独効果ではなく、単一seed・oracle分布差の限界を保持。
+任意の専用slot headは未実装。意味層の有効性や一般日本語性能の証明としない。
