@@ -2,6 +2,118 @@
 
 検証日: 2026-09-11
 
+## 最新の実装状態: Issue #9
+
+ブランチ `codex/issue-9`。PR #10マージ後のmaster
+`dc44de6146a389c2cd9048cb93dbbf450a377feb` から開始。
+測定前の計画コミット `62a1928c0f3190d4914ad760cef7614fea3a1264`、
+実装 `bd859c406a55e4a027705598e73aa9cbddcbfbd0`。
+[境界診断計画](collapse-diagnosis.md)に予算・採点・限界を先に固定した。
+
+### 固定条件と実装
+
+教材v1とsplitはそのまま、train450/validation150のみ使用、test未評価。
+通常Cをseed7、600更新、batch16、Adam .003、clip1、全4損失重み1、CPU1threadで学習。
+600は診断予算であり、既存60step既定値を変更していない。
+学習後モデル全体をfreezeし、source context/textだけから32次元fused latentを抽出。
+probeは7個の線形headのみ（1089パラメータ）、train平均/標準偏差で正規化し、
+seed7、full-batch Adam .01、300更新。validationは正規化fitや学習へ渡さない。
+probe前後で元モデルのstate SHAが完全一致、latentはdetach、encoder更新なし。
+source用APIはgold/target等の余分なキーを拒否する。
+
+### source→encoder→conceptの観測
+
+| 採点 | micro正答/1050 | 項目balancedのmacro平均 | 全7項目一致/150 |
+|---|---:|---:|---:|
+| train多数派 | 570 | 0.319047619 | 0 |
+| 凍結encoder上の線形probe | 860 | 0.808994709 | 12 |
+| 既存concept head | 771 | 0.676666667 | 1 |
+| concept対応をseed17で置換 | 485 | 0.307645503 | 0 |
+
+| 項目 | 多数派accuracy | probe accuracy | head accuracy | head entropy (nats) | 置換時の平均L1 |
+|---|---:|---:|---:|---:|---:|
+| event | .600000 | 1.000000 | 1.000000 | .026718 | 1.198466 |
+| operators | .300000 | .953333 | .653333 | 1.107510 | 1.057973 |
+| agent | .800000 | 1.000000 | 1.000000 | .150900 | .701878 |
+| participant | .200000 | .400000 | .260000 | 1.600992 | .156126 |
+| time | .200000 | .400000 | .293333 | 1.598172 | .165639 |
+| location | .800000 | 1.000000 | 1.000000 | .012255 | .692435 |
+| repeat_marked | .900000 | .980000 | .933333 | .273873 | .346966 |
+
+全項目のsupportは150、missing/unseenはともに0。confusionはgold行×prediction列
+（列0はunknown）として全7項目をJSONへ保存。各クラスsupport、確率の入力間分散も保存。
+participant/timeは各5クラス×30でほぼ一様な予測分布が残る。
+headのoperators正答/対象数は NOT→WANT 0/15、PLAN→NOT 10/15、PLAN 15/30、
+POSSIBLE 0/15、WANT→NOT 28/30、WANT 45/45。NOT→WANTとPOSSIBLEは全件WANTへ誤分類。
+probeでは順に15/15、15/15、29/30、10/15、29/30、45/45。
+作用域を読む情報はencoderから線形に取り出せるが、既存headでは十分使われていない。
+これは当該教材・予算での解読可能性であり、一般的な意味理解を証明しない。
+
+### concept→decoderの観測
+
+| 条件 | validation LM (10005 token) | 異なるconditioning数 | 異なる生成列数 |
+|---|---:|---:|---:|
+| predicted | .179737919 | 150 | 1 |
+| train-source平均 | .180703698 | 1 | 1 |
+| seed17対応置換 | .181523176 | 150 | 1 |
+| authored gold oracle | .179309284 | 50 | 1 |
+
+goldは既知7項目のone-hotを渡す診断専用のoracleで、通常のsource-only性能に混ぜない。
+全4条件で150/150が有効UTF-8かつEOS終了、参照完全一致0/150、特殊token行0。
+全て同じ「私は、来月先輩と会うことを望んでいる。」となった。
+全例のsource/予測concept/decoder介入値/生成/参照を分離し、raw token、特殊tokenを除いた
+byte列、UTF-8妥当性、停止理由を保存。参照文はloss/scoringだけに使い生成器へ渡さない。
+gold/参照だけを変えても通常生成が不変で、oracleは完全既知概念以外を拒否するテストを追加。
+
+encoderのexact unique rowsは150、L2距離min .080064 / mean 3.213024 / max 6.066077。
+soft conceptも150通り、距離min .013902 / mean 1.372293 / max 2.644082。
+各11175ペア中、距離1e-6以下は0。concept argmaxの7項目パターンは34通り。
+近接ペア比はクラスタ数や意味同一性ではなく、尺度に依存する数値統計である。
+入力表現が完全に同一化したという説明は当てはまらず、出力列になる段階で多様性が失われる。
+goldでも同一生成なので、concept予測の改善だけで解決するとは言えない。
+ただしgoldのone-hotは学習時のsoft分布から外れ得るため、decoder側の原因を確定したものではない。
+
+### 再現性・検証・保存
+
+通常モデル学習43.353秒、probe17.504秒。probeのtrain損失は更新前1.650924444、
+最終更新後.315056413。各1回のみで追加seedや結果を見た予算変更は行っていない。
+元の600更新診断の通常C LM .179737919を再現した。
+probe前後モデルstate SHA256:
+`1e5360bdbece1cc667b02b722e30eb58834763724a1b1b909e9157ec6d78bd78`。
+学習順SHA256: `6c3ae94191450c6c60d8ea3375711f56b241475b5da890940855f999d7e95e66`。
+checkpoint往復はvalidation150件のlogits/concepts/greedy/state全て完全一致。
+
+```powershell
+.\.venv\Scripts\python.exe -m norishio_lm.toy_collapse --out-dir codex/work_output/issue9-seed7-v1
+.\.venv\Scripts\python.exe -m pytest tests/test_toy_collapse.py tests/test_toy_probe.py tests/test_collapse_metrics.py -q -p no:cacheprovider
+.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider
+.\.venv\Scripts\python.exe -m norishio_lm.demo
+.\.venv\Scripts\python.exe -m norishio_lm.encoder_demo
+.\.venv\Scripts\python.exe codex/tools/build_context.py
+.\.venv\Scripts\python.exe codex/tools/validate_okf.py
+.\.venv\Scripts\python.exe codex/tools/check_knowledge.py --mode full
+.\.venv\Scripts\python.exe codex/okf_mcp/tests/live_check.py --server codex/okf_mcp/server.py --root okf
+```
+
+全pytest **241 passed, 2 subtests passed**、skipなし、11.54秒、既存の空tensor警告1。
+追加21件のfocusedテストも成功。評価CLIと両デモは終了0。
+CLIのNumPy未導入warningは残るがNumPy変換は使わない。全pytestはTemp権限を確保して実行。
+索引58 sources、OKF 8 files/6 conceptsでerrors0/warnings0、knowledge full healthy、
+MCP実プロセス検査6 toolsでok true。
+
+レポート `codex/work_output/issue9-seed7-v1/report.json` SHA256:
+`8484f115c55dad7d9d6e59fa73ed208b2d15d706f8ff2f63355081b8f4185445`。
+`normal600.pt` SHA256: `9e07b95fa7b096991f088061a3a38aa841b097ef8183eb8fcd7f0e1be0552bdb`。
+いずれもignoredの新規出力で、既存の結果・教材・重みを上書きしていない。
+
+Luna (`gpt-5.6-luna`) にprobeとcollapse統計を独立委譲。親が最終更新後の損失、
+L1定義、欠測と0の区別、optional torch依存、strict C境界を確認・修正し、統合/測定/全検証。
+Lunaによる親ハーネスの独立監査でもleakage・予算にblocking指摘なし。人の検証印ではない。
+
+残課題: participant/timeの識別、headの否定作用域、decoderの条件依存生成、複数seedでの再現。
+次候補は、条件を初期状態だけへ入れる現在のdecoderと各時点へ入れる対照を、予算・容量・
+評価基準を事前固定して比較すること。今回は構造変更や追加学習をせず、PRレビュー待ちまで。
+
 ## 最新の実装状態: Issue #7
 
 `codex/issue-7`、実装コミット `67ebd169c1606e934fb77ed5f09abbdcf3b52aa4`。
