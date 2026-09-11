@@ -5,6 +5,18 @@ status: draft
 generated: { by: ai-assisted-source-review, at: 2026-09-11 }
 stale_after: 2026-10-11
 sources:
+  - id: prefix-plan
+    resource: docs/prefix-intervention.md
+    title: Preregistered oracle prefix boundaries and denominators
+  - id: prefix-experiment
+    resource: src/norishio_lm/toy_prefix_experiment.py
+    title: Frozen replay and validation-only prefix intervention
+  - id: prefix-generation
+    resource: src/norishio_lm/prefix_generation.py
+    title: Prefix-only warmup then self-running generation
+  - id: prefix-metrics
+    resource: src/norishio_lm/prefix_metrics.py
+    title: Post-switch slot eligibility and byte coverage
   - id: slot-retention
     resource: src/norishio_lm/toy_slot_retention.py
     title: Frozen single-slot oracle and reference-history diagnosis
@@ -145,3 +157,9 @@ Issue #14は保存済みper-step重みを凍結再利用し、正解履歴byte�
 正解履歴の高いbyte正解率はslot保持と同一視しない。全条件frame一致0/150。
 元結果のJSON表現一致とstate不変を検証。任意prefix介入未実施のため履歴伝播は因果分離せず、
 one-hotの分布差も限界として保持する。再学習・test評価・人の検証印は追加しない。
+
+Issue #16は凍結per-stepに6境界×4conceptのprefix介入を比較。元report・通常生成の
+厳密再現と重み不変を確認。与え済みslotを加点せず、自己履歴のbyte分母を分離する。
+人物直前prefixの人物0/150、時点直前の時点30/150。人物を既に与えた後の文末成功は
+人物保持の証拠ではない。履歴修復だけの回復は未確認で、decoder/目的の原因は未分離。
+任意counterfactual prefix未実施、長さ/内容効果・one-hot分布差・単一seedの限界が残る。

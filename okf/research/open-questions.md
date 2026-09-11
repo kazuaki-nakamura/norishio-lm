@@ -30,7 +30,8 @@ sources:
 - 観測: per-step加算の同容量対照では9種類へ分化し、後半conditioning感度が残る。
 - 未解決: per-stepでも全slot一致0/150、人物・時点保持と文型外出力、oracle介入の崩壊。
 - 観測: 凍結per-stepの人物/時点単独gold置換で自由生成の対象slotは回復しない。
-- 未解決: head誤り、soft/oracle分布差、正解履歴依存と自己履歴誤りの寄与。任意prefix介入は未実施。
+- 観測: Issue #16の人物直前prefixでも人物0/150、時点直前は30/150。履歴修復だけでは回復しない。
+- 未解決: decoderのslot表現・出力head・学習目的の原因分離。counterfactual prefix、長さ/内容効果、soft/oracle分布差。
 - 未確認: 複数seed・別作者/未見テンプレートでの再現、soft conceptの余剰情報と因果的意味。
 - 未確認: 明示的な各意味層が単純なベースラインより役立つか。デモや単体テストの成功で代替しない。
 
