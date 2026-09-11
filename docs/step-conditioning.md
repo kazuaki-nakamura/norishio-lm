@@ -29,6 +29,8 @@ test is not evaluated. Compare only mandatory A/B; gated C is out of this run.
   and argmax change rate with row count. Prefix is BOS plus baseline self-output;
   EOS-ended rows stop contributing. This is a fixed-history intervention, not the
   different trajectories that would follow each intervention freely.
+  A cap128 row contributes decisions0–127 with BOS plus its first127 emitted
+  tokens as input; the ungenerated129th decision is not evaluated.
 - Save both checkpoints in a new ignored output directory. Require reload equality
   of logits/concepts/greedy/state for all150 validation cases in both arms.
 

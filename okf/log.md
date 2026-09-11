@@ -1,5 +1,9 @@
 # OKF 更新履歴
 
+- 2026-09-11: Issue #12の初期状態のみ/各step加算の同容量対照、target文型限定slot採点、
+  位置別conditioning感度、mode付きcheckpointと旧保存物互換を追加。Luna実装を親が
+  原本確認・修正・統合検証。測定予算と採点方法は事前コミットし、人の検証印は追加しない。
+
 - 2026-09-11: Issue #9の境界診断を追加。事前固定600更新モデルと300更新の凍結線形probe、
   confusion/entropy/距離、gold oracleを比較。encoder情報保持と同一文生成を区別し、
   単一seed・oracle分布差の限界を記録。Luna2担当の実装と独立監査を親が統合検証。人の印なし。

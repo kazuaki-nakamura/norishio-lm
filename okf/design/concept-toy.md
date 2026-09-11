@@ -5,6 +5,15 @@ status: draft
 generated: { by: ai-assisted-source-review, at: 2026-09-11 }
 stale_after: 2026-10-11
 sources:
+  - id: step-conditioning
+    resource: src/norishio_lm/toy_step_experiment.py
+    title: Matched initial-only versus per-step additive comparison
+  - id: mechanical-slots
+    resource: src/norishio_lm/toy_slots.py
+    title: Target-template-only frame scoring with coverage and failure denominators
+  - id: step-plan
+    resource: docs/step-conditioning.md
+    title: Precommitted zero-added-parameter A/B experiment plan
   - id: collapse
     resource: src/norishio_lm/toy_collapse.py
     title: Frozen source probe and explicit gold oracle boundary diagnosis
@@ -110,3 +119,11 @@ Issue #9のseed7/600更新診断では凍結encoderの線形probeが860/1050、�
 多数派570/1050。encoder/soft conceptは150通り、argmax frame34通りだが生成は1通り。
 50通りのgold oracleを渡しても同一文。encoderの情報保持とdecoder出力の多様性は別であり、
 headだけの改善で解決するとは言えない。oracleの分布差と単一seedによる限界を保持する。
+
+Issue #12は既存投影ベクトルを各token embeddingへ加えるper-step additiveを追加。
+既定のinitial-onlyを保持し、追加parameter0、同初期値・同学習順でA/Bを比較する。
+教材target文型への完全一致だけでslotを機械採点し、coverage/全対象分母/条件付き分母を分離。
+同じ自己生成履歴で概念だけを介入した位置別logit L1/KL/argmax差を記録する。
+seed7/600のper-step通常生成は9種類（旧方式1）、対応置換でLMが悪化し後半の感度も残る。
+ただし全slot一致0/150、人物・時点保持は改善せず、文型parse109/150。
+条件への依存が増えることと意味の正確さを分け、既定方式は変更しない。
