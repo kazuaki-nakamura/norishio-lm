@@ -13,6 +13,7 @@ from .concept_model import ConceptVocabulary
 from .explicit_slot_checkpoint import DATASET_VERSION, _atomic_save, _canonical, _vocab_from_dict, _vocab_to_dict
 from .local_slot_checkpoint import _config as _local_config, _finite_state, _state_digest
 from .pair_slot_model import PairSlotModel
+from .local_slot_model import _kept_indices
 from .tensorizer import SemanticTensorizer
 from .toy_checkpoint import BYTE_SPEC
 from .toy_experiment import ToyModel
@@ -32,6 +33,8 @@ def _config(model: PairSlotModel, tensorizer: SemanticTensorizer) -> dict[str, A
     config = _local_config(model, tensorizer)
     if model.decoder.local is not True:
         raise ValueError("pair model requires local causal conditioning")
+    if model.decoder.concept_projection.kept_old_indices != _kept_indices(model.vocabulary):
+        raise ValueError("pair model requires canonical retained concept indices")
     if not isinstance(model, PairSlotModel) or getattr(model, "pair_seed", None) != 28:
         raise ValueError("model must use PairSlotModel with pair seed 28")
     if not isinstance(getattr(model, "pair_head", None), torch.nn.Linear) or \

@@ -58,6 +58,10 @@ def test_pair_checkpoint_roundtrip_and_exclusive_save(tmp_path: Path):
     model.decoder.local = False
     with pytest.raises(ValueError, match="local causal"):
         save_pair_checkpoint(tmp_path / "global.pt", model, tensorizer, vocabulary, dataset_version=DATASET_VERSION)
+    model.decoder.local = True
+    model.decoder.concept_projection.kept_old_indices = tuple(reversed(model.kept_old_indices))
+    with pytest.raises(ValueError, match="canonical retained"):
+        save_pair_checkpoint(tmp_path / "permuted.pt", model, tensorizer, vocabulary, dataset_version=DATASET_VERSION)
 
 
 def test_pair_checkpoint_detects_state_and_metadata_tampering(tmp_path: Path):
