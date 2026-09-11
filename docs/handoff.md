@@ -40,6 +40,8 @@ ignored出力 `codex/work_output/issue28-fixed-v1/`。各checkpoint/初期値/sc
 保存guard補強後も3保存物のload成功。全pytest379 passed + 2 subtests passed（18.75秒）、
 既存zero-element警告1。両demo exit0、NumPy未導入警告は既存で今回の処理には不要。
 知識索引127件healthy、OKF errors0/warnings0、MCP live check成功（6tools、stale0）。
+最終索引作成時、権限を広げると旧テストcheckpoint13件が混入し140件になることを発見。
+foundation.jsonで.pt/.pth/.safetensorsを除外し、保存物を索引から分離。権限による索引差は運用改善対象。
 
 ```powershell
 .\.venv\Scripts\python.exe -m norishio_lm.toy_pair_head --baseline-report codex/work_output/issue26-fixed-v1/report.json --out-dir codex/work_output/issue28-fixed-v1
