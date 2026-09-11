@@ -1,5 +1,9 @@
 # OKF 更新履歴
 
+- 2026-09-11: Issue #22のtrain/validation pair表、全validation未見pair、同値投影分割比較を追加。
+  Lunaモデル/保存形式・pair採点を親が統合し、初期重み、過去CとB再読込を照合。
+  B人物40/time25・両slot0とcross-slot干渉継続を記録。数学的同値性とseen群不在の限界を明示。人の印なし。
+
 - 2026-09-11: Issue #20の専用slot head、650追加parameter、head単独介入と感度を追加。
   Lunaモデル/保存形式を親が補完統合し、A/B歴史再現とC再読込を確認。
   人物36/time25・全frame0と単独oracleの他slot悪化、未解決の同時保持を記録。人の印なし。

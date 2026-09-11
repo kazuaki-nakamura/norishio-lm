@@ -2,7 +2,65 @@
 
 検証日: 2026-09-11
 
-## 最新の実装状態: Issue #20
+## 最新の実装状態: Issue #22
+
+`codex/issue-22`、PR #21 merge `10768943bf9e52afc7929dc8557172a0024d03ca` から開始。
+事前計画 `e021418`、実装SHA `7f4ede9ead6fcad2d1a5899bf5850b538fe000d2`。
+[事前固定した条件](joint-slots.md)と[実数値・全表](joint-slot-results.md)を参照。
+
+### 実装と観測
+
+- train450の15組とvalidation150の5組は重ならず、validation全150例がunseen pair。
+  5×5 support表、all/seen/unseen群のLM/head/byte/生成を保存。seen群0例は率null。
+- AはIssue20 Cの保存物を厳密再現。Bは43入力の線形投影を33/5/5の3項へ分割しtanh前に加算。
+  43073parameter・増分0、同初期重み、同600更新schedule、head CE各1、slot byte CEなし。
+  数学的に同じ関数クラスであり、性能差を表現力増大や干渉の因果分離と呼ばない。
+- 通常生成はA人物36/time25、B人物40/time25、両slot・全frameは双方0/150。
+  BのLMは0.163130231、EOS/UTF8各150/150、11種類、parse120/150。
+- B人物head goldは人物72/time1、time head goldは人物37/time49、両head goldは52/39。
+  いずれも両slot0/150。単独修復に伴う他slot悪化が残る。
+- 各arm8条件のhead-only gold/zero/permutation、cross-slot logit感度と25組のfactorial系列を測定。
+  元conceptは予測値固定。factorialの指定pairへの追随は通常reference性能と別集計。
+- B checkpoint再読込でstate/旧concept/専用head/logits/greedyが完全一致。
+  report SHA256 `a303e74fab83ccc11b4350579988b2e88e2077ba44abc263f32549890de2be39`。
+  B.pt SHA256 `207420aa7c8b4b8ba0d3aa5ad4a667edaf2c7342daaeac9705caa0792b2831f9`。
+  保存物はignored `codex/work_output/issue22-seed7-v1/`、Gitに学習artifactを追加しない。
+
+### 検証コマンド
+
+Windowsの本worktree `.venv`（Python3.11.15 / Torch2.14.0+cpu）で実行。
+
+```powershell
+.\.venv\Scripts\python.exe -m norishio_lm.toy_joint_slots --baseline-report codex/work_output/issue20-seed7-v1/report.json --out-dir codex/work_output/issue22-seed7-v1
+.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider
+.\.venv\Scripts\python.exe -m norishio_lm.demo
+.\.venv\Scripts\python.exe -m norishio_lm.encoder_demo
+.\.venv\Scripts\python.exe codex/tools/build_context.py
+.\.venv\Scripts\python.exe codex/tools/validate_okf.py
+.\.venv\Scripts\python.exe codex/tools/check_knowledge.py --mode full
+.\.venv\Scripts\python.exe codex/okf_mcp/tests/live_check.py --server codex/okf_mcp/server.py --root okf
+git diff --check
+```
+
+実験・両demoはexit0。全pytestは341 passed + 2 subtests passed（16.76秒）、既存zero-element警告1。
+NumPy未導入警告はdemo/実験で出たがNumPyを使わず完走。
+テスト編集と重なった初回全実行は旧期待値で1件失敗、確定後の全実行で解消した。失敗を成功扱いしない。
+known Windows Temp権限制限はproject内Tempまたは承認済み実行で回避。
+索引101件、OKF errors0/warnings0、knowledge fullは101 sources healthy、MCP liveは6 toolsでok。
+ローカル成功をGitHub CI成功とは呼ばない。
+
+Luna (`gpt-5.6-luna`) にモデル/保存形式とpair採点を独立委譲。
+親が初期値照合・介入範囲テスト・統合harness・実測・全検証を担当し、保存形式の検査を補強した。
+PRまで進めてレビュー待ちとし、自動merge/closeや停止中workerの再開はしない。
+
+### 未実装・次候補
+
+seen群が0例のためこの分割でseen/unseen性能差は推定できない。組合せ偏りが唯一の原因とは断定不可。
+次は別Issueで数学的に異なる局所/直交注入、old concept内の人物/time重複除去ablation、複数seedを事前固定。
+今回の教材/split/testは変更せず、追加weight探索・外部辞書・有料GPUは実行していない。
+意味層の有効性や一般日本語理解の証明は未達。手書き辞書出力を学習成果と呼ばない。
+
+## 過去の実装状態: Issue #20
 
 `codex/issue-20`、PR #19 merge `429cd8ea9718579502f8ac047187389b044f6e6c` から開始。
 [事前計画](explicit-slot-head.md) `257ba0e`、実装SHA
