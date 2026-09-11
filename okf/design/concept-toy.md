@@ -5,6 +5,18 @@ status: draft
 generated: { by: ai-assisted-source-review, at: 2026-09-11 }
 stale_after: 2026-10-11
 sources:
+  - id: slot-retention
+    resource: src/norishio_lm/toy_slot_retention.py
+    title: Frozen single-slot oracle and reference-history diagnosis
+  - id: slot-spans
+    resource: src/norishio_lm/toy_spans.py
+    title: Authored template UTF-8 byte positions
+  - id: span-metrics
+    resource: src/norishio_lm/span_metrics.py
+    title: Byte-weighted reference-history probability rank and sensitivity
+  - id: slot-plan
+    resource: docs/slot-retention.md
+    title: Precommitted checkpoint replay and oracle boundaries
   - id: step-conditioning
     resource: src/norishio_lm/toy_step_experiment.py
     title: Matched initial-only versus per-step additive comparison
@@ -127,3 +139,9 @@ Issue #12は既存投影ベクトルを各token embeddingへ加えるper-step ad
 seed7/600のper-step通常生成は9種類（旧方式1）、対応置換でLMが悪化し後半の感度も残る。
 ただし全slot一致0/150、人物・時点保持は改善せず、文型parse109/150。
 条件への依存が増えることと意味の正確さを分け、既定方式は変更しない。
+
+Issue #14は保存済みper-step重みを凍結再利用し、正解履歴byte診断と自己履歴生成を分離。
+人物/timeのheadは41/150と43/150。人物のみoracleで自由生成人物20→15、時点のみでは22→22。
+正解履歴の高いbyte正解率はslot保持と同一視しない。全条件frame一致0/150。
+元結果のJSON表現一致とstate不変を検証。任意prefix介入未実施のため履歴伝播は因果分離せず、
+one-hotの分布差も限界として保持する。再学習・test評価・人の検証印は追加しない。
