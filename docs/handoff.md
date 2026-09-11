@@ -2,7 +2,146 @@
 
 検証日: 2026-09-11
 
-## 最新の実装状態: Issue #14
+## 最新の実装状態: Issue #16
+
+`codex/issue-16`、PR #15 merge `631bf70e263218ac1531e75c05ae99e2fdffa811` から開始。
+[事前計画](prefix-intervention.md)は `ba454e6` と `52f9495`、実装SHAは
+`98d8cb57b36901fd3dbe5e427265b7438e8ad2b6`。測定前に境界・分母・比較条件を固定。
+保存済みseed7/600 per-stepモデルを凍結し、CPU1thread・validation150のみで診断。
+追加学習・語彙refit・test評価はない。
+
+### 入力・採点境界と再現
+
+人物/timeの各start-1、start、endの6境界 × predicted/人物gold/時点gold/全7goldの4条件。
+UTF-8 byte位置であり、start-1は文字の途中にもなる。BOSを除く総token上限128は
+与えたprefixも含む。生成にはBOS+reference[0:j]だけを渡し、位置j以降は自己生成tokenのみ。
+正解continuationは生成APIの引数にない。採点は生成終了後に別経路で実行。
+通常source-only性能とprefix oracleを混ぜない。
+
+局所slot完全一致はauthored固定位置で採点。prefixがslot内/後なら全文slotの加点なし。
+残りbyteだけを別採点し、完全に与えたslotはexpected/evaluatedとも0、NLL等はnull。
+早期EOS後の未生成byteはexpected分母に残し、評価できたdecisionだけでNLL/rankを計算。
+slot開始後継続は当該slotから文末EOSまでの一致であり、生成済みのslot前部分は要求しない。
+全continuation一致はprefix以後すべてとEOSの一致。全row分母は各150。
+
+Issue #14 report全体のJSON値一致、通常生成150例のempty-prefix token一致、重み不変を確認。
+モデルstate SHA256: `92b21ac06055b99733e1114b6ea0cd57de316d9b4ec2c19ebb565b54c76afb58`。
+checkpoint SHA256: `0bb375a82b62baac367d76b6ecf344835de013ca0cb61e1217979937eac42057`。
+参照Issue #14 report SHA256: `a4d18bb7fab3d63a94d0d0e5b026b59956aae6db276241eba60b248e03621c92`。
+参照Issue #12 report SHA256: `3b08a5982c89fd63b4c5887f03ee7c1276a9ce51b3e9f8b072e830c448b791d2`。
+今回 `codex/work_output/issue16-seed7-v1/report.json` SHA256:
+`2afc2f6c4d6c6078397bb273bc9e350799239098952583211945ef13d17df053`。
+詳細例・byte値・token列はignored reportに保存。保存重み・reportはGitへ追加しないため、
+再実行には同hashのローカル保存物が必要。
+
+### 生成後だけの結果
+
+以下のslot欄は正解数/eligible数。全rowは150、0/0は与え済みで評価対象外（成功ではない）。
+通常BOS生成の同じ固定位置採点は人物25/150、時点27/150、全continuation一致0/150。
+前段の文型parse限定採点20/22とは定義が違うため直接比較しない。
+
+| prefix境界 / concept | 人物slot | 時点slot | 全continuation /150 | 人物以後 /150 | 時点以後 /150 |
+|---|---:|---:|---:|---:|---:|
+| participant_before/predicted | 0/150 | 0/0 | 0 | 0 | 0 |
+| participant_before/participant_oracle | 0/150 | 0/0 | 0 | 0 | 0 |
+| participant_before/time_oracle | 0/150 | 0/0 | 0 | 0 | 0 |
+| participant_before/full_oracle | 0/150 | 0/0 | 0 | 0 | 0 |
+| participant_start/predicted | 0/150 | 0/0 | 0 | 0 | 0 |
+| participant_start/participant_oracle | 0/150 | 0/0 | 0 | 0 | 0 |
+| participant_start/time_oracle | 0/150 | 0/0 | 0 | 0 | 0 |
+| participant_start/full_oracle | 0/150 | 0/0 | 0 | 0 | 0 |
+| participant_end/predicted | 0/0 | 0/0 | 44 | 0 | 0 |
+| participant_end/participant_oracle | 0/0 | 0/0 | 36 | 0 | 0 |
+| participant_end/time_oracle | 0/0 | 0/0 | 33 | 0 | 0 |
+| participant_end/full_oracle | 0/0 | 0/0 | 48 | 0 | 0 |
+| time_before/predicted | 25/150 | 27/150 | 0 | 7 | 0 |
+| time_before/participant_oracle | 18/150 | 26/150 | 0 | 2 | 0 |
+| time_before/time_oracle | 19/150 | 27/150 | 0 | 3 | 0 |
+| time_before/full_oracle | 9/150 | 21/150 | 0 | 0 | 0 |
+| time_start/predicted | 29/150 | 30/150 | 0 | 7 | 0 |
+| time_start/participant_oracle | 21/150 | 29/150 | 0 | 2 | 0 |
+| time_start/time_oracle | 19/150 | 30/150 | 0 | 3 | 0 |
+| time_start/full_oracle | 12/150 | 24/150 | 0 | 0 | 0 |
+| time_end/predicted | 0/150 | 0/0 | 0 | 0 | 0 |
+| time_end/participant_oracle | 0/150 | 0/0 | 0 | 0 | 0 |
+| time_end/time_oracle | 0/150 | 0/0 | 0 | 0 | 0 |
+| time_end/full_oracle | 0/150 | 0/0 | 0 | 0 | 0 |
+
+人物endの全continuation成功36〜48件は人物/timeを既に与えた後の文末生成であり、
+人物・時点保持の成功には数えない。
+
+### 切替後のbyte診断
+
+各境界で対象slotを記載。endは対象slotを全て与えており、byte評価なし。
+各start/before対象slotはexpected900byte、評価済み900byte、coverage1（各150例）。
+以下は自己履歴での値であり、Issue #14の全正解履歴teacher-forced指標とは別。
+
+| 条件 | 対象 | 正解byte /900 | NLL | 正解確率 | rank |
+|---|---|---:|---:|---:|---:|
+| participant_before/predicted | participant | 223 | 5.403000 | 0.242416 | 23.688889 |
+| participant_before/participant_oracle | participant | 204 | 5.485039 | 0.223010 | 25.228889 |
+| participant_before/time_oracle | participant | 192 | 5.765840 | 0.191414 | 27.725556 |
+| participant_before/full_oracle | participant | 186 | 5.766433 | 0.195622 | 28.263333 |
+| participant_start/predicted | participant | 223 | 5.403000 | 0.242416 | 23.688889 |
+| participant_start/participant_oracle | participant | 204 | 5.485039 | 0.223010 | 25.227778 |
+| participant_start/time_oracle | participant | 192 | 5.765840 | 0.191414 | 27.725556 |
+| participant_start/full_oracle | participant | 186 | 5.766433 | 0.195622 | 28.263333 |
+| time_before/predicted | time | 351 | 4.097434 | 0.339882 | 15.872222 |
+| time_before/participant_oracle | time | 348 | 4.112487 | 0.336845 | 15.895556 |
+| time_before/time_oracle | time | 357 | 4.056763 | 0.343061 | 15.787778 |
+| time_before/full_oracle | time | 330 | 4.187900 | 0.323452 | 15.313333 |
+| time_start/predicted | time | 372 | 3.722736 | 0.356497 | 13.106667 |
+| time_start/participant_oracle | time | 369 | 3.738307 | 0.353357 | 13.130000 |
+| time_start/time_oracle | time | 378 | 3.681650 | 0.359663 | 12.995556 |
+| time_start/full_oracle | time | 351 | 3.812298 | 0.339756 | 12.520000 |
+
+最初の生成位置における正解byte確率を既存teacher-forced reportと独立照合し、
+最大差は人物4.53e-7、時点3.46e-7（CPU batch形状差による浮動小数点差）。
+通常生成の全tokenおよび前段reportの値の完全一致とは区別する。
+
+### 観測の限界と次候補
+
+人物直前prefixで人物slotは全concept条件0/150、時点直前ではpredictedとtime-oracleが30/150。
+正解履歴だけで人物/timeが回復する説明、gold概念との組合せで大幅回復する説明は支持されない。
+ただしdecoderのslot表現・出力head・学習目的のどれが原因かは分離していない。
+正解時点を与えた後も人物を外す傾向は、教材の未見組合せに対する対応付け失敗の候補となるが、
+本診断だけで原因とは断定しない。one-hot oracleの分布差、単一seed、固定位置採点の限界を保持。
+
+任意のcounterfactual prefixは事前計画で未実施。等byte長でも文型位置や内容が一致せず、
+一部の時点前prefixは同文になるため、このrunでは長さ効果と内容効果を分離しない。
+次候補は長さと文型位置を揃えたprefix対照、またはdecoderのslot出力と組合せ学習の事前固定対照。
+結果を見た条件追加・境界追加・test tuningは行わない。
+
+### コマンド・検証・委譲
+
+worktreeルートで実行:
+
+```powershell
+.\.venv\Scripts\python.exe -m norishio_lm.toy_prefix_experiment --checkpoint codex/work_output/issue12-seed7-v1/per_step_additive.pt --baseline-report codex/work_output/issue12-seed7-v1/report.json --slot-report codex/work_output/issue14-seed7-v2/report.json --out-dir codex/work_output/issue16-seed7-v1
+.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider
+.\.venv\Scripts\python.exe -m norishio_lm.demo
+.\.venv\Scripts\python.exe -m norishio_lm.encoder_demo
+.\.venv\Scripts\python.exe codex/tools/build_context.py
+.\.venv\Scripts\python.exe codex/tools/validate_okf.py
+.\.venv\Scripts\python.exe codex/tools/check_knowledge.py --mode full
+.\.venv\Scripts\python.exe codex/okf_mcp/tests/live_check.py --server codex/okf_mcp/server.py --root okf
+git diff --check
+```
+
+診断v1終了0。全pytest **303 passed, 2 subtests passed**、12.80秒、終了0。
+knowledge78原本full=healthy、OKF8 files/6 concepts errors0/warnings0、
+MCP実プロセス6 tools検証とgit diff --checkも終了0。
+既存zero-element tensor警告1。両デモ終了0、encoderと診断は既存NumPy未導入警告。
+Temp依存テストは許可付きで実行し、skipを成功件数に含めていない。
+
+`gpt-5.6-luna`へprefix生成と局所採点を独立委譲。生成担当の初回は誤ったrootへ配置・
+別venvでtorchなしskipとなり、親が発見して指定worktreeへ移動・誤配置除去を確認。
+親レビューでper-step加算漏れ、slot前byte混入採点、早期EOSの添字境界を修正してから測定。
+親が実教材embedding入力spy、与え済みslot除外、早期EOS、slot前誤りの回帰テストを追加。
+指定環境の21追加テストを含め統合検証し、Lunaの最終読取監査もblockerなし。
+人の検証印・自動merge/close・定期worker再開・有料computeは追加しない。
+
+## 過去の実装状態: Issue #14
 
 `codex/issue-14`、PR #13マージ `e10edb0c59a6f8228b3b7a7b61b937cd5706e60e` から開始。
 事前計画 `cc76f56d954b0a13e361571b810f5515aa096dcb`、実装
