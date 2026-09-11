@@ -9,7 +9,9 @@ train450のみfit、validation150全未見pair、test未評価。追加探索・
 
 2026-09-12追記: `evaluate_condition` のteacher_forced組立がraise後の到達不能位置にあり、
 保存reportの当該フィールドはnull。計画にある追加byte診断は未測定で、成功に含めない。
-上記reportと生成・LM・head実数値は変更せず保持する。修復と追加診断は残課題。
+上記reportと生成・LM・head実数値は変更せず保持する。
+Issue30で到達不能箇所を修復し、明示opt-inのbyte-v2として別reportへ測定する。
+旧版nullと新規測定を混同しない。結果は[compositional診断](compositional-slot-results.md)参照。
 
 ## 主要観測
 

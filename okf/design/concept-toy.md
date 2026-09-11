@@ -5,6 +5,15 @@ status: draft
 generated: { by: ai-assisted-source-review, at: 2026-09-12 }
 stale_after: 2026-10-12
 sources:
+  - id: compositional-results
+    resource: docs/compositional-slot-results.md
+    title: Equivalent generation and unseen pair probability comparison
+  - id: compositional-plan
+    resource: docs/compositional-slots.md
+    title: Frozen outer product and versioned byte diagnostic protocol
+  - id: compositional-experiment
+    resource: src/norishio_lm/toy_compositional_slots.py
+    title: Three-seed replay and new seed7 byte measurements
   - id: pair-head-results
     resource: docs/pair-head-results.md
     title: Joint pair head fails unseen pairs across three fixed seeds
@@ -284,3 +293,9 @@ validation全未見pairは全seed0、gold確率平均0.000495385。B通常両slo
 gold両slot61/36/47で部分追随するが平均48はA52.667より低い。factorized目的は未実施。
 容量/目的/入力分布の交絡、未見pairへのCE正例不在を保持する。全379テストと保存物再現を確認。
 Issue26の追加teacher_forced byte診断は到達不能コードでnullだったため未測定として訂正。修復は残課題。
+
+Issue #30は追加学習0の外積CとAの数値的関係を確認。周辺/logitは丸め差があるがallclose成立、
+全seed通常/gold生成tokenは一致。通常両slot0は不変。未見gold pair確率平均C0.0709575/B0.000495385、
+top10 coverage C90%/B0%だが新モデル改善ではない。factorized NLLは既存2CEの和で追加armは学習せず。
+teacher_forced組立を修復し、明示opt-in byte-v2としてseed7保存Dの4条件を初測定。旧reportとnullは保持。
+通常byte人物774/900・time799/900は正解履歴診断であり自由生成成功とは別。全383テストと歴史再現を確認。
