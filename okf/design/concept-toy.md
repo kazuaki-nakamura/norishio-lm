@@ -5,6 +5,21 @@ status: draft
 generated: { by: ai-assisted-source-review, at: 2026-09-11 }
 stale_after: 2026-10-11
 sources:
+  - id: joint-slot-plan
+    resource: docs/joint-slots.md
+    title: Algebraically equivalent split projection and fixed factorial protocol
+  - id: joint-slot-results
+    resource: docs/joint-slot-results.md
+    title: Unseen pair support and zero both-slot validation accuracy
+  - id: joint-slot-experiment
+    resource: src/norishio_lm/toy_joint_slots.py
+    title: Historical replay and grouped head intervention diagnosis
+  - id: factorized-slot-model
+    resource: src/norishio_lm/factorized_slot_model.py
+    title: Exact copied additive projection blocks before tanh
+  - id: pair-metrics
+    resource: src/norishio_lm/pair_metrics.py
+    title: Train pair membership and conjunction scoring
   - id: explicit-slot-plan
     resource: docs/explicit-slot-head.md
     title: Preregistered five-class heads and 650 added parameters
@@ -196,3 +211,10 @@ Issue #20は人物/time専用5class headを追加し、既存33確率へ10確率
 Cは人物36/time25、全frame0/150。head-only goldで59/31へ変わるが全frame0。
 単独oracleで人物86/time0、人物5/time72となり、同時保持が未解決。
 容量/目的/元concept重複が混ざるため、専用化単独の有効性や一般意味性能は主張しない。
+
+Issue #22はtrain15組/validation5組で全validation150例がunseen pairと確認。
+seen0群の率はnull。A歴史Cを再現し、同重みを3線形投影へ分割したBを同schedule学習。
+分割前後は数学的に同じ関数クラス、43073parameterで差分0。演算順序/最適化差が残る。
+B通常人物40/time25、両slot0/150、人物head goldで72/time1。干渉と同時保持失敗は継続。
+8介入・25counterfactual pairの生成/同slotとcross-slot感度、checkpoint完全再現を記録。
+seen/unseen性能差と偏りの因果効果はこの分割では推定不可。一般意味性能の証明としない。
