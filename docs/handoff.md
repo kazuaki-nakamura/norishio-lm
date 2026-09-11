@@ -2,7 +2,109 @@
 
 検証日: 2026-09-11
 
-## 最新の実装状態: Issue #12
+## 最新の実装状態: Issue #14
+
+`codex/issue-14`、PR #13マージ `e10edb0c59a6f8228b3b7a7b61b937cd5706e60e` から開始。
+事前計画 `cc76f56d954b0a13e361571b810f5515aa096dcb`、実装
+`9ff310b9bde77522df3b0550a3d5c8192a884180`。[診断計画](slot-retention.md)の必須項目を実装。
+Issue #12のper-step checkpointをCPUで凍結再利用し、追加学習・語彙refit・test評価はない。
+
+### 診断の契約と再現
+
+人物のみ・時点のみ・両方・全7項目のgold oracleと通常予測を比較。他項目の確率は変更しない。
+正解文のteacher-forced診断とBOSからの自己履歴生成を別記録する。前者は正解履歴oracleである。
+教材テンプレートを展開して各slotのUTF-8 byte半開区間を算出し、文字列検索は使用しない。
+位置jのlogitはbyte jを予測し、+4はtoken IDだけに適用。EOSはslot採点から除外。
+各byteの正解確率・NLL・rank・argmax・logit L1・KL(base||介入)を保存。
+rankは厳密に大きいlogitの数+1、集約はbyte数加重。各slotは150行/900byte。
+
+保存済み通常条件のLM・全生成例・slot採点とconcept指標が厳密一致（JSON表現で比較）。
+診断前後のstate SHA256は同一:
+`92b21ac06055b99733e1114b6ea0cd57de316d9b4ec2c19ebb565b54c76afb58`。
+checkpoint SHA256:
+`0bb375a82b62baac367d76b6ecf344835de013ca0cb61e1217979937eac42057`。
+参照したIssue #12 report SHA256:
+`3b08a5982c89fd63b4c5887f03ee7c1276a9ce51b3e9f8b072e830c448b791d2`。
+今回のignored出力 `codex/work_output/issue14-seed7-v2/report.json` SHA256:
+`a4d18bb7fab3d63a94d0d0e5b026b59956aae6db276241eba60b248e03621c92`。
+checkpointと詳細reportは学習artifactとしてGitに追加しない。チェックアウトだけでは保存済み重みがないため、
+再実行には上記hashのローカル保存物、またはIssue #12手順による再作成とhash/結果照合が必要。
+
+### concept headと自由生成
+
+headの人物は41/150、時点43/150（各5class support30、balanced accuracy .273333/.286667）。
+他5項目はevent150、operators97、agent150、location150、repeat140（各分母150）。
+balanced accuracyは順に1/.512963/1/1/.666667。全7項目micro771/1050。
+クラス別support・confusion matrix・soft確率・entropy・確率分散はreportに保存。
+
+| 条件 | LM (10005 token) | 生成種類 | parse /150 | 人物 /150 | 時点 /150 | 全項目 /150 |
+|---|---:|---:|---:|---:|---:|---:|
+| predicted | 0.168318838 | 9 | 109 | 20 | 22 | 0 |
+| participant_oracle | 0.171052042 | 16 | 110 | 15 | 23 | 0 |
+| time_oracle | 0.171685302 | 19 | 98 | 7 | 22 | 0 |
+| both_oracle | 0.175030359 | 18 | 111 | 3 | 23 | 0 |
+| full_oracle | 0.174590945 | 23 | 99 | 6 | 21 | 0 |
+
+全7oracleのみEOS/有効UTF-8が144/150、他4条件は150/150。特殊token行は全条件0。
+文型外も全対象分母に保持し、parse成功例だけの条件付き値もreportへ分離保存する。
+この機械採点は教材target文型限定であり、一般日本語の意味判定ではない。
+
+### 正解履歴下のslot byte診断
+
+| 条件 | slot | NLL | 正解確率 | rank | argmax /900 | logit L1 | KL |
+|---|---|---:|---:|---:|---:|---:|---:|
+| predicted | participant | 0.708228 | 0.749411 | 1.435556 | 691 | 0.000000 | 0.000000 |
+| predicted | time | 0.308307 | 0.804247 | 1.173333 | 780 | 0.000000 | 0.000000 |
+| participant_oracle | participant | 0.695442 | 0.750715 | 1.456667 | 696 | 0.046269 | 0.000872 |
+| participant_oracle | time | 0.311334 | 0.803454 | 1.174444 | 779 | 0.037755 | 0.000251 |
+| time_oracle | participant | 0.700678 | 0.750282 | 1.410000 | 711 | 0.052457 | 0.000620 |
+| time_oracle | time | 0.308493 | 0.803817 | 1.156667 | 780 | 0.027805 | 0.000232 |
+| both_oracle | participant | 0.686627 | 0.751454 | 1.433333 | 696 | 0.065046 | 0.001679 |
+| both_oracle | time | 0.311787 | 0.803076 | 1.165556 | 778 | 0.049432 | 0.000682 |
+| full_oracle | participant | 0.686247 | 0.751157 | 1.430000 | 702 | 0.077472 | 0.002314 |
+| full_oracle | time | 0.312590 | 0.803110 | 1.170000 | 774 | 0.058193 | 0.001752 |
+
+人物oracleで人物NLLは.708228→.695442、byte正解691→696/900だが自由生成の人物は20→15/150。
+時点oracleで時点byte正解は780/900のまま、自由生成時点も22/150のまま。
+正解conceptの差し替えだけで生成保持が回復するという説明は、この条件では支持されない。
+ただしone-hot oracleは学習時soft分布と異なり、head誤りだけ/decoderだけを唯一原因とは断定できない。
+高いteacher-forced byte正解率は直前の正解byteや共有byteを利用でき、語やslot全体の正解とは異なる。
+任意のgold-prefix介入は事前計画どおり未実施。自己履歴誤りの伝播は因果的に分離していない。
+単一seed・教材共有テンプレート・validation限定で、一般化や各意味層の有効性は未実証。
+次候補はslot直前prefix介入の事前固定比較、または学習時soft分布を保つslot条件付けの対照。
+
+### コマンド・検証・委譲
+
+作業worktreeで実行:
+
+```powershell
+.\.venv\Scripts\python.exe -m norishio_lm.toy_slot_retention --checkpoint codex/work_output/issue12-seed7-v1/per_step_additive.pt --baseline-report codex/work_output/issue12-seed7-v1/report.json --out-dir codex/work_output/issue14-seed7-v2
+.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider
+.\.venv\Scripts\python.exe -m norishio_lm.demo
+.\.venv\Scripts\python.exe -m norishio_lm.encoder_demo
+.\.venv\Scripts\python.exe codex/tools/build_context.py
+.\.venv\Scripts\python.exe codex/tools/validate_okf.py
+.\.venv\Scripts\python.exe codex/tools/check_knowledge.py --mode full
+.\.venv\Scripts\python.exe codex/okf_mcp/tests/live_check.py --server codex/okf_mcp/server.py --root okf
+git diff --check
+```
+
+診断v2は終了0、baseline_replay_equal/model_unchangedともtrue。
+初回v1はtupleとJSON配列の型差300箇所で再現照合が停止、成功扱いしない。
+数値と生成の差がないことを確認し、保存JSON形式で全値を比較する修正後に別出力先v2で成功。
+追加17テストを含む全pytest **282 passed, 2 subtests passed**、11.76秒、終了0。
+知識索引71原本、full=healthy、OKF8 files/6 concepts・errors0/warnings0、
+MCP実プロセス6 tools検証成功、git diff --check成功。いずれも終了0。
+既存のzero-element tensor警告1件。両デモ終了0（encoderは既存NumPy未導入警告）。
+Tempを使う初回の一部テストはWinError5でsetup errorとなり、許可付き全pytestで再検証済み。
+
+`gpt-5.6-luna`にテンプレート位置計算とbyte採点の独立実装・テストを分担。
+親が位置/ID offsetの誤りを発見して修正を指示し、実教材のラベル復号テストを追加。
+親がハーネス・oracle境界・未来token非干渉・保存物照合を統合検証。
+Lunaの最終読取監査はblockerなし（監査テストのTemp setup errorは親の全検証と区別）。
+人の検証印、学習予算追加、自動merge/close、定期worker再開は行わない。
+
+## 過去の実装状態: Issue #12
 
 `codex/issue-12`、PR #11マージ `604f61774ce0bb4fdfb198d972817b24b71821ee` から開始。
 事前計画コミット `79a07d0de853bb195f193eb37538c3576ba3ded0`、
