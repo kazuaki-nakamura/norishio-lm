@@ -64,7 +64,8 @@ def greedy_generate(
         raise ValueError("concept_probs and decoder must be on the same device")
     # The model's projection defines the appropriate computation dtype/device.
     probs = concept_probs.to(dtype=parameter.dtype)
-    hidden = torch.tanh(decoder.concept_projection(probs)).unsqueeze(0)
+    conditioning = torch.tanh(decoder.concept_projection(probs))
+    hidden = conditioning.unsqueeze(0)
     batch_size = concept_probs.shape[0]
     current = torch.full((batch_size,), BOS, dtype=torch.long, device=parameter.device)
     sequences: list[list[int]] = [[] for _ in range(batch_size)]
@@ -72,6 +73,8 @@ def greedy_generate(
 
     for _ in range(max_new_tokens):
         step_input = decoder.embedding(current).unsqueeze(1)
+        if decoder.conditioning_mode == "per_step_additive":
+            step_input = step_input + conditioning.unsqueeze(1)
         next_output, next_hidden = decoder.gru(step_input, hidden)
         # Once a row has ended, retain its state and exclude it from all output.
         hidden = torch.where(

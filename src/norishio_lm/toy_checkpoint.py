@@ -126,7 +126,8 @@ def _config(model: ToyModel, tensorizer: SemanticTensorizer) -> dict[str, Any]:
     if decoder.embedding.num_embeddings != BYTE_SPEC["size"]:
         raise ValueError("toy decoder must use the 260-token byte vocabulary")
     result: dict[str, Any] = {"pathway": model.pathway, "hidden_dim": decoder.hidden_dim,
-                              "vocab_size": decoder.embedding.num_embeddings}
+                              "vocab_size": decoder.embedding.num_embeddings,
+                              "conditioning_mode": decoder.conditioning_mode}
     if model.encoder is not None:
         cfg = model.encoder.config
         result["encoder"] = {"embedding_dim": cfg.embedding_dim, "hidden_dim": cfg.hidden_dim,
@@ -221,8 +222,17 @@ def load_checkpoint(path: str | os.PathLike[str], *, expected_dataset_version: s
         raise ValueError("tensorizer mismatch")
     if expected_vocabulary is not None and _vocab_to_dict(vocabulary) != _vocab_to_dict(expected_vocabulary):
         raise ValueError("vocabulary mismatch")
-    if not isinstance(config, dict) or set(config) != {"pathway", "hidden_dim", "vocab_size", "encoder"} or config.get("pathway") not in {"A", "B", "C"} or type(config.get("hidden_dim")) is not int or config["hidden_dim"] < 1:
+    required_config_keys = {"pathway", "hidden_dim", "vocab_size", "encoder"}
+    allowed_config_keys = required_config_keys | {"conditioning_mode"}
+    if (not isinstance(config, dict) or not required_config_keys <= set(config) or
+            not set(config) <= allowed_config_keys or config.get("pathway") not in {"A", "B", "C"} or
+            type(config.get("hidden_dim")) is not int or config["hidden_dim"] < 1):
         raise ValueError("invalid model config")
+    conditioning_mode = config.get("conditioning_mode", "initial_only")
+    if conditioning_mode not in {"initial_only", "per_step_additive"}:
+        raise ValueError("invalid conditioning mode")
+    if config["pathway"] != "C" and conditioning_mode != "initial_only":
+        raise ValueError("conditioning mode is only supported for pathway C")
     encoder_config = config.get("encoder")
     if config["pathway"] == "A" and encoder_config is not None:
         raise ValueError("A pathway cannot have encoder config")
@@ -239,7 +249,8 @@ def load_checkpoint(path: str | os.PathLike[str], *, expected_dataset_version: s
             raise ValueError("encoder and tensorizer vocabulary sizes differ")
         if encoder_config["hidden_dim"] != config["hidden_dim"]:
             raise ValueError("encoder and decoder hidden dimensions differ")
-    model = ToyModel(config["pathway"], tensorizer, vocabulary, hidden_dim=config["hidden_dim"])
+    model = ToyModel(config["pathway"], tensorizer, vocabulary, hidden_dim=config["hidden_dim"],
+                     conditioning_mode=conditioning_mode)
     if encoder_config is not None and encoder_config.get("embedding_dim") != model.encoder.config.embedding_dim:
         raise ValueError("encoder embedding dimension mismatch")
     state = _validate_state(raw["state_dict"])

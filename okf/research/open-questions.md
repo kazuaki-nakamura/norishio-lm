@@ -26,7 +26,9 @@ sources:
 - 実装済み: 同初期値の定数concept再学習とvalidation自由生成診断。短期学習では正常生成に失敗。
 - 観測: 60/600更新比較でbyte/EOS失敗は600で回復、初期学習量不足の寄与を支持。
 - 観測: 凍結encoderの線形probeは多数派を超え、encoder/soft conceptは150通りだが生成は1通り。
-- 未解決: gold conceptでも同一文となるdecoderの条件利用、participant/timeと否定作用域、複数seedでの再現。
+- 観測: 初期状態だけの条件注入ではgold conceptでも同一文となる。participant/timeと否定作用域、複数seedは未解決。
+- 観測: per-step加算の同容量対照では9種類へ分化し、後半conditioning感度が残る。
+- 未解決: per-stepでも全slot一致0/150、人物・時点保持と文型外出力、oracle介入の崩壊。
 - 未確認: 複数seed・別作者/未見テンプレートでの再現、soft conceptの余剰情報と因果的意味。
 - 未確認: 明示的な各意味層が単純なベースラインより役立つか。デモや単体テストの成功で代替しない。
 

@@ -2,6 +2,129 @@
 
 検証日: 2026-09-11
 
+## 最新の実装状態: Issue #12
+
+`codex/issue-12`、PR #11マージ `604f61774ce0bb4fdfb198d972817b24b71821ee` から開始。
+事前計画コミット `79a07d0de853bb195f193eb37538c3576ba3ded0`、
+実装 `4ca55115debd33cdc53412c2ada7094c124aa381`。
+[比較計画](step-conditioning.md)の必須A/Bだけを実装し、gated方式は追加していない。
+
+### 構造・容量・学習条件
+
+A=initial_onlyは従来通りconcept投影のtanhをh0だけに使用。
+B=per_step_additiveは同じh0に加えて、同じ投影ベクトルを各時点のtoken embeddingへ加算。
+投影の共有により追加parameter0、hidden32、concept33、両モデル総数42423。
+全parameter key/valueを同一にして学習開始し、元モデルや既定initial_onlyの初期化順も保持。
+既存60step既定値は変更していない。checkpointにmodeを保存し、modeのない旧保存物は
+initial_onlyとして読込。未知mode・必須config欠落を拒否する。
+
+教材v1 train450/validation150のみ、test未評価。seed7、600更新、batch16、Adam .003、
+clip1、4損失重み1、CPU1thread、同一sampling順。追加seedや結果を見た予算変更なし。
+共通初期state SHA256:
+`f07d83adec88a37040886e1374800b17b56b7d2f3f49cea3f1b801c4b61b4b70`。
+共通sampling SHA256:
+`6c3ae94191450c6c60d8ea3375711f56b241475b5da890940855f999d7e95e66`。
+初期/最終の正味変更要素数はA30415、B30416、学習秒はA43.813/B43.794（各1回）。
+
+### validationの結果
+
+| 方式・介入 | LM (10005 token) | 生成列種類 | EOS / UTF-8有効 | 文型parse数 | 全slot一致 |
+|---|---:|---:|---:|---:|---:|
+| A predicted | .179737919 | 1 | 150/150 / 150/150 | 150/150 | 0/150 |
+| A train-mean | .180703698 | 1 | 150/150 / 150/150 | 150/150 | 0/150 |
+| A seed17 permutation | .181523176 | 1 | 150/150 / 150/150 | 150/150 | 0/150 |
+| A gold oracle | .179309284 | 1 | 150/150 / 150/150 | 150/150 | 0/150 |
+| B predicted | .168318838 | 9 | 150/150 / 150/150 | 109/150 | 0/150 |
+| B train-mean | .234352527 | 1 | 150/150 / 150/150 | 150/150 | 0/150 |
+| B seed17 permutation | .286683485 | 9 | 150/150 / 150/150 | 109/150 | 0/150 |
+| B gold oracle | .174590945 | 23 | 144/150 / 144/150 | 99/150 | 0/150 |
+
+全8条件の参照完全一致0、特殊token行0。Aの4条件は従前600診断の値を再現し、
+全て「私は、来月先輩と会うことを望んでいる。」を出力する。
+Bは通常9種類へ分化し、平均化/対応置換でLMが大きく悪化する。
+これはこの固定条件でconceptに依存する挙動が増えた観測で、意味の正確さや汎化の証明ではない。
+goldは診断専用のone-hot介入であり、通常性能に含めない。B goldでは6件がcap128終了し、
+UTF-8も不正。oracleは学習時のsoft分布との差があり、数値改善を保証しない。
+
+機械slot採点はseedの**target文型への全文一致だけ**を認める。文型が一致すれば許可済み
+person/timeを抽出し、文型に対応するevent/agent/location/repeat/operatorsを取り出す。
+source言い換え、部分文字列、文型外の自然な文はこの採点器では未解釈。
+無効UTF-8・特殊token・非EOS・曖昧な文型もparse不可。これらは全gold観測分母に残し、
+一致成功には数えない。parse可能例に限るconditional_accuracyとevaluable_countも別記。
+全frameのevaluable_countはparse可能かつ全7gold既知の件数で、fullframe_countとは区別する。
+「parse不可」は自然言語として誤りと判断したことを意味しない。
+
+| 項目正答数（各分母150） | A predicted | B predicted | B permuted | B gold oracle |
+|---|---:|---:|---:|---:|
+| event | 90 | 109 | 50 | 99 |
+| operators | 45 | 60 | 28 | 66 |
+| agent | 120 | 109 | 86 | 99 |
+| participant | 30 | 20 | 14 | 6 |
+| time | 30 | 22 | 23 | 21 |
+| location | 120 | 109 | 86 | 99 |
+| repeat_marked | 135 | 94 | 96 | 84 |
+
+A predictedの合計570/1050に対し、B predictedは523/1050で、全対象の機械slot成功数は増えない。
+Bの41件は文型外。event/operatorsの一致は増えるが人物・時点の保持は改善していない。
+concept head自身のmicroはA/Bとも771/1050、balanced macroはA .676667/B .677090。
+
+### 位置別感度
+
+各方式のpredicted自由生成の履歴を固定し、conceptだけをmean/permuted/goldへ変更。
+L1はvocab260上のlogit絶対差平均、KLはbaseline||intervention、自然対数。
+生成に実際に使ったdecision位置だけを計測し、終了した行は以後の分母に含めない。
+cap128行の入力はBOS+先頭127生成tokenで128 decision。未生成129番目は測らない。
+全位置と分母をレポートに保存。方式間では自分の基準履歴が異なり、履歴まで同一な対照ではない。
+
+| seed17 permutation感度 | A位置0 | A位置50 | B位置0 | B位置50 |
+|---|---:|---:|---:|---:|
+| 対象行 | 150 | 150 | 150 | 150 |
+| logit L1 | .263806993 | 7.811875e-7 | .093354513 | .263128271 |
+| KL | .000734770 | 1.565548e-13 | .000759559 | .374661814 |
+| argmax変化率 | 0 | 0 | 0 | .193333333 |
+
+Aは58位置、Bは最大76位置（最後は24行）。Aの後半は差が浮動小数点誤差に近い水準へ
+減衰する一方、Bでは後半にもconditioning差が残る。初期状態だけの条件が履歴に埋もれる
+仮説を支持する限定的な構造対照であり、唯一の原因確定や一般的な意味理解とは呼ばない。
+
+### 検証と成果物
+
+```powershell
+.\.venv\Scripts\python.exe -m norishio_lm.toy_step_experiment --out-dir codex/work_output/issue12-seed7-v1
+.\.venv\Scripts\python.exe -m pytest tests/test_step_conditioning.py tests/test_toy_slots.py tests/test_toy_step_experiment.py -q -p no:cacheprovider
+.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider
+.\.venv\Scripts\python.exe -m norishio_lm.demo
+.\.venv\Scripts\python.exe -m norishio_lm.encoder_demo
+.\.venv\Scripts\python.exe codex/tools/build_context.py
+.\.venv\Scripts\python.exe codex/tools/validate_okf.py
+.\.venv\Scripts\python.exe codex/tools/check_knowledge.py --mode full
+.\.venv\Scripts\python.exe codex/okf_mcp/tests/live_check.py --server codex/okf_mcp/server.py --root okf
+```
+
+全pytest **265 passed, 2 subtests passed**、skipなし、11.99秒、既存空tensor警告1。
+focused23件成功後にcap履歴テスト1件追加し全検査を実施。両デモと評価CLI終了0。
+CLIのNumPy未導入warningは残るがNumPy変換は使わない。Temp利用可能環境で全検査。
+索引64 sources、OKF 8 files/6 concepts errors0/warnings0、knowledge full healthy、
+MCP実プロセス6 toolsでok true。
+A/B両checkpointでvalidation150件のconcept/logits/greedy/stateが再読込前後で完全一致。
+旧modeなしcheckpoint、未来tokenの非干渉、per-stepのgold/reference非漏洩、
+slotの全文文型・曖昧性・欠損・未解釈分母、位置別感度のpadding除外も検証。
+
+ignored出力 `codex/work_output/issue12-seed7-v1/report.json` SHA256:
+`3b08a5982c89fd63b4c5887f03ee7c1276a9ce51b3e9f8b072e830c448b791d2`。
+initial_only.pt: `fe69ff545559a8390fc912afa8915fa23fae3c9a9fd792981ae7416f5565b3d7`。
+per_step_additive.pt: `0bb375a82b62baac367d76b6ecf344835de013ca0cb61e1217979937eac42057`。
+過去の教材・split・結果・保存物は保持し、重みと全生成レポートはGitへ追加しない。
+
+Luna (`gpt-5.6-luna`) にdecoder/保存とslot採点を独立委譲。親はtarget/source文型の誤り、
+欠測/条件付き分母、config必須key検査と不足テストを修正し、統合/全検証/測定を担当。
+独立監査のcap最終token指摘は「実際に生成したdecision数を測る」契約上は変更不要と判断し、
+明文化と回帰テストで境界を固定した。委譲報告だけを成功根拠にしていない。
+
+残課題: 人物・時点保持、文型外出力、gold介入の崩壊、全slot一致0、複数seedの再現。
+次候補は別途予算を事前固定し、participant/time条件の保持と生成履歴中の誤り伝播を
+分離する診断。今回の結果だけでper-stepを既定方式へ昇格せず、PRレビュー待ちまでとする。
+
 ## 最新の実装状態: Issue #9
 
 ブランチ `codex/issue-9`。PR #10マージ後のmaster

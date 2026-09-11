@@ -45,13 +45,19 @@ class ToyModel(torch.nn.Module):
     """Composition root: C has only named concept probabilities at the boundary."""
 
     def __init__(self, pathway: str, tensorizer: SemanticTensorizer,
-                 vocabulary: ConceptVocabulary, hidden_dim: int = 32) -> None:
+                 vocabulary: ConceptVocabulary, hidden_dim: int = 32,
+                 *, conditioning_mode: str = "initial_only") -> None:
         super().__init__()
+        if pathway not in {"A", "B", "C"}:
+            raise ValueError("pathway must be A, B, or C")
+        if pathway != "C" and conditioning_mode != "initial_only":
+            raise ValueError("conditioning_mode is only supported for pathway C")
         self.pathway = pathway
         self.encoder = None if pathway == "A" else MultiChannelEncoder(
             EncoderConfig(tensorizer.vocab_sizes, hidden_dim=hidden_dim))
         bottleneck = None if pathway == "A" else ConceptBottleneck(hidden_dim, vocabulary)
-        self.decoder = TinyConceptDecoder(hidden_dim=hidden_dim, bottleneck=bottleneck)
+        self.decoder = TinyConceptDecoder(hidden_dim=hidden_dim, bottleneck=bottleneck,
+                                          conditioning_mode=conditioning_mode)
 
     def forward(self, ids: torch.Tensor, semantic: Any, *,
                 labels: torch.Tensor | None = None,
