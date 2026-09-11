@@ -33,7 +33,9 @@ sources:
 - 観測: Issue #16の人物直前prefixでも人物0/150、時点直前は30/150。履歴修復だけでは回復しない。
 - 未解決: decoderのslot表現・出力head・学習目的の原因分離。counterfactual prefix、長さ/内容効果、soft/oracle分布差。
 - 観測: slot CE重み1の同容量対照は人物26/時点25へ微増、全frame0のまま、全体LM/EOSは悪化。
-- 未実装: 専用slot head対照。slot損失によるhead変化とdecoder変化の寄与分離。
+- 実装済み: 専用slot head対照、head介入とlogit感度、C保存物再現。
+- 観測: C通常は人物36/time25、全frame0。単独oracleの対象slot回復と他slot崩壊が併存。
+- 未解決: 人物/time同時保持、組合せ汎化、元conceptと専用headの重複、容量/目的の寄与分離。
 - 未確認: 複数seed・別作者/未見テンプレートでの再現、soft conceptの余剰情報と因果的意味。
 - 未確認: 明示的な各意味層が単純なベースラインより役立つか。デモや単体テストの成功で代替しない。
 
