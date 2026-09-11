@@ -5,6 +5,24 @@ status: draft
 generated: { by: ai-assisted-source-review, at: 2026-09-11 }
 stale_after: 2026-10-11
 sources:
+  - id: local-slot-results
+    resource: docs/local-slot-results.md
+    title: Ordinary joint failure and partial gold-head recovery
+  - id: local-slot-plan
+    resource: docs/local-slot-injection.md
+    title: Preregistered duplicate removal and causal prefix gates
+  - id: local-slot-model
+    resource: src/norishio_lm/local_slot_model.py
+    title: Effective 31-dimensional conditioning and consumed-prefix windows
+  - id: local-slot-generation
+    resource: src/norishio_lm/local_slot_generation.py
+    title: Self-history greedy decoding without gold span access
+  - id: local-slot-checkpoint
+    resource: src/norishio_lm/local_slot_checkpoint.py
+    title: C and D mode-preserving checkpoint metadata
+  - id: local-slot-experiment
+    resource: src/norishio_lm/toy_local_slots.py
+    title: Historical replay and fixed C D comparison
   - id: joint-slot-plan
     resource: docs/joint-slots.md
     title: Algebraically equivalent split projection and fixed factorial protocol
@@ -218,3 +236,11 @@ seen0群の率はnull。A歴史Cを再現し、同重みを3線形投影へ分�
 B通常人物40/time25、両slot0/150、人物head goldで72/time1。干渉と同時保持失敗は継続。
 8介入・25counterfactual pairの生成/同slotとcross-slot感度、checkpoint完全再現を記録。
 seen/unseen性能差と偏りの因果効果はこの分割では推定不可。一般意味性能の証明としない。
+
+Issue #24は旧人物/time群を切るCと、同重みで既生成prefixによる位置窓を使うDを比較。
+C/D各42689parameter、A/Bから384減、C/D共通初期重みと同scheduleを固定。
+A/Bの歴史評価とC/D保存物再読込を厳密再現。C人物15/time37、D人物57/time43だが通常両slotは0/150。
+両head goldではC両slot6/全frame3、D48/16へ部分回復。Dの未見5組中3組のfactorialは0のまま。
+補足集計でsource head同時argmax正解C1/D0。head予測とdecoder追随の両方に失敗が残る。
+Dの人物介入→先行time logitは構造上0、逆方向はGRU経由で残る。全体parseによるslot採点差を逆因果としない。
+文法prior、parameter削減、h0/時刻変更を交絡として保持し、一般意味性能の証明としない。

@@ -38,7 +38,10 @@ sources:
 - 未解決: 人物/time同時保持、組合せ汎化、元conceptと専用headの重複、容量/目的の寄与分離。
 - 観測: Issue #22はvalidation全150例がunseen pairで、seen群は0例。分割を変更せず率nullと記録。
 - 観測: 数学的に同値な投影分割Bは人物40/time25、両slot0。人物head goldでtime1となり干渉が残る。
-- 未解決: 数学的に異なる局所/直交注入とold concept重複のablation。seen/unseen差は現分割で推定不可。
+- 未解決: 直交注入、重複除去と局所注入の交絡分離。seen/unseen差は現分割で推定不可。
+- 実装済み: Issue #24の旧人物/time除去C、既生成prefixに基づく局所注入D。未来やgold spanは参照しない。
+- 観測: 通常両slotはC/Dとも0、両head goldはC6/D48（/150）。Dでも未見5組中3組の追随失敗は残る。
+- 未解決: source headの同時予測（補足集計D0/150）とdecoderの未見pair追随、文法prior依存とh0/注入時刻の原因分離。
 - 未確認: 複数seed・別作者/未見テンプレートでの再現、soft conceptの余剰情報と因果的意味。
 - 未確認: 明示的な各意味層が単純なベースラインより役立つか。デモや単体テストの成功で代替しない。
 

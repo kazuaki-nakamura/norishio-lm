@@ -1,5 +1,9 @@
 # OKF 更新履歴
 
+- 2026-09-11: Issue #24の重複除去Cと因果的なprefix局所注入Dを追加。
+  Lunaモデル/保存形式を親が補修・統合し、356テスト、A/B歴史評価、C/D再読込を確認。
+  通常両slot0と両head goldでC6/D48、先行timeへの構造的0感度とparse分母の影響を記録。人の印なし。
+
 - 2026-09-11: Issue #22のtrain/validation pair表、全validation未見pair、同値投影分割比較を追加。
   Lunaモデル/保存形式・pair採点を親が統合し、初期重み、過去CとB再読込を照合。
   B人物40/time25・両slot0とcross-slot干渉継続を記録。数学的同値性とseen群不在の限界を明示。人の印なし。
