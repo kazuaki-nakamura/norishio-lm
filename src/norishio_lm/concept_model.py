@@ -155,8 +155,13 @@ class ConceptBottleneck(nn.Module):
 
 class TinyConceptDecoder(nn.Module):
     """CPU GRU decoder with explicit A/B/C pathways and no C source bypass."""
-    def __init__(self, vocab_size: int = 260, hidden_dim: int = 32, bottleneck: ConceptBottleneck | None = None) -> None:
+    def __init__(self, vocab_size: int = 260, hidden_dim: int = 32,
+                 bottleneck: ConceptBottleneck | None = None,
+                 *, conditioning_mode: str = "initial_only") -> None:
         super().__init__()
+        if conditioning_mode not in {"initial_only", "per_step_additive"}:
+            raise ValueError("conditioning_mode must be initial_only or per_step_additive")
+        self.conditioning_mode = conditioning_mode
         self.hidden_dim = hidden_dim
         self.embedding = nn.Embedding(vocab_size, hidden_dim, padding_idx=0)
         self.gru = nn.GRU(hidden_dim, hidden_dim, batch_first=True)
@@ -183,6 +188,10 @@ class TinyConceptDecoder(nn.Module):
             h0 = torch.tanh(self.concept_projection(concept_probs)).unsqueeze(0)
         elif encoder_latent is not None or concept_probs is not None:
             raise ValueError("A rejects encoder_latent and concept_probs")
+        if self.conditioning_mode == "per_step_additive":
+            if pathway != "C" or h0 is None:
+                raise ValueError("per_step_additive conditioning requires pathway C")
+            x = x + h0.squeeze(0).unsqueeze(1)
         hidden, _ = self.gru(x, h0)
         logits = self.lm_head(hidden)
         result = {"logits": logits}
