@@ -2,7 +2,163 @@
 
 検証日: 2026-09-11
 
-## 最新の実装状態: Issue #18
+## 最新の実装状態: Issue #20
+
+`codex/issue-20`、PR #19 merge `429cd8ea9718579502f8ac047187389b044f6e6c` から開始。
+[事前計画](explicit-slot-head.md) `257ba0e`、実装SHA
+`3bae02d9fa1e8d21c21d213390b9650eccc37c3f`。
+
+### 固定構造と学習
+
+A/BはIssue #18の保存済み重みを再利用し、hash・state・全4条件の生成/LM/byte/head評価を
+厳密再現してからCを測定。歴史結果を変える再学習は行わない。
+Cはseed7共通初期モデルから開始し、既存parameterと投影の先頭33列/biasを完全コピー。
+encoder fused latentから人物/timeのLinear(32,5)を各1本追加。train語彙ID1..5をhead ID0..4へ対応。
+元の33次元concept（既存人物/timeも含む）に2つのsoftmax分布計10次元を連結し、
+Linear(43,32)→tanhをh0と各token入力へ加算。直接source latentをdecoderへ渡さない。
+
+追加head330+投影列320=650parameter、C43073（A/B42423）。fork_rng seed20で
+人物head、time head、拡張投影の順に初期化して共通列/biasをコピー、呼出元RNGを保持。
+既存4損失各1 + 人物head mean CE1 + time head mean CE1。Cにslot byte CEは加えない。
+train450のみfit、validation150、test未評価。600更新/batch16/Adam .003/clip1/CPU1thread、
+共通sampling schedule。新headの各loss分母16例/更新。C学習44.051秒（速度比較の実証ではない）。
+Cの容量増分と追加目的の効果は混ざるため、同容量の因果比較とは呼ばない。
+
+共通初期SHA256: `f07d83adec88a37040886e1374800b17b56b7d2f3f49cea3f1b801c4b61b4b70`。
+C初期SHA256: `661d2fe58f6b0872ac0da39ad86a75f2474bdae60753dd78cb0ba58f45a298e6`。
+sampling SHA256: `6c3ae94191450c6c60d8ea3375711f56b241475b5da890940855f999d7e95e66`。
+
+### 通常生成A/B/C
+
+| arm | LM | 人物 /150 | 時点 /150 | 全frame /150 | EOS /150 | UTF-8 /150 | 種類 | parse /150 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| A | 0.168318838 | 20 | 22 | 0 | 150 | 150 | 9 | 109 |
+| B | 0.172247004 | 26 | 25 | 0 | 149 | 149 | 6 | 125 |
+| C | 0.164552725 | 36 | 25 | 0 | 150 | 150 | 10 | 120 |
+
+A/B/Cとも正常経路はsource/contextのみから確率を作りBOSから自己生成する。
+slotは既存target文型の機械採点。parse失敗を全row分母から除かず、条件付き分母はreportへ別保存。
+
+### Cの専用headと元concept
+
+専用headは各5class support30、confusionはrow=gold/column=prediction、head ID順0..4。
+
+- participant: 57/150、balanced 0.380000、entropy 1.041703。
+  class順 `["先輩", "友人", "同僚", "知人", "隣人"]`。
+  confusion `[[24, 6, 0, 0, 0], [0, 0, 0, 5, 25], [0, 0, 24, 0, 6], [0, 21, 0, 9, 0], [0, 6, 0, 24, 0]]`。
+
+- time: 61/150、balanced 0.406667、entropy 1.010194。
+  class順 `["今日", "明日", "来月", "来週", "週末"]`。
+  confusion `[[4, 26, 0, 0, 0], [0, 23, 0, 0, 7], [0, 0, 30, 0, 0], [0, 0, 26, 4, 0], [0, 0, 1, 29, 0]]`。
+
+元concept headの正解数は event 150/150, operators 83/150, agent 135/150, participant 54/150, time 67/150, location 150/150, repeat_marked 135/150.
+
+専用time head61/150は元time head67/150を超えておらず、専用化だけの優越性とはしない。
+各例のsoft確率とクラス別support、元conceptの詳細もreportへ保存。
+
+### Cのoracle・専用head介入
+
+participant/time oracleは該当する元concept群と専用headの両方をgoldへ修復する。
+full oracleは元7conceptと専用2headを修復。head_mean/permuted/goldは元conceptを通常予測のまま保持。
+meanは学習後train予測の平均、permutationはseed17でvalidation行を全体置換。介入は推論時だけ。
+
+| condition | LM | 人物 /150 | 時点 /150 | 全frame /150 | EOS /150 | UTF-8 /150 | 種類 | parse /150 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| predicted | 0.164552725 | 36 | 25 | 0 | 150 | 150 | 10 | 120 |
+| participant_oracle | 0.157968680 | 86 | 0 | 0 | 150 | 150 | 14 | 120 |
+| time_oracle | 0.150191686 | 5 | 72 | 0 | 150 | 150 | 13 | 120 |
+| full_oracle | 0.147264605 | 63 | 48 | 0 | 147 | 147 | 18 | 111 |
+| head_train_mean | 0.163561117 | 25 | 24 | 0 | 150 | 150 | 7 | 120 |
+| head_permuted | 0.167234517 | 31 | 20 | 0 | 150 | 150 | 13 | 120 |
+| head_gold | 0.152015500 | 59 | 31 | 0 | 150 | 150 | 10 | 120 |
+
+全条件の完全一致文0/150、特殊token行0。headだけのgoldでも人物59/time31へ変わるが、
+全frame0。人物oracleで人物86/time0、time oracleで人物5/time72となり、単独slotの回復が
+他slotの保持へ結び付かない。学習分布の組合せやdecoder内の依存が候補だが原因確定ではない。
+
+### Cのteacher-forced byte指標
+
+正解履歴を与えた診断であり、自由生成品質とは別。各slot900byte/150例。
+
+| condition | slot | NLL | 正解確率 | rank | argmax /900 |
+|---|---|---:|---:|---:|---:|
+| predicted | participant | 0.656773 | 0.777719 | 1.405556 | 740 |
+| predicted | time | 0.349710 | 0.815822 | 1.165556 | 781 |
+| participant_oracle | participant | 0.538434 | 0.807100 | 1.313333 | 774 |
+| participant_oracle | time | 0.381343 | 0.802030 | 1.194444 | 755 |
+| time_oracle | participant | 0.639540 | 0.775678 | 1.424444 | 720 |
+| time_oracle | time | 0.192758 | 0.861121 | 1.076667 | 837 |
+| full_oracle | participant | 0.557556 | 0.797828 | 1.356667 | 735 |
+| full_oracle | time | 0.219935 | 0.845101 | 1.106667 | 813 |
+| head_train_mean | participant | 0.653703 | 0.782206 | 1.384444 | 731 |
+| head_train_mean | time | 0.344677 | 0.817707 | 1.170000 | 780 |
+| head_permuted | participant | 0.664907 | 0.778737 | 1.381111 | 739 |
+| head_permuted | time | 0.359484 | 0.816274 | 1.174444 | 775 |
+| head_gold | participant | 0.578783 | 0.795651 | 1.314444 | 773 |
+| head_gold | time | 0.270836 | 0.829579 | 1.157778 | 785 |
+
+Cの通常time byte NLL .349710はA .308307/B .289612より悪い。全体LMや人物slotの
+改善だけで性能全体を良いと結論しない。
+
+### head単独置換のlogit感度
+
+seed17で片方の専用headだけを他行と置換。元conceptと他headは同じ。正解履歴を固定して比較。
+beforeはslot start-1（150byte）、insideはslot内（900byte）、各150行。KLはbase||介入。
+各byteの位置・L1/KL/argmax差もreportに保存。
+
+| 置換head | 採点slot | 領域 | logit L1 | KL | argmax変化率 |
+|---|---|---|---:|---:|---:|
+| participant_head_permuted | participant | before | 0.119358 | 0.002708 | 0.000000 |
+| participant_head_permuted | participant | inside | 0.091218 | 0.016020 | 0.040000 |
+| participant_head_permuted | time | before | 0.023611 | 0.000164 | 0.000000 |
+| participant_head_permuted | time | inside | 0.060269 | 0.002399 | 0.014444 |
+| time_head_permuted | participant | before | 0.049076 | 0.001527 | 0.000000 |
+| time_head_permuted | participant | inside | 0.044793 | 0.003463 | 0.024444 |
+| time_head_permuted | time | before | 0.018112 | 0.000057 | 0.000000 |
+| time_head_permuted | time | inside | 0.036314 | 0.005825 | 0.018889 |
+
+専用headの情報がlogit/生成へ届くことを支持するが、意味が正しく保持されることとは別。
+head平均は通常よりLMがわずかに低く、すべての指標で内容利用が有益とは言えない。
+
+### 再現・検証・残課題
+
+A/B report SHA256: `9db04ef46231cfb79439f1dc4f90883567b3f80433a7b8fc295cb2f2fcc1a382`。
+今回 `codex/work_output/issue20-seed7-v1/report.json` SHA256:
+`66e8c507dc5485d5e01825882688aeb8e34f0d6cbbbba36b0ce14d4960761ad8`。
+C checkpoint SHA256: `8bba5fb4915fc0435af474fae9649bf3b3b8e86737968c1f97271c7e77850956`。
+C final state SHA256: `d85d4af474d46b09ae17f3bb75d2ddaf1157933b2fc295057c6dc91b4dd65629`。
+A/Bの全評価とstate、C再読込のstate/元concept/専用head/logits/greedy150例は厳密一致。
+新checkpointはprimitive/tensorのみ、CPU weights_only読込、metadata hash・語彙対応・次元検証、
+排他的保存。hashは改変検知用であり署名ではない。保存物はignoredでGitには含めない。
+再実行には上記hashの過去reportとA/B保存重みが必要。
+
+```powershell
+.\.venv\Scripts\python.exe -m norishio_lm.toy_explicit_slots --baseline-report codex/work_output/issue18-seed7-v1/report.json --out-dir codex/work_output/issue20-seed7-v1
+.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider
+.\.venv\Scripts\python.exe -m norishio_lm.demo
+.\.venv\Scripts\python.exe -m norishio_lm.encoder_demo
+.\.venv\Scripts\python.exe codex/tools/build_context.py
+.\.venv\Scripts\python.exe codex/tools/validate_okf.py
+.\.venv\Scripts\python.exe codex/tools/check_knowledge.py --mode full
+.\.venv\Scripts\python.exe codex/okf_mcp/tests/live_check.py --server codex/okf_mcp/server.py --root okf
+git diff --check
+```
+
+実験v1終了0。全pytest **330 passed, 2 subtests passed**、14.70秒、終了0。
+knowledge91原本full=healthy、OKF8 files/6 concepts errors0/warnings0、
+MCP実プロセス6 toolsとgit diff --checkも終了0。
+既存zero-element警告1、両デモ終了0。実験/encoderのNumPy未導入警告あり。
+初回のcheckpoint担当テストはTemp制限で未検証だったが、親が許可付きで全検証済み。
+15追加テストはhead CE→encoder/head、LM→headの非ゼロ勾配を別々に確認し、
+未来input/label、他群不変、RNG/共通parameter、保存物改変/語彙不一致を検査する。
+
+`gpt-5.6-luna`にCモデルとcheckpointを独立委譲。親が不足テストと語彙/保存境界の補完を指示し、
+ハーネスと介入/感度テストを実装、全体を検証。Luna最終読取レビューはblockerなし。
+人の検証印は追加しない。一般日本語、意味層の有効性、複数seedの再現は未実証。
+次候補は人物/timeの同時保持と組合せ対照、元conceptと専用headの重複情報を分離する対照。
+結果後の重み変更・test tuning・有料GPU・自動merge/close・定期worker再開は行わない。
+
+## 過去の実装状態: Issue #18
 
 `codex/issue-18`、PR #17 merge `545b81fd035182376f44cdbdc5dad50cae08a180` から開始。
 [事前計画](slot-objective.md) `81ba65e`、実装SHA

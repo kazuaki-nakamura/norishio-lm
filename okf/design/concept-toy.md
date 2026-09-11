@@ -5,6 +5,18 @@ status: draft
 generated: { by: ai-assisted-source-review, at: 2026-09-11 }
 stale_after: 2026-10-11
 sources:
+  - id: explicit-slot-plan
+    resource: docs/explicit-slot-head.md
+    title: Preregistered five-class heads and 650 added parameters
+  - id: explicit-slot-model
+    resource: src/norishio_lm/explicit_slot_model.py
+    title: Source-only slot predictions appended to concept probabilities
+  - id: explicit-slot-checkpoint
+    resource: src/norishio_lm/explicit_slot_checkpoint.py
+    title: CPU weights-only state and vocabulary integrity
+  - id: explicit-slot-experiment
+    resource: src/norishio_lm/toy_explicit_slots.py
+    title: Historical replay and separated head interventions
   - id: slot-objective-plan
     resource: docs/slot-objective.md
     title: Fixed matched A/B objective and baseline preservation
@@ -178,3 +190,9 @@ Issue #18は既存4損失を維持したper-step Aと、人物/time byte CE重�
 Bはslot byte損失が低下し人物20→26/時点22→25だが、全frame0、全体LM/EOSは悪化。
 headも変化するためdecoder単独効果ではなく、単一seed・oracle分布差の限界を保持。
 任意の専用slot headは未実装。意味層の有効性や一般日本語性能の証明としない。
+
+Issue #20は人物/time専用5class headを追加し、既存33確率へ10確率を連結。
+追加650parameter、head CE各1、slot byte CEなし。A/B過去評価とC保存再読込を厳密再現。
+Cは人物36/time25、全frame0/150。head-only goldで59/31へ変わるが全frame0。
+単独oracleで人物86/time0、人物5/time72となり、同時保持が未解決。
+容量/目的/元concept重複が混ざるため、専用化単独の有効性や一般意味性能は主張しない。

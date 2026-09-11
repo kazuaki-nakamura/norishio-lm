@@ -1,5 +1,9 @@
 # OKF 更新履歴
 
+- 2026-09-11: Issue #20の専用slot head、650追加parameter、head単独介入と感度を追加。
+  Lunaモデル/保存形式を親が補完統合し、A/B歴史再現とC再読込を確認。
+  人物36/time25・全frame0と単独oracleの他slot悪化、未解決の同時保持を記録。人の印なし。
+
 - 2026-09-11: Issue #18のslot byte CE重み1・同初期値/schedule比較を実装。
   原本と315テスト・固定A/B実測を親が検証し、Luna損失/境界テストを統合。
   一部slot改善とLM/EOS悪化、全frame0、C未実装を併記。人の検証印なし。
