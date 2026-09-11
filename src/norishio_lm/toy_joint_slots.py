@@ -55,7 +55,7 @@ def compact_sensitivity(base: torch.Tensor, changed: torch.Tensor, spans: list) 
 
 @torch.no_grad()
 def evaluate(model: Any, rows: list, tensorizer: SemanticTensorizer, vocabulary: ConceptVocabulary,
-             corpus: Any, strict: Any, seen: list[bool]) -> dict:
+             corpus: Any, strict: Any, seen: list[bool], *, generate: Any = greedy_generate) -> dict:
     model.eval()
     targets = [r["targets"] for r in rows]
     old, heads = source_distributions(model, [corpus.model_inputs(r) for r in rows], tensorizer)
@@ -71,7 +71,7 @@ def evaluate(model: Any, rows: list, tensorizer: SemanticTensorizer, vocabulary:
                "unseen_pair":[i for i,x in enumerate(seen) if not x]}
     for name, probs in cases.items():
         print(f"head diagnostic {name}",flush=True)
-        generated = [asdict(g) for g in greedy_generate(model.decoder,probs,128)]
+        generated = [asdict(g) for g in generate(model.decoder,probs,128)]
         logits = base if name=="predicted" else model.decoder.decode_with_concept_intervention(ids,probs)["logits"]
         groups = group_pair_scores(generated,targets,corpus.seed_data(),seen)
         for group, selected in indices.items():
@@ -100,7 +100,7 @@ def evaluate(model: Any, rows: list, tensorizer: SemanticTensorizer, vocabulary:
             logits = model.decoder.decode_with_concept_intervention(ids,probs)["logits"]
             if when==0: row_anchor=logits
             if participant==0: columns[when]=logits
-            generated=[asdict(g) for g in greedy_generate(model.decoder,probs,128)]
+            generated=[asdict(g) for g in generate(model.decoder,probs,128)]
             counterfactual=[{"concept":{**t["concept"],"participant":values["participant"][participant],
                                           "time":values["time"][when]}} for t in targets]
             scores=score_slots(generated,counterfactual,corpus.seed_data())
