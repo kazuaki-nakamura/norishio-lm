@@ -5,6 +5,15 @@ status: draft
 generated: { by: ai-assisted-source-review, at: 2026-09-11 }
 stale_after: 2026-10-11
 sources:
+  - id: calibrated-metrics
+    resource: src/norishio_lm/concept_metrics.py
+    title: Class-balanced metrics and separate missing and unseen masks
+  - id: checkpoint
+    resource: src/norishio_lm/toy_checkpoint.py
+    title: CPU weights-only checkpoints with vocabulary integrity validation
+  - id: evaluation
+    resource: src/norishio_lm/toy_evaluation.py
+    title: Fixed 60-step matched controls and validation replay
   - id: diagnosis
     resource: src/norishio_lm/toy_diagnosis.py
     title: Fixed-budget byte and EOS failure diagnosis
@@ -78,3 +87,9 @@ handoffの外部AIレビュー記録ではvalidation概念accuracyはtrain多数
 toy_diagnosisの60/600更新比較では600で両条件の有効UTF-8/EOS終了が150/150に回復。
 一方全件同じ文で完全一致0のまま。60stepの学習不足がbyte/EOS失敗に寄与する説明を
 支持するが、入力依存の意味生成は未実証。モデル・教材・元の既定値は変えずtest未使用。
+
+Issue #7は多数派/クラス別/項目balanced平均/全7項目一致を同一ハーネスで比較する。
+欠損と未見のmask・分母を分離し、operators順序を保持。seed17の対応置換について
+異なる完全既知フレームのペア数を保存する。soft/hard/zero/train平均/置換と、
+同初期値・同学習順の定数再学習を区別する。重みと語彙IDをローカル保存し、
+validation150件のlogitsと自由生成を再読込前後で照合する。test評価や予算拡張はしない。

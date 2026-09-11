@@ -2,6 +2,113 @@
 
 検証日: 2026-09-11
 
+## 最新の実装状態: Issue #7
+
+`codex/issue-7`、実装コミット `67ebd169c1606e934fb77ed5f09abbdcf3b52aa4`。
+PR #8マージ後のmaster `2e0f05a30718cd029c0a9a7e862578b756b83340` から開始。
+作業ディレクトリは既存の `codex/work_output/issue-worker/issue-3` を再利用したが、
+ブランチと追加範囲はIssue #7。過去の教材・結果は保持した。
+
+### 実装と比較条件
+
+`concept_metrics` はクラス別正答/対象数、項目accuracy/balanced accuracy、
+項目balancedのmacro平均、全7項目一致、欠損/未見の別maskと分母を返す。
+多数派はtrainだけで決定し、同率は最小ID。operatorsは順序付き別クラス。
+`toy_evaluation` は通常C/定数Cの同初期値・同学習順対照と6介入を集約。
+`toy_checkpoint` はfloat32 CPUモデル、語彙ID、byte仕様、教材版を保存・復元する。
+weights-only読込、語彙metadata整合性検査、既存出力拒否、競合時の上書き防止を実装。
+保存物はignored出力。SHAは整合性確認であり署名・発行者認証ではない。
+
+固定教材v1: train450/validation150/test150/diagnostic24。今回test未評価。
+seed7、60更新、batch16、CPU1thread、Adam .003、clip1、全4損失の重み1。
+両モデルの初期state SHA256:
+`f07d83adec88a37040886e1374800b17b56b7d2f3f49cea3f1b801c4b61b4b70`。
+共通抽出順SHA256:
+`0f9889521f50650b1fe152f20045b49871ddc3650a63fc13e2e71e9572b3fb51`。
+定数は初期モデルのtrain-source予測平均をdetachして固定し、補助損失学習は両方で継続。
+
+### validationの観測
+
+| 概念採点 | micro正答/対象数 | 項目balancedのmacro平均 | 全7項目一致 |
+|---|---:|---:|---:|
+| train多数派 | 570/1050 | 0.319047619 | 0/150 |
+| 通常C | 571/1050 | 0.320000000 | 0/150 |
+| 定数C側のencoder予測 | 572/1050 | 0.320952381 | 0/150 |
+
+定数Cの最後の行は補助学習されたencoderの採点であり、decoderへは固定ベクトルを渡す。
+全条件のevent/operators/agent/time/location/repeat_marked accuracyは順に
+0.6/0.3/0.8/0.2/0.8/0.9。participantは多数派30/150、通常31/150、定数側32/150。
+今回は全項目に既知goldがあり、欠損/未見はともに0。mask境界は別の単体テストで確認。
+operatorsは全3採点とも NOT→WANT:0/15、PLAN→NOT:0/15、PLAN:0/30、
+POSSIBLE:0/15、WANT→NOT:0/30、WANT:45/45。否定作用域の識別は実証できていない。
+
+| decoder条件 | validation LM（10005 token） |
+|---|---:|
+| soft | 2.088276588 |
+| hard | 2.088078150 |
+| zero | 2.131895389 |
+| 最終モデルのtrain-source平均 | 2.088286604 |
+| seed17対応置換 | 2.088275530 |
+| 定数条件で再学習 | 2.088902805 |
+
+seed17置換は固定点1、移動149、比較可能な完全既知フレーム150組中、意味が異なる148組。
+項目差分ペア数はevent90/operators128/agent54/participant122/time122/location52/repeat28。
+soft/hard/zero/平均/置換は通常モデルへの推論介入、定数条件だけは再学習対照。
+zeroは確率の正規化も壊すため、その損失増加だけを意味利用の根拠にしない。
+平均/置換/定数再学習の損失は近く、意味内容利用の有効性は未実証のまま。
+
+全6条件の自由生成は各150件でEOS終了0、有効UTF-8 0、完全一致0、unique sequence1、
+特殊token行0。全件cap128終了。source/予測概念/介入値/生成raw ID/停止理由/参照を
+別フィールドで保存。参照は生成器へ渡さない。完全一致は教材参照との一致だけを測る。
+
+両モデル登録パラメータ42423、初期/最終で値が変わった要素29552。
+これは正味の変化で、途中の更新回数や一度変わって戻った要素は数えない。
+学習秒は通常5.471、定数4.266（各1回、速度優劣の根拠にはしない）。
+target履歴長は両方49–76、train/validation平均66.7、source-prefixなし。
+共通960抽出例の平均66.8、有効損失token64128。validation有効token10005。
+
+### 保存・復元と検証
+
+両checkpointでvalidation150件のconcept/logits/greedy/stateが再読込前後で完全一致。
+さらに別プロセスの`--restore`で学習・語彙再fitなしに採点と全生成例を再現し、
+元レポートの該当条件とのJSON構造比較で完全一致を確認した。
+
+```powershell
+.\.venv\Scripts\python.exe -m norishio_lm.toy_evaluation --out-dir codex/work_output/issue7-seed7-v1
+.\.venv\Scripts\python.exe -m norishio_lm.toy_evaluation --restore codex/work_output/issue7-seed7-v1/predicted.pt --out-dir codex/work_output/issue7-replay-predicted-v1
+.\.venv\Scripts\python.exe -m norishio_lm.toy_evaluation --restore codex/work_output/issue7-seed7-v1/constant.pt --out-dir codex/work_output/issue7-replay-constant-v1
+.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider
+.\.venv\Scripts\python.exe -m pytest tests/test_toy_checkpoint.py -q -p no:cacheprovider
+.\.venv\Scripts\python.exe -m norishio_lm.demo
+.\.venv\Scripts\python.exe -m norishio_lm.encoder_demo
+.\.venv\Scripts\python.exe codex/tools/build_context.py
+.\.venv\Scripts\python.exe codex/tools/validate_okf.py
+.\.venv\Scripts\python.exe codex/tools/check_knowledge.py --mode full
+.\.venv\Scripts\python.exe codex/okf_mcp/tests/live_check.py --server codex/okf_mcp/server.py --root okf
+```
+
+全pytest: **220 passed, 2 subtests passed**、skipなし、11.97秒。
+既存の空tensor初期化warning1。Temp fixture統一後のcheckpoint9件も再実行成功。
+両デモと評価/復元CLIは終了0。CLIにはNumPy未導入warningがあるがNumPy変換は使わない。
+checkpointテスト初回のTemp権限失敗は成功に数えず、許可された環境で再実行した。
+索引再構築51 sources、OKF 8 files/6 conceptsでerrors0/warnings0、knowledge full healthy。
+MCP実プロセス検査は6 tools、ok true。source追加中のquick検査はinventory差分を報告し、
+原本確認・文書更新後に再構築して解消した。
+
+レポート `codex/work_output/issue7-seed7-v1/report.json` SHA256:
+`be96e104d69dd6cdd4b03bcc1ce32dc675b12a87c7bf9a45d6755198a0097971`。
+predicted.pt SHA256: `7f111ff8458a01c479ac3d7fdd0aa57e089af61b908f60ee9675b6b4657e3ab3`。
+constant.pt SHA256: `5fa36ffd0578dab84fc365e3bdddb50c9b0e74cd7193e752179b3fdf84e42968`。
+
+Luna (`gpt-5.6-luna`) 2担当に採点とcheckpointを独立委譲。親がJSON非対応、語彙metadataの
+hash範囲、保存型/競合処理、検査不足を確認して修正・追加検証した。採点担当の初期cwd
+誤認は指定worktreeへ直し、rootへの誤配置を除去後rootがcleanであることを確認。
+今後の改善候補: 委譲開始時にcwd・Python実体・torch可用性をコマンドで必ず照合する。
+
+残課題は入力依存の生成、否定作用域、多数派を超える概念識別、独立seedの再現性。
+次候補は予算と評価基準を先に固定した入力対応学習の診断。v1教材やtestを結果に合わせて
+改変しない。この作業はレビューPRまでで、自動merge/Issue close/worker再起動は行わない。
+
 ## 最新の実装状態: Issue #3
 
 ### 2026-09-11: byte崩壊・EOS未生成の切り分け
