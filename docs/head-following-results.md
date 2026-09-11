@@ -7,6 +7,10 @@ Dの42689parameter・既消費prefixによるgateを固定。seed7は過去Dの8
 各600更新、batch16、Adam .003、clip1、CPU1thread、既存4損失各1 + head CE各1。
 train450のみfit、validation150全未見pair、test未評価。追加探索・再校正なし。
 
+2026-09-12追記: `evaluate_condition` のteacher_forced組立がraise後の到達不能位置にあり、
+保存reportの当該フィールドはnull。計画にある追加byte診断は未測定で、成功に含めない。
+上記reportと生成・LM・head実数値は変更せず保持する。修復と追加診断は残課題。
+
 ## 主要観測
 
 - seed7/17/29の通常両slot一致は全て0/150、両head goldは48/46/64（平均52.667/150）。

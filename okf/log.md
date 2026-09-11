@@ -1,5 +1,9 @@
 # OKF 更新履歴
 
+- 2026-09-12: Issue #28のjoint25-way head/marginal局所注入を3seed固定比較。
+  Lunaが利用上限で停止後、親が保存/RNG/因果/勾配テストを補完し379テストと全checkpoint再現を確認。
+  train高精度・未見pair0・通常両slot0、gold平均48を記録。Issue26 byte診断nullも未測定へ訂正。人の印なし。
+
 - 2026-09-11: Issue #26のjoint/calibration、train confidence subset、base入力除去、seed7/17/29比較を追加。
   Luna指標/採点を親が補修統合し、366テストと過去D・追加seed保存物再現を確認。
   通常両slot0とgold48/46/64、空wrong群、prefix失敗によるgate未開始を記録。人の印なし。
