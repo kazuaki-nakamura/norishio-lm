@@ -9,6 +9,8 @@ Plan fixed before measurement, based on PR #15 merge
   `a4d18bb7fab3d63a94d0d0e5b026b59956aae6db276241eba60b248e03621c92`.
   Replay the complete prior diagnostic (including normal generation and metrics)
   before prefix measurements. Compare exact JSON values. No training/refit/test.
+  Also require empty-prefix decoding to reproduce all normal predicted tokens,
+  and score these outputs with the same fixed-position local metrics as a baseline.
 - CPU, one thread, deterministic algorithms, validation150, total output cap128
   tokens including supplied prefix (BOS excluded, EOS included). No sampling.
 - Six fixed boundaries: for participant and time separately, `start-1`, `start`,
