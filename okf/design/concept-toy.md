@@ -5,6 +5,18 @@ status: draft
 generated: { by: ai-assisted-source-review, at: 2026-09-11 }
 stale_after: 2026-10-11
 sources:
+  - id: collapse
+    resource: src/norishio_lm/toy_collapse.py
+    title: Frozen source probe and explicit gold oracle boundary diagnosis
+  - id: probe
+    resource: src/norishio_lm/toy_probe.py
+    title: Train-only standardized linear seven-head probe
+  - id: collapse-statistics
+    resource: src/norishio_lm/collapse_metrics.py
+    title: Confusion entropy probability variance and pairwise distances
+  - id: collapse-plan
+    resource: docs/collapse-diagnosis.md
+    title: Pre-fixed seed and CPU budgets with diagnostic limits
   - id: calibrated-metrics
     resource: src/norishio_lm/concept_metrics.py
     title: Class-balanced metrics and separate missing and unseen masks
@@ -93,3 +105,8 @@ Issue #7は多数派/クラス別/項目balanced平均/全7項目一致を同一
 異なる完全既知フレームのペア数を保存する。soft/hard/zero/train平均/置換と、
 同初期値・同学習順の定数再学習を区別する。重みと語彙IDをローカル保存し、
 validation150件のlogitsと自由生成を再読込前後で照合する。test評価や予算拡張はしない。
+
+Issue #9のseed7/600更新診断では凍結encoderの線形probeが860/1050、既存head771/1050、
+多数派570/1050。encoder/soft conceptは150通り、argmax frame34通りだが生成は1通り。
+50通りのgold oracleを渡しても同一文。encoderの情報保持とdecoder出力の多様性は別であり、
+headだけの改善で解決するとは言えない。oracleの分布差と単一seedによる限界を保持する。

@@ -1,5 +1,9 @@
 # OKF 更新履歴
 
+- 2026-09-11: Issue #9の境界診断を追加。事前固定600更新モデルと300更新の凍結線形probe、
+  confusion/entropy/距離、gold oracleを比較。encoder情報保持と同一文生成を区別し、
+  単一seed・oracle分布差の限界を記録。Luna2担当の実装と独立監査を親が統合検証。人の印なし。
+
 - 2026-09-11: Issue #7のクラス別・balanced採点、欠損/未見mask、seed付き対応置換、
   同予算定数対照、重みと語彙のcheckpoint往復を追加。Lunaの採点/保存実装を親が
   原本レビュー・統合検証。成果は開発配線と限定したvalidation観測。人の検証印なし。
