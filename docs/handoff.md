@@ -2,7 +2,81 @@
 
 検証日: 2026-09-11
 
-## 最新の実装状態: Issue #24
+## 最新の実装状態: Issue #26
+
+`codex/issue-26`、PR25 merge `3880c85555f876d05d7ef481a5efde7ac73258d8` から開始。
+事前計画 `c95375e`、実装SHA `0c0141abaee77dc594b64cc35809afaabfffd14c`。
+[条件・計算式](head-following.md)と[各seed・pair・ablation全表](head-following-results.md)。
+
+### 固定条件と実装
+
+Issue24 Dの構造・gate・42689parameterを固定。seed7は再学習せず、過去8条件/25factorialとstateを厳密再現。
+追加seed17/29はcommonモデル初期値とsamplingを変更し、拡張head/projectionのseed20は全seed共通。
+各600更新/batch16/Adam .003/clip1/CPU1thread、既存4損失各1+専用head CE各1。slot byte CEなし。
+train450のみfit、validation150全未見pair、test未評価。条件・閾値・weightを結果後に変更しない。
+
+個別accuracy/balanced/Brier/NLL/10bin ECE、同一rowのjoint exact、gold pair別4分類、誤り相関を追加。
+soft headのjoint logprob/entropy/marginは独立近似と明記し、各rowの確率・gold・予測を保存。
+decoder追随はpredicted/single-gold/both-goldのgold pair別採点と25factorialへ分離。
+factorialはtrain-seen/validation-unseen/neitherを注記し、通常reference精度とは混同しない。
+
+### 実数値（validation分母150）
+
+| seed | 通常 人物/time/両slot/全frame | 両head gold 人物/time/両slot/全frame | source head joint |
+|---|---|---|---:|
+| 7 | 57 / 43 / 0 / 0 | 48 / 99 / 48 / 16 | 0 |
+| 17 | 44 / 52 / 0 / 0 | 46 / 114 / 46 / 12 | 2 |
+| 29 | 27 / 43 / 0 / 0 | 64 / 103 / 64 / 20 | 0 |
+
+通常両slot平均0、両head gold平均52.667/150、全frame平均16/150。
+通常LM平均0.178836220、both-gold平均0.123238005。seed17のみEOS/UTF8は両条件144/150、他seed150/150。
+source head誤り相関は-0.648136/-0.583282/-0.454944。argmax成功が同一rowで少ないが、soft情報の欠如を断定しない。
+
+seed7 confident train subset（両head max>=0.8固定）はcorrect263/wrong0。correct群の両slot210/263・全frame56/263。
+残187例は閾値外。wrong群の評価はnullで、比較不能。validationラベルでsubsetを選んでいない。
+
+seed7推論時ablationはfull/base21 zero/event zero/operators zero×predicted/both-gold。
+全base zeroは両条件parse0/150、生成1種類。既知prefix成立0/150でgateが開始しないことを保存tokenから補足照合。
+event zero + goldは両slot72/150へ増えるが全frame12/150へ低下。operators zero + goldは両slot48/全frame12。
+入力zero後のbiasは残し、頭の予測と重みは固定。分布外介入・文法prior依存を一般意味理解の結論へ拡張しない。
+
+### 保存・検証
+
+report SHA256: `964ab4d7dd7fc8b2fdddac816af51ac2ea8ab28a806a33dff32e40631250170f`。
+seed17 checkpoint: `bb3dc4c5d83d0e6622bdaf0f94bfbd8f925d2cb29460091d7a27c162a3be5614`。
+seed29 checkpoint: `fd6d79852acb39ea2f7c0c56571744449085449e0f19f05946866dabea56803e`。
+両保存物でstate/旧concept/head/logits/greedy再読込が完全一致。seed7 stateも不変。
+出力はignored `codex/work_output/issue26-fixed-v1/`、Gitに重み/reportや会話を追加しない。
+
+```powershell
+.\.venv\Scripts\python.exe -m norishio_lm.toy_head_following --baseline-report codex/work_output/issue24-seed7-v1/report.json --out-dir codex/work_output/issue26-fixed-v1
+.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider
+.\.venv\Scripts\python.exe -m norishio_lm.demo
+.\.venv\Scripts\python.exe -m norishio_lm.encoder_demo
+.\.venv\Scripts\python.exe codex/tools/build_context.py
+.\.venv\Scripts\python.exe codex/tools/validate_okf.py
+.\.venv\Scripts\python.exe codex/tools/check_knowledge.py --mode full
+.\.venv\Scripts\python.exe codex/okf_mcp/tests/live_check.py --server codex/okf_mcp/server.py --root okf
+git diff --check
+```
+
+本worktreeのPython3.11.15/Torch2.14.0+cpuで実験と両demo exit0。
+全pytest366 passed + 2 subtests passed（16.93秒）、既存zero-element警告1。
+NumPy未導入警告は出るが今回の処理はNumPy不要。Windows Temp制限は承認済み実行で回避。
+索引117件、OKF errors0/warnings0、knowledge full117 sources healthy、MCP live6 toolsでok。
+ローカル結果とGitHub CIを区別する。
+
+Luna (`gpt-5.6-luna`) にjoint/calibrationと介入/採点を委譲。親がECE集計・clamp式・空群/未知ラベルの扱いを
+レビュー補修し、統合harness、固定seed学習、全検証とGitHub操作を担当。PRまで進めてレビュー待ち。
+自動merge/close、停止中worker再開、有料GPU、追加architecture探索はしない。
+
+### 未解決と次候補
+
+通常pair保持は3seedとも未解決、oracle追随も不完全。train正解subsetでもdecoder失敗が残る。
+次は別Issueで、予測headの組合せ一般化、soft/hard head情報の差、文頭失敗でgateが閉じる依存を事前固定して分離する。
+現n=3・同じAI-authored教材・共通拡張seed20は一般性能の証明ではない。上流意味層の再学習ablationも未実施。
+
+## 過去の実装状態: Issue #24
 
 `codex/issue-24`、PR23 merge `615fc29db1dc0ccef21ab9d4e1c044005e582e16` から開始。
 事前計画 `3eeebd7`、実装SHA `e86a7c5d66cec75fd11cce577d6bfda3cd613844`。

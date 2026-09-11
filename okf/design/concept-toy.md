@@ -5,6 +5,21 @@ status: draft
 generated: { by: ai-assisted-source-review, at: 2026-09-11 }
 stale_after: 2026-10-11
 sources:
+  - id: head-following-results
+    resource: docs/head-following-results.md
+    title: Three-seed ordinary failure and partial oracle following
+  - id: head-following-plan
+    resource: docs/head-following.md
+    title: Fixed calibration, train confidence and three-seed protocol
+  - id: head-joint-metrics
+    resource: src/norishio_lm/head_joint_metrics.py
+    title: Marginal calibration and same-row joint prediction metrics
+  - id: head-following-diagnostics
+    resource: src/norishio_lm/head_following_diagnostics.py
+    title: Selected train subsets and frozen semantic input ablation
+  - id: head-following-experiment
+    resource: src/norishio_lm/toy_head_following.py
+    title: Historical D replay and fixed seeds17 and29
   - id: local-slot-results
     resource: docs/local-slot-results.md
     title: Ordinary joint failure and partial gold-head recovery
@@ -244,3 +259,9 @@ A/Bの歴史評価とC/D保存物再読込を厳密再現。C人物15/time37、D
 補足集計でsource head同時argmax正解C1/D0。head予測とdecoder追随の両方に失敗が残る。
 Dの人物介入→先行time logitは構造上0、逆方向はGRU経由で残る。全体parseによるslot採点差を逆因果としない。
 文法prior、parameter削減、h0/時刻変更を交絡として保持し、一般意味性能の証明としない。
+
+Issue #26はD固定でseed7を厳密再現、17/29を600更新。同時head正解0/2/0、通常生成両slotは全seed0。
+両head goldの両slot48/46/64、平均52.667/150。head誤り相関は負だが因果・soft情報欠如の証明ではない。
+confident train correct263例で両slot210、wrong群0で評価null。閾値は両head0.8固定、validation選択なし。
+全base入力zeroでは文頭崩壊でgate開始0、parse0。event zero + goldは両slot72へ増えるが全frame12へ低下。
+入力group診断と意味層全体の有効性を区別し、n3/共通拡張seed20/文法priorの限界を保持する。

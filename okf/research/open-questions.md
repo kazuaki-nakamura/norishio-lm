@@ -42,7 +42,10 @@ sources:
 - 実装済み: Issue #24の旧人物/time除去C、既生成prefixに基づく局所注入D。未来やgold spanは参照しない。
 - 観測: 通常両slotはC/Dとも0、両head goldはC6/D48（/150）。Dでも未見5組中3組の追随失敗は残る。
 - 未解決: source headの同時予測（補足集計D0/150）とdecoderの未見pair追随、文法prior依存とh0/注入時刻の原因分離。
-- 未確認: 複数seed・別作者/未見テンプレートでの再現、soft conceptの余剰情報と因果的意味。
+- 観測: Issue #26はseed7/17/29で通常両slot全て0、両head gold48/46/64。head jointは0/2/0。
+- 観測: confident train correct263例でも両slot210、wrong群は0例で比較不能。全base zeroは文頭崩壊でgate未開始。
+- 未解決: soft/hard headの情報差、headの組合せ一般化と文法prefix依存の分離。入力group推論ablationと意味層再学習は別。
+- 未確認: 拡張headのseedも独立にした再現、別作者/未見テンプレート、soft conceptの余剰情報と因果的意味。
 - 未確認: 明示的な各意味層が単純なベースラインより役立つか。デモや単体テストの成功で代替しない。
 
 実験の順序は [意味層の分離](semantic-separation.md) と既存 architecture に従う。
