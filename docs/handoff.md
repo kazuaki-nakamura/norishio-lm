@@ -1,8 +1,67 @@
 # Norishio-LM 引き継ぎ記録
 
-検証日: 2026-09-10
+検証日: 2026-09-11
 
 ## 最新の実装状態: Issue #3
+
+### 2026-09-11: byte崩壊・EOS未生成の切り分け
+
+追補ブランチ `codex/byte-eos-diagnosis`。PR #6は別途`1e0a6c7`でマージ済み
+（master `6e521daf9cf03f4a9a090e8cef96306381e25ea6`）。以下の診断追加はその後の
+別PR対象で、PR #6のマージ内容には含まれない。
+
+診断実装 `894f3ebb022155eb014fb6a02b766e43168d9d45`。
+新しい`toy_diagnosis`コマンドで、seed7、batch16、cap128、更新回数60/600を
+実行前に固定。同一初期stateと同じ抽出順のprefixを使用し、通常C/定数Cを各予算で
+初期化から学習した。モデル、教材、v1/controlsハーネス、元の60step既定値は変更なし。
+train/validationだけを使用し、testの再評価・調整・モデル選択はしていない。
+
+Luna (`gpt-5.6-luna`) に生成実装の独立監査を委譲。128stepのincrementalとfull-history
+比較はlogit最大差1.1920929e-07、argmax相違0との報告。EOSの1token先教師、PAD除外、
+byte±4の往復にも具体的不具合なし。親は診断実装、全4条件の最初のvalidation例の
+full-history/実生成列一致、EOS位置別集計とUTF-8遷移のテスト、最終実行を確認した。
+
+| 条件 | validation LM | 正解履歴のbyte accuracy | 正解末尾のEOS accuracy | 自由生成: 有効UTF-8 / EOS終了 | 完全一致 |
+|---|---:|---:|---:|---:|---:|
+| 通常C 60step | 2.088276588 | 0.480974 | 0 | 0/150 / 0/150 | 0/150 |
+| 定数C 60step | 2.088902805 | 0.480974 | 0 | 0/150 / 0/150 | 0/150 |
+| 通常C 600step | 0.179737919 | 0.950989 | 1 | 150/150 / 150/150 | 0/150 |
+| 定数C 600step | 0.190636492 | 0.949467 | 1 | 150/150 / 150/150 | 0/150 |
+
+各条件のvalidationは9,855 byte教師と150 EOS教師。60step時は全150件で
+不正UTF-8への遷移が生じ、単なるcap末尾の文字切れではなかった。先頭例は
+`E7 A7 81 E3 81 E3 ...`（token ID 235,171,133,231,133,231...）で、
+最初の「私」は正しいが、6番目のbyteが継続byteであるべき位置にE3を再出力する。
+通常Cの正解末尾EOS確率平均は0.101001、自由生成先頭例の最大EOS確率は0.012390。
+つまり正解の過去を与えてもEOSはargmaxにならず、自己出力の履歴ではさらに低い。
+
+600stepでは通常Cの正解末尾EOS確率平均0.985960、先頭自由生成例の最大0.988273。
+字形やUTF-8制約を追加せず、学習更新を増やすだけでbyte整合性と終了は回復した。
+この条件では60stepの学習量不足が生成崩壊に寄与したという説明を支持する。
+全般的な実装無欠陥や、任意のデータ・seedで十分な学習量を保証するものではない。
+
+ただし600stepの両条件とも全150件に同じ
+「私は、来月先輩と会うことを望んでいる。」を出力し、入力内容への対応は改善したと
+言えない。各条件のunique sequenceは1、完全一致0。文字として成立し終了することと、
+入力の人物・時点・作用域を正しく生成することは別の課題として残る。
+
+```powershell
+.\.venv\Scripts\python.exe -m norishio_lm.toy_diagnosis --out codex/work_output/issue3-byte-eos-diagnosis.json
+.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider
+```
+
+診断4条件は各1回、CPU1thread。学習秒は通常60=4.431、定数60=4.449、
+通常600=44.530、定数600=44.139。従前60stepの結果を再現し、600stepの反復や
+複数seedは未実施。レポートSHA256
+`a399d6af7fd0fb8073a579e1d60bed711c26226c417caa9c7d55a00e6c5abb8e`。
+生token、参照と生成例、EOS確率・順位、最初の不正遷移はignored JSONへ保存。
+全検査 **200 passed, 2 subtests passed**、skipなし、10.08秒、既知のzero-element警告1件。
+NumPy未導入警告は診断実行時にも継続。今回の追加は診断で、生成モデルの修正版ではない。
+既存両デモ終了0、原本45件のknowledge full healthy、OKF errors/warnings 0、
+MCP live check ok=true/6tools/stale0、Git空白検査成功。ローカル検証として記録する。
+
+次は人物・時点・作用域のどこで入力依存情報が失われるかを、encoder→concept→decoderの
+各境界で測る。600stepを性能保証の既定値に昇格せず、以後の予算・seed・評価を先に固定する。
 
 ### 2026-09-11: 対照実験と自由生成のローカル追試
 

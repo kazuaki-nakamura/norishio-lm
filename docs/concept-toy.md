@@ -125,3 +125,28 @@ The local follow-up found near-identical validation losses, while all four arms
 failed free generation (0 exact matches, 0 EOS completions, 0 valid UTF-8 sequences).
 These are retained negative results, not repaired or described as fluent outputs.
 See handoff for numeric results, two-run reproducibility, hashes and limitations.
+
+## Byte/EOS diagnosis
+
+```powershell
+.\.venv\Scripts\python.exe -m norishio_lm.toy_diagnosis --out codex/work_output/issue3-byte-eos-diagnosis.json
+```
+
+This separate validation-only diagnosis fixes budgets at 60 and 600 updates,
+seed 7, batch 16 and generation cap 128. Both normal and constant C are initialized
+from the same model and use prefixes of the same training schedule. Existing
+model code, data and default budgets remain unchanged; test is not scored.
+
+Metrics distinguish actual illegal UTF-8 transitions from an incomplete final
+codepoint caused by the cap. Teacher-forced byte accuracy excludes EOS and PAD;
+EOS accuracy/probability uses only the true reference-end position. A preselected
+first validation example records full-history greedy decisions, EOS probability
+and rank, and equivalence to incremental generation, without giving that tracing
+function a reference.
+
+At 60 updates both arms have actual illegal byte transitions and zero gold-end
+EOS argmax accuracy. At 600 updates both produce valid UTF-8 and terminate on all
+150 validation inputs, supporting inadequate early training as a contributor to
+the byte/EOS failure. Both still generate the same sentence for every input and
+have zero exact matches. This does not establish conditional semantic generation.
+The 600-update arms were run once, not a multi-seed or cross-environment result.

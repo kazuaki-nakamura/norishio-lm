@@ -5,6 +5,12 @@ status: draft
 generated: { by: ai-assisted-source-review, at: 2026-09-11 }
 stale_after: 2026-10-11
 sources:
+  - id: diagnosis
+    resource: src/norishio_lm/toy_diagnosis.py
+    title: Fixed-budget byte and EOS failure diagnosis
+  - id: diagnosis-tests
+    resource: tests/test_toy_diagnosis.py
+    title: Illegal transitions versus incomplete tails and gold EOS positions
   - id: controls
     resource: src/norishio_lm/toy_controls.py
     title: Matched initialization and validation-only content controls
@@ -68,3 +74,7 @@ handoffの外部AIレビュー記録ではvalidation概念accuracyはtrain多数
 自由生成を実装。test未使用、validationだけで比較。定数再学習の損失も通常Cと近く、
 自由生成4条件は全て150件中EOS終了/有効UTF-8/完全一致0。低いteacher-forced損失を
 意味内容の利用や流暢な生成の証明としない。詳細値と出典hashはhandoff参照。
+
+toy_diagnosisの60/600更新比較では600で両条件の有効UTF-8/EOS終了が150/150に回復。
+一方全件同じ文で完全一致0のまま。60stepの学習不足がbyte/EOS失敗に寄与する説明を
+支持するが、入力依存の意味生成は未実証。モデル・教材・元の既定値は変えずtest未使用。
