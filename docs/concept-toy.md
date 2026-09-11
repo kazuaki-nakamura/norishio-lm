@@ -150,3 +150,52 @@ EOS argmax accuracy. At 600 updates both produce valid UTF-8 and terminate on al
 the byte/EOS failure. Both still generate the same sentence for every input and
 have zero exact matches. This does not establish conditional semantic generation.
 The 600-update arms were run once, not a multi-seed or cross-environment result.
+# Issue #7: calibrated validation and local checkpoint
+
+`python -m norishio_lm.toy_evaluation --out-dir codex/work_output/issue7-seed7-v1`
+adds a separate, fixed seed7/60step CPU experiment. Use a new directory each run.
+The v1 corpus and earlier experiment defaults remain the source of the comparison.
+Only train and validation are evaluated; test is not used for selection.
+
+The majority baseline fits train labels only (smallest vocabulary ID breaks ties).
+Metrics report each class's correct/count/recall, per-field accuracy and balanced
+accuracy, micro accuracy, the mean of eligible fields' balanced accuracies, and
+exact match over complete known seven-field frames. Missing and unseen gold masks
+are distinct; both are excluded from scored denominators. Unknown prediction ID0
+is wrong for known gold. Ordered operator tuples remain separate classes.
+
+Normal and constant C clone identical initial weights and reuse the same sampled
+training rows, Adam .003, clipping 1, all four unit loss weights, 60 updates and
+target-only histories. Constant C uses the initial model's mean prediction over
+train sources, detached and fixed. Auxiliary encoder learning remains enabled;
+its LM conditioning cannot vary by source. Parameter counts include registered
+parameters and exact initial/final element differences, not optimizer operation
+counts or a claim about transient changes that cancel.
+
+Validation interventions on normal C are soft predictions, per-field hard argmax,
+zero, final model train-source mean, and a seed17 random permutation. Constant C
+is separately retrained. Hard removes within-class probability information; zero
+also destroys normalization, so its loss change alone is not evidence of semantic
+content use. Mean is normalized but constant; permutation preserves the observed
+distribution. The report records fixed points and meaning-different complete
+frame pairs. No permutation is chosen using gold scores.
+
+Greedy generation receives predicted/intervened concepts, BOS and its own history.
+References are read only for loss/scoring and stored separately from source,
+predicted concepts, decoder conditioning and raw generated tokens. EOS or cap128
+ends generation. Invalid UTF-8 remains flagged alongside raw IDs; replacement
+characters are display-only. Exact reference match is a narrow authored-target
+metric, not the sole criterion for acceptable natural language.
+
+Each arm saves a local weights-only CPU checkpoint with model configuration,
+feature and concept ID mappings, byte specification and dataset version. Loading
+checks metadata consistency and expected vocabulary mappings; SHA integrity is
+not a publisher authentication mechanism. Both logits and greedy output are
+compared before/after reload for all 150 validation rows. Replay without training:
+
+```powershell
+.\.venv\Scripts\python.exe -m norishio_lm.toy_evaluation --restore codex/work_output/issue7-seed7-v1/predicted.pt --out-dir codex/work_output/issue7-replay-predicted-v1
+```
+
+Checkpoints and full generated reports stay in ignored output directories.
+Measured results and validation commands are recorded in `docs/handoff.md`.
