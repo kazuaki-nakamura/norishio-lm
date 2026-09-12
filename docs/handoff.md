@@ -5,6 +5,7 @@
 ## 最新の実装状態: Issue #32
 
 `codex/issue-32`、PR31 merge `29533877a11850bb801f54f28296415797d10f80` から開始。
+PR #33（レビュー中、未merge）: https://github.com/kazuaki-nakamura/norishio-lm/pull/33。
 事前計画は [gradient-routing.md](gradient-routing.md)、実測結果は
 [gradient-routing-results.md](gradient-routing-results.md) に固定した。
 
@@ -25,7 +26,7 @@ G1の16-row probeでは、update 0/100/300/600のparticipant/time LM-only head g
 teacher-forced byte-v2は4条件×6 armで実行し、各checkpointのstate・旧concept・head・logit
 再読込一致も確認した。これは学習済みモデルの意味理解や自由生成品質を示す測定ではない。
 
-raw report SHA256 `issue32-gradient-v2/report.json` はignoredな `codex/work_output/` 配下に保持し、
+raw report `codex/work_output/issue32-gradient-v2/report.json` はignoredな配下に保持し、
 履歴reportを上書きしていない。
 
 ```powershell
