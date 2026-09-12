@@ -142,8 +142,10 @@ class DuplicateRemovedModel(ExplicitSlotModel):
     """Explicit slot model with duplicate old participant/time groups removed."""
 
     def __init__(self, initial: nn.Module, vocabulary: ConceptVocabulary,
-                 new_seed: int = 20, *, local: bool = False) -> None:
-        super().__init__(initial, vocabulary, new_seed=new_seed)
+                 new_seed: int = 20, *, local: bool = False,
+                 gradient_routing: str = "end_to_end") -> None:
+        super().__init__(initial, vocabulary, new_seed=new_seed,
+                         gradient_routing=gradient_routing)
         old = self.decoder.concept_projection
         if not isinstance(old, nn.Linear):
             raise ValueError("explicit model projection must be linear")

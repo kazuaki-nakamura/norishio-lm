@@ -20,6 +20,7 @@ from .toy_adapter import source_record
 _SLOT_FIELDS = ("participant", "time")
 _OLD_CONCEPT_DIM = 33
 _SLOT_CLASSES = 5
+_GRADIENT_ROUTING = {"end_to_end", "stop_slot_lm"}
 
 
 class ExplicitSlotModel(nn.Module):
@@ -28,7 +29,7 @@ class ExplicitSlotModel(nn.Module):
     pathway = "C"
 
     def __init__(self, initial: nn.Module, vocabulary: ConceptVocabulary,
-                 new_seed: int = 20) -> None:
+                 new_seed: int = 20, *, gradient_routing: str = "end_to_end") -> None:
         super().__init__()
         if not hasattr(initial, "encoder") or not hasattr(initial, "decoder"):
             raise TypeError("initial must expose encoder and decoder")
@@ -38,6 +39,8 @@ class ExplicitSlotModel(nn.Module):
             raise ValueError("initial decoder conditioning_mode must be per_step_additive")
         if type(new_seed) is not int:
             raise TypeError("new_seed must be an int")
+        if gradient_routing not in _GRADIENT_ROUTING:
+            raise ValueError(f"gradient_routing must be one of {sorted(_GRADIENT_ROUTING)}")
         for field in _SLOT_FIELDS:
             values = vocabulary.fields.get(field)
             if values is None or set(values.values()) != set(range(1, _SLOT_CLASSES + 1)):
@@ -48,6 +51,7 @@ class ExplicitSlotModel(nn.Module):
         self.encoder = deepcopy(initial.encoder)
         self.decoder = deepcopy(initial.decoder)
         self.vocabulary = vocabulary
+        self.gradient_routing = gradient_routing
         bottleneck = getattr(self.decoder, "bottleneck", None)
         old_projection = getattr(self.decoder, "concept_projection", None)
         if bottleneck is None or old_projection is None:
@@ -81,7 +85,9 @@ class ExplicitSlotModel(nn.Module):
         old_probs = auxiliary.probabilities()
         slot_logits = {field: self.slot_heads[field](latent) for field in _SLOT_FIELDS}
         slot_probs = [F.softmax(slot_logits[field], dim=-1) for field in _SLOT_FIELDS]
-        probabilities = torch.cat([old_probs, *slot_probs], dim=-1)
+        decoder_slot_probs = [value.detach() if self.gradient_routing == "stop_slot_lm" else value
+                              for value in slot_probs]
+        probabilities = torch.cat([old_probs, *decoder_slot_probs], dim=-1)
         output = self.decoder.decode_with_concept_intervention(
             ids, probabilities, labels=labels
         )

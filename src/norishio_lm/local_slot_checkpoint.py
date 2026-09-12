@@ -107,6 +107,8 @@ def _config(model: Any, tensorizer: SemanticTensorizer) -> dict[str, Any]:
         "encoder": {"embedding_dim": cfg.embedding_dim, "hidden_dim": cfg.hidden_dim,
                     "vocab_sizes": dict(cfg.vocab_sizes)},
         "local": local, "rule_version": rule_version,
+        **({"gradient_routing": getattr(model, "gradient_routing")}
+           if getattr(model, "gradient_routing", "end_to_end") != "end_to_end" else {}),
     }
 
 
@@ -114,7 +116,7 @@ def _metadata(model: Any) -> dict[str, Any]:
     projection = model.decoder.concept_projection
     indices = _retained_indices(model)
     from .local_slot_model import PREFIXES
-    return {
+    result = {
         "kept_indices": list(indices),
         "kept_indices_type": "tuple",
         "decoder_class": type(model.decoder).__name__,
@@ -122,6 +124,9 @@ def _metadata(model: Any) -> dict[str, Any]:
         "causal_prefixes": [list(prefix) for prefix in PREFIXES],
         "slot_width": 6,
     }
+    if getattr(model, "gradient_routing", "end_to_end") != "end_to_end":
+        result["gradient_routing"] = model.gradient_routing
+    return result
 
 
 def save_local_checkpoint(path: str | Path, model: Any, tensorizer: SemanticTensorizer,
@@ -149,9 +154,11 @@ def _reconstruct(config: Mapping[str, Any], tensorizer: SemanticTensorizer,
                  vocabulary: ConceptVocabulary) -> Any:
     from .local_slot_model import DuplicateRemovedModel
     pathway = config["pathway"]
-    initial = ToyModel(pathway, tensorizer, vocabulary, hidden_dim=config["hidden_dim"],
-                       conditioning_mode=config["conditioning_mode"])
-    return DuplicateRemovedModel(initial, vocabulary, local=config["local"])
+    with torch.random.fork_rng(devices=[]):
+        initial = ToyModel(pathway, tensorizer, vocabulary, hidden_dim=config["hidden_dim"],
+                           conditioning_mode=config["conditioning_mode"])
+        return DuplicateRemovedModel(initial, vocabulary, local=config["local"],
+                                     gradient_routing=config.get("gradient_routing", "end_to_end"))
 
 
 def load_local_checkpoint(path: str | Path, *, expected_dataset_version: str | None = None,
