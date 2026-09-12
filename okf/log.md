@@ -1,5 +1,9 @@
 # OKF 更新履歴
 
+- 2026-09-12: Issue #30の学習なし外積Cで全3seedのA生成一致、flat Bとの未見確率差を記録。
+  factorized NLL=既存2CEを検証し追加学習せず。byte-v2を修復・初測定し旧reportは保持。
+  Luna利用上限により親が実装・全383テスト/履歴再現を検証。人の検証印なし。
+
 - 2026-09-12: Issue #28のjoint25-way head/marginal局所注入を3seed固定比較。
   Lunaが利用上限で停止後、親が保存/RNG/因果/勾配テストを補完し379テストと全checkpoint再現を確認。
   train高精度・未見pair0・通常両slot0、gold平均48を記録。Issue26 byte診断nullも未測定へ訂正。人の印なし。

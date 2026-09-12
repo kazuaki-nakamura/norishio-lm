@@ -181,8 +181,8 @@ def pair_following(generated: Sequence[Mapping[str, Any]], targets: Sequence[Map
 @torch.no_grad()
 def evaluate_condition(model: Any, rows: Sequence[Mapping[str, Any]], probs: Tensor,
                        tensorizer: Any, vocabulary: ConceptVocabulary, corpus: Any,
-                       strict: Any) -> dict[str, Any]:
-    """Evaluate one frozen conditioning tensor, including parse-based slots."""
+                       strict: Any, *, include_teacher_forced: bool = False) -> dict[str, Any]:
+    """Evaluate frozen inputs; opt into byte-v2, preserve null legacy replay."""
     rows = list(rows)
     targets = [row["targets"] for row in rows]
     if probs.ndim != 2 or len(probs) != len(rows):
@@ -203,7 +203,9 @@ def evaluate_condition(model: Any, rows: Sequence[Mapping[str, Any]], probs: Ten
     teacher_forced = None
     if any(span is None for span in spans):
         raise ValueError("unrecognized authored participant/time span")
+    if include_teacher_forced:
         teacher_forced = {"reference_history_oracle": True,
+                          "version": "teacher-forced-byte-v2",
                           "comparison": "self baseline; byte quality only, not intervention sensitivity",
                       "metrics": span_metrics(reference_logits, reference_logits, labels, spans)}
     return {"rows": len(rows),

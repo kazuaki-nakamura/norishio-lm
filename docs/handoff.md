@@ -2,7 +2,76 @@
 
 検証日: 2026-09-12
 
-## 最新の実装状態: Issue #28
+## 最新の実装状態: Issue #30
+
+`codex/issue-30`、PR29 merge `d844e1667475bf5926b8c503ade7e2997a4db511` から開始。
+事前計画 `bb0933c`、実装SHA `596e1387142550409294fc882f07757411defaa8`。
+[固定条件](compositional-slots.md)と[全結果表](compositional-slot-results.md)。
+
+### 実装・観測
+
+A独立head D、B flat25-wayの保存済み3seedを完全再現。CはA既存headの外積を周辺化するだけで
+追加parameter0/学習更新0。各周辺は数学的にAと同じ。float32最大誤差は下表、bitwise一致とはしない。
+
+| seed | marginal maxabs | logit maxabs | A/C通常・gold生成一致 | C通常両slot | C gold両slot |
+|---|---:|---:|---|---:|---:|
+| 7 | 1.78813934e-7 | 2.86102295e-6 | 完全一致 | 0/150 | 48/150 |
+| 17 | 1.19209290e-7 | 3.33786011e-6 | 完全一致 | 0/150 | 46/150 |
+| 29 | 1.19209290e-7 | 5.36441803e-6 | 完全一致 | 0/150 | 64/150 |
+
+全seedでatol=rtol=1e-5のallclose成立。通常生成の改善なし。
+validation未見gold pair確率平均C0.0709574764/B0.000495385041、rank平均C6.304444/B21.202222。
+固定top-k coverageはC top1/3/5/10=0.004444/0.242222/0.442222/0.9、Bは全て0。
+train未出現10pairへの確率和平均C0.192065561/B0.00545005129。
+pair entropy平均C1.992786819/B1.855719939 nats。Cは未見pairへ確率を置くが通常両slot0は不変。
+個別/marginal calibration、train診断、gold pair別top-kと全生成値は結果表参照。
+
+factorized pair NLLはparticipant CE+time CEと値/勾配が等価。追加すればhead CE重みが倍になるだけで、
+新しいpair相互作用を学習しない。別arm Dの学習は行わず、結果後の新loss発明・調整もない。
+train450のみfit、validation150全未見pair、test未評価。元gate・decoder・全重みを保持。
+
+### Byte診断の修復
+
+Issue26で到達不能だった組立をerror branch外へ修復。明示opt-inのteacher-forced-byte-v2として、
+seed7凍結Dのpredicted/participant-gold/time-gold/both-gold4条件を新規測定。
+旧版既定値nullと過去reportは保持。修復前に測定済みだったとはしない。
+
+| condition | 人物 正解byte/900 | time 正解byte/900 | 人物NLL | time NLL |
+|---|---:|---:|---:|---:|
+| predicted | 774 | 799 | 0.618294369 | 0.441661070 |
+| participant_gold | 816 | 799 | 0.291035138 | 0.441661070 |
+| time_gold | 766 | 900 | 0.645301078 | 0.069695553 |
+| both_gold | 810 | 900 | 0.317568600 | 0.069695553 |
+
+正解過去履歴の次byte診断であり自己履歴生成ではない。self L1/KL=0は自己比較のためで、
+介入不感性の証明ではない。通常/both-goldの生成とLMが旧版と変わらないことを確認。
+
+### 保存・検証・残課題
+
+report SHA256 `51f1abade28912011c29726a38991236701204cf46e18ce689cbb5c98f82eef4`。
+ignored `codex/work_output/issue30-fixed-v1/report.json`。A/B全3seedの過去評価とstate完全一致、
+B再読込state/旧concept/独立head/pair/marginal/logits/greedy一致。旧Issue24/26/28 report SHA不変。
+全383 pytest + 2 subtests passed（19.57秒、既存zero-element警告1）、両demo exit0。
+知識索引133件healthy、OKF errors0/warnings0、MCP live check成功（6tools、stale0）。
+NumPy未導入警告は既存で今回の実行に不要。Lunaは直前の利用上限停止のため委譲せず、親が全作業を実施。
+
+```powershell
+.\.venv\Scripts\python.exe -m norishio_lm.toy_compositional_slots --baseline-report codex/work_output/issue28-fixed-v1/report.json --out-dir codex/work_output/issue30-fixed-v1
+.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider
+.\.venv\Scripts\python.exe -m norishio_lm.demo
+.\.venv\Scripts\python.exe -m norishio_lm.encoder_demo
+.\.venv\Scripts\python.exe codex/tools/build_context.py
+.\.venv\Scripts\python.exe codex/tools/validate_okf.py
+.\.venv\Scripts\python.exe codex/tools/check_knowledge.py --mode full
+.\.venv\Scripts\python.exe codex/okf_mcp/tests/live_check.py --server codex/okf_mcp/server.py --root okf
+git diff --check
+```
+
+通常同時保持は未解決。次Issue候補は非等価な表現/組合せ目的の事前固定比較。
+単なる外積・同じCE追加を新しい構成性学習と呼ばない。n3/共通拡張seed/文法prior/容量や目的の交絡は残る。
+各意味層の有効性・一般日本語理解の証明ではない。追加学習、paid GPU、worker再開、自動merge/closeなし。
+
+## 過去の実装状態: Issue #28
 
 `codex/issue-28`、PR27 merge `1c34f73c27a9652b657834f42fc2fef50f6e230f` から開始。
 事前計画 `f02f190`、実装 `08f0077`、保存guard補強 `a429120`。
