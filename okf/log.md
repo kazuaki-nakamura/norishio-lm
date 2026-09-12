@@ -1,5 +1,11 @@
 # OKF 更新履歴
 
+- 2026-09-13: Issue #32のG0/G1 slot-gradient routing controlを実装。
+  G0はIssue26固定baselineの3 seed評価/stateを完全再現し、G1は全probeで専用headへの
+  decoder LM勾配0・slot CE非ゼロを確認。通常predicted両slot0、gold介入の差、byte-v2と
+  checkpoint再読込一致を記録。Lunaはgradient routing回帰テストを担当し、親が実験・統合・検証。
+  test未評価、意味性能の主張なし、人の検証印なし。
+
 - 2026-09-12: Issue #30の学習なし外積Cで全3seedのA生成一致、flat Bとの未見確率差を記録。
   factorized NLL=既存2CEを検証し追加学習せず。byte-v2を修復・初測定し旧reportは保持。
   Luna利用上限により親が実装・全383テスト/履歴再現を検証。人の検証印なし。

@@ -161,6 +161,8 @@ def run(baseline_report: Path, historical_report: Path, out: Path) -> dict[str, 
         schedule_sha = hashlib.sha256(json.dumps(schedule).encode()).hexdigest()
         seed_records: dict[str, Any] = {"seed": seed, "initial_sha256": initial_digest,
                                         "schedule_sha256": schedule_sha, "probe_indices": probe_indices}
+        g0_evaluation: dict[str, Any] | None = None
+        g0_state_sha256: str | None = None
         for mode in ROUTING_MODES:
             model = __import__("norishio_lm.local_slot_model", fromlist=["DuplicateRemovedModel"]).DuplicateRemovedModel(
                 initial, vocabulary, new_seed=20, local=True, gradient_routing=mode)
@@ -192,10 +194,27 @@ def run(baseline_report: Path, historical_report: Path, out: Path) -> dict[str, 
                            "checkpoint": {"file": path.name, "sha256": _sha(path),
                                           "state_sha256": state_digest(model), "reload": replay},
                            "evaluation": evaluation})
+            if mode == "end_to_end":
+                g0_evaluation = evaluation
+                g0_state_sha256 = state_digest(model)
             seed_records[mode] = result
+        prior_seed = prior["seeds"][str(seed)]
+        prior_state_sha256 = prior_seed.get("checkpoint", {}).get("state_sha256",
+                                                                    prior_seed.get("state_sha256"))
+        if g0_evaluation is None or g0_state_sha256 is None or prior_state_sha256 is None:
+            raise RuntimeError("G0 baseline replay inputs are incomplete")
+        seed_records["baseline_replay"] = {
+            "evaluation_equal": g0_evaluation == prior_seed["evaluation"],
+            "state_equal": g0_state_sha256 == prior_state_sha256,
+            "expected_state_sha256": prior_state_sha256,
+        }
+        if not seed_records["baseline_replay"]["evaluation_equal"] or not seed_records["baseline_replay"]["state_equal"]:
+            raise RuntimeError(f"G0 baseline replay differs for seed {seed}")
         arms[str(seed)] = seed_records
     return {"version": "issue32-gradient-routing-1", "baseline_report_sha256": BASELINE_SHA,
-            "historical_report_sha256": HISTORICAL_SHA, "dataset_version": corpus.VERSION,
+            "historical_report_sha256": HISTORICAL_SHA,
+            "historical_input": {"loaded": True, "version": historical["version"]},
+            "dataset_version": corpus.VERSION,
             "test_evaluated": False, "support": support, "probe_seed": 3200,
             "probe_indices": probe_indices, "routing_modes": list(ROUTING_MODES),
             "budget": {"seeds": list(SEEDS), "updates": 600, "batch_size": 16,

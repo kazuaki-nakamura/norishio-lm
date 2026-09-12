@@ -2,8 +2,8 @@
 type: Implementation
 title: Concept bottleneck toy実験
 status: draft
-generated: { by: ai-assisted-source-review, at: 2026-09-12 }
-stale_after: 2026-10-12
+generated: { by: ai-assisted-source-review, at: 2026-09-13 }
+stale_after: 2026-10-13
 sources:
   - id: compositional-results
     resource: docs/compositional-slot-results.md
@@ -191,6 +191,21 @@ sources:
   - id: observations
     resource: docs/handoff.md
     title: Issue 3 measured results
+  - id: gradient-routing-plan
+    resource: docs/gradient-routing.md
+    title: Preregistered G0/G1 slot-gradient routing comparison
+  - id: gradient-routing-results
+    resource: docs/gradient-routing-results.md
+    title: Three-seed slot-gradient isolation results and limits
+  - id: gradient-routing-model
+    resource: src/norishio_lm/explicit_slot_model.py
+    title: Selective decoder-path detachment for dedicated slot probabilities
+  - id: gradient-routing-experiment
+    resource: src/norishio_lm/toy_gradient_routing.py
+    title: Deterministic three-seed routing experiment and baseline replay
+  - id: gradient-routing-tests
+    resource: tests/test_slot_gradient_routing.py
+    title: Gradient-path and source-leakage regression tests
 ---
 
 # Concept bottleneck toy実験
@@ -222,6 +237,14 @@ handoffの外部AIレビュー記録ではvalidation概念accuracyはtrain多数
 toy_diagnosisの60/600更新比較では600で両条件の有効UTF-8/EOS終了が150/150に回復。
 一方全件同じ文で完全一致0のまま。60stepの学習不足がbyte/EOS失敗に寄与する説明を
 支持するが、入力依存の意味生成は未実証。モデル・教材・元の既定値は変えずtest未使用。
+
+Issue #32は専用participant/time headへのLM勾配経路を比較した。G0の3 seedはIssue26固定
+baselineの評価と最終stateを完全再現した。G1はdecoder LMからslot headへの勾配を厳密に
+切り、slot CE勾配を保持する。固定16-row probeの全時点でG1のLM-only head gradientは0、
+CEは非ゼロ。通常predictedの両slot正解は全arm0のままで、gold介入の差はtoy grammar内の
+診断に留まる。global clipと共有encoderを保持したため、slot headだけの因果効果とは断定しない。
+test未評価、自由生成の意味品質・学習済みLLM性能は未実証。byte-v2は正解履歴のteacher-forced
+診断であり、自由生成・意味理解の成果ではない。
 
 Issue #7は多数派/クラス別/項目balanced平均/全7項目一致を同一ハーネスで比較する。
 欠損と未見のmask・分母を分離し、operators順序を保持。seed17の対応置換について

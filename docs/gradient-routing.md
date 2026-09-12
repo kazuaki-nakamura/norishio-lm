@@ -34,5 +34,7 @@ This experiment tests one gradient route only. It cannot establish that the
 head is the sole cause of failure or prove general semantic understanding.
 
 ```powershell
-.\.venv\Scripts\python.exe -m norishio_lm.toy_gradient_routing --baseline-report codex/work_output/issue26-fixed-v1/report.json --historical-report codex/work_output/issue24-seed7-v1/report.json --out-dir codex/work_output/issue32-gradient-v1
+.\.venv\Scripts\python.exe -m norishio_lm.toy_gradient_routing --baseline-report codex/work_output/issue26-fixed-v1/report.json --historical-report codex/work_output/issue24-seed7-v1/report.json --out-dir codex/work_output/issue32-gradient-v2
 ```
+
+The executed results are recorded in [gradient-routing-results.md](gradient-routing-results.md), with the raw report kept under the ignored `codex/work_output/` tree.
