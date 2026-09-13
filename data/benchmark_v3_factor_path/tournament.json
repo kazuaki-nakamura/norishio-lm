@@ -1,0 +1,76 @@
+{
+  "schema": "norishio.issue36.tournament.v1",
+  "status": "preregistered",
+  "benchmark": {
+    "version": "norishio-benchmark-v3.0",
+    "benchmark_freeze_sha": "ae8ea2727558a57f6fa7c0e23ad28fc767dcc859",
+    "content_digest_sha256": "930958ca1002b9f566fb13d28e072e99fa8ba5c0493308526586dcc128302d84",
+    "development_split": "diagnostic-validation",
+    "final_split": "final-confirmation",
+    "final_flag": "--evaluate-final",
+    "maximum_final_invocations": 1
+  },
+  "input_boundary": {
+    "allowed_fields": ["context", "text"],
+    "encoding": "canonical_json_utf8_bytes",
+    "vocabulary_size": 260,
+    "pad_id": 0,
+    "bos_id": 1,
+    "eos_id": 2,
+    "sep_id": 3,
+    "byte_offset": 4,
+    "no_input_source": {"kind": "constant_bos_sep_source_tensor", "token_ids": [1, 3]},
+    "forbidden_features": ["row_id", "group_id", "split", "template_id", "target", "gold_frame", "full_source_categorical_id", "full_frame_categorical_id"]
+  },
+  "common_model": {
+    "source_encoder": {"kind": "byte_embedding_masked_mean_linear", "embedding_dim": 16, "latent_dim": 32},
+    "decoder": {"kind": "causal_byte_gru", "embedding_dim": 32, "hidden_dim": 32, "layers": 1},
+    "h0": {"kind": "latent_linear", "input_dim": 32, "hidden_dim": 32},
+    "factor_values": {"participant": 6, "time": 6, "event": 4, "operator": 4},
+    "factor_order": ["participant", "time", "event", "operator"],
+    "factor_projections": {"kind": "per_factor_probability_linear_bias_free", "output_dim": 32},
+    "factor_heads": {"kind": "four_auxiliary_cross_entropy", "hidden_dim": 16},
+    "conditioning": {"probability_width": 20, "projection": "linear32", "global_gate": "all decoder steps", "prefix_local_gate": "grammar prefix"},
+    "generation": {"kind": "greedy_bos_self_history", "max_new_tokens": 96}
+  },
+  "compute": {"device": "cpu", "torch_threads": 1, "deterministic_algorithms": true},
+  "training": {
+    "steps": 600,
+    "batch_size": 16,
+    "optimizer": {"name": "Adam", "lr": 0.003, "betas": [0.9, 0.999], "eps": 1e-8, "weight_decay": 0.0},
+    "gradient_clip": {"kind": "global_norm", "max_norm": 1.0},
+    "scheduler": null,
+    "loss_weights": {"lm": 1.0, "participant": 1.0, "time": 1.0, "event": 1.0, "operator": 1.0},
+    "hyperparameter_search": false
+  },
+  "randomness": {
+    "run_seeds": [7, 17, 29],
+    "source_encoder_seed": "run_seed",
+    "decoder_seed": "run_seed_plus_1000",
+    "h0_init_seed": "run_seed_plus_1500",
+    "factor_head_seed": "run_seed_plus_2000",
+    "factor_projection_seed": "run_seed_plus_2500",
+    "batch_schedule_seed": "run_seed",
+    "generation": "greedy"
+  },
+  "sampling_schedule": {"kind": "torch_randint_with_replacement", "train_rows": 384, "steps": 600, "batch_size": 16, "seed": "run_seed"},
+  "parameter_budget": {"maximum_trainable": 33000, "maximum_relative_deviation": 0.03, "count_rule": "sum_numel_requires_grad", "post_result_padding_forbidden": true},
+  "arms": [
+    {"id": "H0L0", "name": "linear_global", "activation": "linear", "gate_mode": "global", "factor_heads": "shared_four_factor_ce", "loss_structure": "lm_plus_four_factor_ce", "trainable_parameters": 32120},
+    {"id": "H0L1", "name": "linear_prefix_local", "activation": "linear", "gate_mode": "prefix-local", "factor_heads": "shared_four_factor_ce", "loss_structure": "lm_plus_four_factor_ce", "trainable_parameters": 32120},
+    {"id": "H1L0", "name": "tanh_global", "activation": "tanh", "gate_mode": "global", "factor_heads": "shared_four_factor_ce", "loss_structure": "lm_plus_four_factor_ce", "trainable_parameters": 32120},
+    {"id": "H1L1", "name": "tanh_prefix_local", "activation": "tanh", "gate_mode": "prefix-local", "factor_heads": "shared_four_factor_ce", "loss_structure": "lm_plus_four_factor_ce", "trainable_parameters": 32120},
+    {"id": "D_AUX", "name": "latent_only_decoder_with_auxiliary_heads", "activation": "linear", "gate_mode": "latent-only", "factor_heads": "shared_four_factor_ce", "loss_structure": "lm_plus_four_factor_ce", "trainable_parameters": 31448},
+    {"id": "NO_INPUT", "name": "constant_source_control", "activation": "linear", "gate_mode": "constant-source", "source_input": "constant_bos_sep_source_tensor", "factor_heads": "shared_four_factor_ce", "loss_structure": "lm_plus_four_factor_ce", "trainable_parameters": 32120}
+  ],
+  "selection": {"development_only": true, "result_driven_changes": false},
+  "metrics": {"single_seed_success_claim": false, "general_llm_claim": false},
+  "checkpoint_gate": {
+    "required_terminal_runs": 18,
+    "terminal_statuses": ["complete", "failed"],
+    "required_complete_hashes": ["tournament_config_sha256", "benchmark_content_digest_sha256", "initial_state_sha256", "final_state_sha256", "schedule_sha256", "checkpoint_file_sha256"],
+    "final_requires_all_terminal": true,
+    "failed_runs_remain_visible": true,
+    "retry_requires_identical_frozen_config": true
+  }
+}

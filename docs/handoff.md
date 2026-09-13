@@ -19,8 +19,13 @@ diagnostic/final surface record非再利用を検査する。content digestは
 Luna (`gpt-5.6-luna`) はgenerator/split/manifestと共通metrics/intervention schemaを分担。
 親がfreeze固定性、漏洩境界、同一source/prefixでの単一factor介入を再監査し、v2回帰を含む
 45テストを確認した。Phase 0ではv3学習、architecture比較、final-confirmation評価を行っていない。
-次は2x2主arm、D+aux、no-input、parameter budget、checkpoint/final one-shot gateを
-結果観測前の別commitに固定する。
+Phase 1の学習前freeze候補として2x2主arm（linear/tanh x global/prefix-local）、
+D_AUX、NO_INPUTを実装し、seed 7/17/29、600更新、batch 16、Adam 0.003、
+4補助CEを含む共通lossを固定した。NO_INPUTは全行で`[BOS, SEP]`だけをsourceにする。
+parameterは31,448〜32,120、差2.137%で3%上限内。canonical config digestは
+`ff89911b64d8f6e652ed617f971ff0512dbda07e4c71bd585f5e0f23635fd399`。
+18 terminal run、checkpoint hash、final one-shot gateも結果観測前に固定する。
+この時点ではv3学習、diagnostic結果観測、final-confirmation評価を行っていない。
 
 ## 最新の実装状態: Issue #34 benchmark v2 完了
 
