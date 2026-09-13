@@ -41,9 +41,15 @@ freeze commitを担当した。generator監査で改行依存hashとcustom spec�
 2 subtests passed**。両demoは終了コード0。encoder demoのNumPy未導入warningは既存で、
 出力はfinite。これは構造fixtureと配線の検証であり、学習済み性能・日本語品質の主張ではない。
 
-残課題はPhase 2の5 architecture family、parameter budget、schedule、checkpoint manifest、
-final開封条件を学習前に`TOURNAMENT_FREEZE_SHA`へ固定すること。その後もCPU seed 7/17/29を
-同条件で実行し、diagnostic-validationだけで判断する。全arm/seed完了前にfinalを評価しない。
+Phase 2設定も学習前に
+`TOURNAMENT_FREEZE_SHA = 38e363e1b4e836b890f1c852f6d0a45fe3119296`へ固定した。
+A_G0/A_G1/B/C/D/E、29,272〜29,848 parameters、共通byte encoder/decoder、600更新、
+batch16、Adam .003、clip1、CPU1thread、seed 7/17/29、18 terminal run gateを機械検証する。
+freeze時点の全テストは **423 passed, 1 warning, 2 subtests passed**。
+
+残課題は固定仕様どおりのv2 model/checkpoint/evaluator実装、preflight parameter照合、18 run実行、
+diagnostic-validation集計。全run終端前にfinalを開かず、一度のinvocationでcomplete checkpointだけを
+評価する。失敗runは明示して残す。
 
 ## 最新の実装状態: Issue #32
 

@@ -50,6 +50,7 @@ manifest matches the benchmark/config/state/schedule/file hashes. Failed runs
 remain explicit and are not converted to zero or silently replaced. The final
 invocation cannot change architecture, budget, seed, or checkpoint.
 
-`TOURNAMENT_FREEZE_SHA` is recorded in a later metadata commit to avoid hashing
-the commit into its own canonical configuration. Until that SHA exists, model
-training is prohibited.
+`TOURNAMENT_FREEZE_SHA = 38e363e1b4e836b890f1c852f6d0a45fe3119296`.
+It is recorded outside the canonical JSON to avoid hashing a commit into its
+own configuration. No benchmark-v2 model training occurred before or as part
+of that commit.

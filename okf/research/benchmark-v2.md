@@ -17,6 +17,12 @@ sources:
   - id: metrics
     resource: src/norishio_lm/benchmark_v2_metrics.py
     title: Common free-generation and intervention metrics
+  - id: tournament
+    resource: data/benchmark_v2/tournament.json
+    title: Frozen architecture families and run budget
+  - id: tournament-doc
+    resource: docs/architecture-tournament-v2.md
+    title: Tournament preregistration and final gate
   - id: data-tests
     resource: tests/test_benchmark_v2_data.py
     title: Split, leakage, parser, and export checks
@@ -27,6 +33,11 @@ sources:
 Issue #34 Phase 1は、4因子の固定fixture、split、manifest、共通scorerを学習前に凍結した。
 `BENCHMARK_FREEZE_SHA`は`19ce7145495a47b40a178255272050caa615dc79`。
 このcommit以前・commit内でv2モデル学習は行っていない。
+
+Phase 2の6 arm（5 familyとAのG1 subarm）は
+`TOURNAMENT_FREEZE_SHA = 38e363e1b4e836b890f1c852f6d0a45fe3119296`に固定した。
+全armは同じbyte source encoder/causal decoderを使い、trainable parameter差を3%未満、
+CPU 600更新、seed 7/17/29、18 terminal runに固定した。このcommit内でも学習は行っていない。
 
 全1152行はparticipant/time/event/operatorの独立直積から機械生成する。各評価splitは
 participant-time未見群と、pair既知・participant-time-event未見群を192行ずつ持つ。

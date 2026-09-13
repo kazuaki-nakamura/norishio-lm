@@ -5,6 +5,11 @@
   共通scorerを追加。全415テストと独立export byte一致を確認。Lunaへ設計・実装・再監査を分担し、
   親が統合修正とfreezeを担当。v2学習・final評価・性能主張・人の検証印なし。
 
+- 2026-09-13: Issue #34 Phase 2のA_G0/A_G1/B/C/D/E、共通byteモデル、parameter上限/差、
+  600更新と3 seed、checkpoint/failure/final gateを学習前commit
+  `38e363e1b4e836b890f1c852f6d0a45fe3119296` に固定。freeze時423テスト成功。
+  v2学習・final評価・結果選択・人の検証印なし。
+
 - 2026-09-13: Issue #32のG0/G1 slot-gradient routing controlを実装。
   G0はIssue26固定baselineの3 seed評価/stateを完全再現し、G1は全probeで専用headへの
   decoder LM勾配0・slot CE非ゼロを確認。通常predictedはG0全seed0、G1合計1/450。
