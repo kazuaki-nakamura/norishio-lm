@@ -2,7 +2,7 @@
 
 検証日: 2026-09-13
 
-## 最新の実装状態: Issue #34 Phase 1
+## 最新の実装状態: Issue #34 benchmark v2 完了
 
 `codex/issue-34`、PR #33 merge `fee9b0923ebdc5034a82f7fd57c1a6b50b155b37`
 から開始。学習前のbenchmark freezeは
@@ -47,9 +47,11 @@ A_G0/A_G1/B/C/D/E、29,272〜29,848 parameters、共通byte encoder/decoder、60
 batch16、Adam .003、clip1、CPU1thread、seed 7/17/29、18 terminal run gateを機械検証する。
 freeze時点の全テストは **423 passed, 1 warning, 2 subtests passed**。
 
-残課題は固定仕様どおりのv2 model/checkpoint/evaluator実装、preflight parameter照合、18 run実行、
-diagnostic-validation集計。全run終端前にfinalを開かず、一度のinvocationでcomplete checkpointだけを
-評価する。失敗runは明示して残す。
+固定仕様どおりのv2 model/checkpoint/evaluator、preflight parameter照合、18 run、
+diagnostic-validation集計、一度限りのfinal-holdout評価まで完了した。正式18 runは18 complete / 0 failed、
+finalは384行・18 evaluation・0 failed。順位は`B > C > A_G1 > A_G0 > E > D`。
+最終結果と制約は[benchmark-v2-final.md](results/benchmark-v2-final.md)、詳細な実装・実行履歴は
+本書の「Issue #34 benchmark v2 architecture tournament」節を参照。PR #35でレビュー待ち。
 
 ## 最新の実装状態: Issue #32
 
