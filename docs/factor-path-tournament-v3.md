@@ -6,7 +6,7 @@ benchmark-v3 training or result observation. The canonical configuration is
 with SHA-256
 `ff89911b64d8f6e652ed617f971ff0512dbda07e4c71bd585f5e0f23635fd399`.
 The learning-free architecture freeze commit is
-`bc69ac3da75be75b3f39e7d9f44fd2818f0d214d`.
+`bc69ac3c132c77d9613481ae163b1e8c4342a9eb`.
 
 ## Arms and causal questions
 

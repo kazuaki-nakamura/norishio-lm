@@ -6,7 +6,7 @@
   親レビューでparameter式と実数の不一致、およびNO_INPUTの契約名と実装の不一致を修正した。
   config digestは`ff89911b64d8f6e652ed617f971ff0512dbda07e4c71bd585f5e0f23635fd399`。
   v3学習・diagnostic結果観測・final評価・性能主張なし。
-  学習前freeze commitは`bc69ac3da75be75b3f39e7d9f44fd2818f0d214d`。
+  学習前freeze commitは`bc69ac3c132c77d9613481ae163b1e8c4342a9eb`。
 
 - 2026-09-14: Issue #36 Phase 0のbenchmark v3 factor-path fixtureを学習前commit
   `ae8ea2727558a57f6fa7c0e23ad28fc767dcc859`に固定。
