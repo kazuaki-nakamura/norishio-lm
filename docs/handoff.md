@@ -1753,8 +1753,8 @@ parameter preflightは29,272〜29,848でfreeze値と一致した。Lunaへモデ
 実装と独立監査を委譲し、親がraw-latent bypass、B projection、checkpoint認証、
 report schemaを修正して統合した。
 
-未完了は、実装コミット後の空の専用出力先で行う正式18 run、development結果の
-記録、全terminal/checkpoint再検証、最終holdout一回評価、結果レビューである。
+正式実行前時点の未完了は、実装コミット後の空の専用出力先で行う正式18 run、development結果の
+記録、全terminal/checkpoint再検証、最終holdout一回評価、結果レビューだった。
 Lunaがrunner動作確認としてD/Eを各1回600 update実行したが、保存も採用もせず、
 正式結果には含めない。
 
@@ -1767,7 +1767,7 @@ FSM規則を変えず、全候補から事前構築したprefix→next-tag表に
 18 complete / 0 failed。checkpoint/terminal再認証とLuna独立集計が成功し、三seed平均の
 順位は `B > C > E > A_G0 > A_G1 > D`。詳細値と解釈上の制約は
 [development tournament result](results/benchmark-v2-development.md) に記録した。
-final holdoutは未開封。自動承認レビューが一回限りの開封にはユーザーの明示承認が必要として
+development結果の記録時点ではfinal holdoutは未開封だった。自動承認レビューが一回限りの開封にはユーザーの明示承認が必要として
 コマンドを拒否したため、承認後に同じ専用出力rootへ一度だけ実行する。
 
 ユーザーの明示承認後、final-holdoutを一度だけ開封した。384行、18 evaluation、0 failed、
@@ -1775,6 +1775,25 @@ result SHA-256は`1d21b4cfa950c3c96c50ca0647e33308bb4d0653c18bcc146560ce1da42665
 二回目は`FileExistsError`、終了コード1で拒否され、上書きなし。三seed平均の最終順位は
 `B > C > A_G1 > A_G0 > E > D`。全seed値とteacher-forced/localityの制約は
 [final tournament result](results/benchmark-v2-final.md) に記録した。
+
+正式実行と最終検証のコマンドは次のとおり。
+
+```powershell
+.\.venv\Scripts\python.exe -m norishio_lm.benchmark_v2_execute --all --output-root codex\work_output\benchmark-v2-tournament-565c2bf
+.\.venv\Scripts\python.exe -m norishio_lm.benchmark_v2_final --evaluate-final --root codex\work_output\benchmark-v2-tournament-565c2bf
+# 一回限りguard確認のため同じfinalコマンドを再実行し、FileExistsError・終了コード1を確認
+.\.venv\Scripts\python.exe -m pytest tests codex\tools\tests codex\okf_mcp\tests -q -p no:cacheprovider --basetemp codex\work_output\pytest-v2-pr-final-explicit
+.\.venv\Scripts\python.exe -m norishio_lm.demo
+.\.venv\Scripts\python.exe -m norishio_lm.encoder_demo
+.\.venv\Scripts\python.exe codex\tools\build_context.py
+.\.venv\Scripts\python.exe codex\tools\validate_okf.py
+.\.venv\Scripts\python.exe codex\tools\check_knowledge.py --mode full
+.\.venv\Scripts\python.exe codex\okf_mcp\tests\live_check.py --server codex\okf_mcp\server.py --root okf
+```
+
+PR最終headで明示した3 test rootは **467 passed, 1 warning, 2 subtests passed**。
+rootを限定しないpytest再試行は、過去のアクセス不能なignored一時ディレクトリまで収集して
+54 collection errorsとなった。明示test rootと新しいrepo-local basetempで再実行し、終了コード0を確認した。
 
 ## AI 作業基盤の追加（2026-09-05）
 
