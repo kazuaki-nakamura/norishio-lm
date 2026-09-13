@@ -1,5 +1,10 @@
 # OKF 更新履歴
 
+- 2026-09-14: Issue #36 Phase 0のbenchmark v3 factor-path fixtureを学習前に固定準備。
+  新しいsurface grammarとsplit seedで1152行を生成し、source/target集合の完全非交差、v2評価行の非再利用、
+  pair/triple holdout、manifest/hash、共通scorer、source swapと真の中間確率介入の分離を検査。
+  Lunaがgenerator/metricsを分担し、親が直接target漏洩を検出して修正統合。v3学習・final評価・性能主張なし。
+
 - 2026-09-13: PR #35メタレビューR1/R2へ対応。Eのderanged raw factor codeをcanonicalへ戻さず
   intermediate/head/2x2採点していた不一致を修正し、保存済みE診断値は補正不能・比較不可とerratum化。
   final再実行なしで保存resultから18 arm/seed x 2 support groupのsplit auditを出力し、smoke、削除済みattempt、

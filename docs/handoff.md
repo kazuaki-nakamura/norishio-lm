@@ -1,6 +1,24 @@
 # Norishio-LM 引き継ぎ記録
 
-検証日: 2026-09-13
+検証日: 2026-09-14
+
+## 最新の実装状態: Issue #36 Phase 0 freeze準備
+
+PR #35 merge `20fdff93ae3befd5b2d39ad28259f03d7d0adda5`から
+`codex/issue-36`を開始。新しいbenchmark v3 factor-pathのgenerator、3 split、
+expected manifest、共通metricsを追加した。各splitは384行で、各評価splitは
+unseen pair 192行とpair既知/unseen triple 192行。trainは全原子値を含む。
+
+初版でsourceとtarget templateが同一になる漏洩を親レビューで検出し、全predicateで成立する
+別文型へ修正した。validatorは各行のsource/target不一致、両集合の完全非交差、v2の
+diagnostic/final surface record非再利用を検査する。content digestは
+`930958ca1002b9f566fb13d28e072e99fa8ba5c0493308526586dcc128302d84`。
+
+Luna (`gpt-5.6-luna`) はgenerator/split/manifestと共通metrics/intervention schemaを分担。
+親がfreeze固定性、漏洩境界、同一source/prefixでの単一factor介入を再監査し、v2回帰を含む
+45テストを確認した。Phase 0ではv3学習、architecture比較、final-confirmation評価を行っていない。
+次は2x2主arm、D+aux、no-input、parameter budget、checkpoint/final one-shot gateを
+結果観測前の別commitに固定する。
 
 ## 最新の実装状態: Issue #34 benchmark v2 完了
 
