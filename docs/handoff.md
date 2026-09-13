@@ -1761,6 +1761,13 @@ Lunaがrunner動作確認としてD/Eを各1回600 update実行したが、保�
 FSM規則を変えず、全候補から事前構築したprefix→next-tag表による参照へ置換し、候補走査との
 等価性テストを追加した。正式18 runはこの修正commit後の新規出力先から再開する。
 
+修正commit `565c2bf1f8b22435f21a74d5833dfeb4821d8174` からの正式development実行は
+18 complete / 0 failed。checkpoint/terminal再認証とLuna独立集計が成功し、三seed平均の
+順位は `B > C > E > A_G0 > A_G1 > D`。詳細値と解釈上の制約は
+[development tournament result](results/benchmark-v2-development.md) に記録した。
+final holdoutは未開封。自動承認レビューが一回限りの開封にはユーザーの明示承認が必要として
+コマンドを拒否したため、承認後に同じ専用出力rootへ一度だけ実行する。
+
 ## AI 作業基盤の追加（2026-09-05）
 
 ユーザー指定の ai-project-foundation から、開発用 OKF、読取専用 MCP、索引・整合性検査を取り込んだ。

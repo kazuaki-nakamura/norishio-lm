@@ -103,6 +103,8 @@ until every preregistered arm and seed has a validated checkpoint.
 The [tournament architecture and execution contract](docs/architecture-tournament-v2.md)
 defines the six CPU arms, deterministic training command, checkpoint gate, and
 separate one-shot final command.
+The frozen [development tournament result](docs/results/benchmark-v2-development.md)
+reports all seeds and the arithmetic means without opening the final holdout.
 
 1. Does explicit semantic decomposition improve rare/novel compound understanding?
 2. Does a sememe/concept bottleneck improve paraphrase and compositional generalization?
