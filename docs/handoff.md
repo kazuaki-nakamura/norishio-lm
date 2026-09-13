@@ -36,6 +36,16 @@ LunaはFSMとcheckpoint/protocolを担当し、親がrunner/execute/finalを統�
 実装時の全pytestは **564 passed, 1 skipped, 1 warning, 2 subtests passed**。
 formal training、diagnostic結果観測、final-confirmation評価はまだ行っていない。
 
+その後、execution code `50577091f1aaa5b90045ab55bace25b5f69f5a52`から
+凍結済み18 formal runを実行し、18 complete / 0 failed、checkpoint再認証成功。
+diagnostic-validationのfree exact 3-seed平均は
+`H1L1=.217014 > H0L1=.201389 > H1L0=.177083 > H0L0=.171007 > D_AUX=.004340 > NO_INPUT=0`。
+主2x2のfree exact effectはactivation `+.010851`、locality `+.035156`、
+interaction `+.009549`。全sourceありarmでunseen-pairがseen-pair/unseen-tripleより低い。
+人工one-hot中間介入は主arm合計0/12で対象slotを変えず、factor controlの成功証拠ではない。
+詳細とseed別値は[benchmark-v3-development.md](results/benchmark-v3-development.md)。
+final-confirmationは未開封で、18 checkpointが揃ったone-shot gate直前の状態。
+
 ## 最新の実装状態: Issue #34 benchmark v2 完了
 
 `codex/issue-34`、PR #33 merge `fee9b0923ebdc5034a82f7fd57c1a6b50b155b37`

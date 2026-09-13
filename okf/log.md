@@ -1,5 +1,11 @@
 # OKF 更新履歴
 
+- 2026-09-14: Issue #36の凍結18 formal runをexecution SHA `50577091f1aaa5b90045ab55bace25b5f69f5a52`
+  から実行し、18 complete / 0 failedとcheckpoint再認証を確認。development free exactは
+  H1L1>H0L1>H1L0>H0L0>D_AUX>NO_INPUT。activation/locality/interaction、seed別値、
+  unseen-pairとseen-pair/unseen-tripleを保存。人工one-hot介入は主arm 0/12 target changeで、
+  因果的制御の成功とは扱わない。final-confirmation未開封、一般性能・意味層効果の主張なし。
+
 - 2026-09-14: Issue #36のarchitecture freeze後に、v3 prefix FSM、共通runner、
   source swap/人工one-hot中間介入、checkpoint/terminal認証、18-run driver、
   seed別factorial集計、all-complete final one-shot gateを実装。LunaがFSMと

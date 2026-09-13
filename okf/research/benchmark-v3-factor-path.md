@@ -47,6 +47,12 @@ sources:
   - id: tournament-final
     resource: src/norishio_lm/benchmark_v3_final.py
     title: All-complete one-shot final-confirmation gate
+  - id: development-results
+    resource: docs/results/benchmark-v3-development.md
+    title: Frozen diagnostic-validation tournament observations
+  - id: development-summary
+    resource: docs/results/benchmark-v3-development-summary.json
+    title: Machine-readable seed and factorial summaries
 ---
 
 # Benchmark v3 factor-path freeze
@@ -89,3 +95,12 @@ an exclusive final marker. Final readiness requires all 18 checkpoints to be
 complete; recorded failures remain visible but do not authorize final access.
 The integrated suite passed 564 tests with one skip. This verifies wiring and
 protocol behavior, not trained performance or semantic-layer effectiveness.
+
+The frozen 18-run diagnostic tournament completed with zero failures. On free
+generation exact, the three-seed development order is H1L1, H0L1, H1L0, H0L0,
+D_AUX, NO_INPUT. The 2x2 descriptive effects are +0.010851 for activation,
++0.035156 for locality, and +0.009549 for their interaction. Unseen-pair
+performance is substantially below pair-known/unseen-triple performance for
+every source-conditioned arm. The fixed one-hot intervention changed the
+target factor in none of the 12 main-arm probes, so it supplies no positive
+evidence of factor-level causal control. Final-confirmation remains unopened.
