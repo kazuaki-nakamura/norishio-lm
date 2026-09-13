@@ -95,6 +95,12 @@ valid completed text. A fixed 600-update diagnosis recovered UTF-8 and EOS but
 still produced one sentence for all inputs with zero exact matches. Teacher-forced
 loss is not evidence of conditional generation quality.
 
+The [benchmark v2 protocol](docs/benchmark-v2.md) freezes a four-factor
+participant/time/event/operator holdout before the Issue #34 architecture
+tournament. Its generated fixtures and common metrics are evaluation
+infrastructure, not trained output. Final-holdout evaluation remains sealed
+until every preregistered arm and seed has a validated checkpoint.
+
 1. Does explicit semantic decomposition improve rare/novel compound understanding?
 2. Does a sememe/concept bottleneck improve paraphrase and compositional generalization?
 3. Can sub-character information help without contaminating modern semantics with etymological overreach?
