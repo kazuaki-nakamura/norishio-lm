@@ -63,6 +63,8 @@ four auxiliary heads without decoder factor conditioning; NO_INPUT replaces all
 row-specific sources with `[BOS, SEP]`. Counts are 31,448 to 32,120 parameters,
 a 2.137% spread under the 3% limit. The frozen configuration digest is
 `ff89911b64d8f6e652ed617f971ff0512dbda07e4c71bd585f5e0f23635fd399`.
+The learning-free architecture freeze commit is
+`bc69ac3da75be75b3f39e7d9f44fd2818f0d214d`.
 All arms share three seeds, 600 updates, the sampling schedule, and the four
 factor losses. Eighteen terminal records and authenticated checkpoints are
 required before the one-shot final-confirmation gate. No v3 model has been

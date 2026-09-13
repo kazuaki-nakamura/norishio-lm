@@ -1,11 +1,12 @@
 # OKF 更新履歴
 
-- 2026-09-14: Issue #36 Phase 1の学習前architecture freeze候補を追加。
+- 2026-09-14: Issue #36 Phase 1の学習前architecture freezeを追加。
   linear/tanh x global/prefix-localの2x2、D_AUX、NO_INPUT、3 seed、600更新、
   parameter budget、18 terminal/checkpoint hash、final one-shot gateを固定。
   親レビューでparameter式と実数の不一致、およびNO_INPUTの契約名と実装の不一致を修正した。
   config digestは`ff89911b64d8f6e652ed617f971ff0512dbda07e4c71bd585f5e0f23635fd399`。
   v3学習・diagnostic結果観測・final評価・性能主張なし。
+  学習前freeze commitは`bc69ac3da75be75b3f39e7d9f44fd2818f0d214d`。
 
 - 2026-09-14: Issue #36 Phase 0のbenchmark v3 factor-path fixtureを学習前commit
   `ae8ea2727558a57f6fa7c0e23ad28fc767dcc859`に固定。
