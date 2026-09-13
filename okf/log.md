@@ -1,5 +1,11 @@
 # OKF 更新履歴
 
+- 2026-09-14: Issue #36のarchitecture freeze後に、v3 prefix FSM、共通runner、
+  source swap/人工one-hot中間介入、checkpoint/terminal認証、18-run driver、
+  seed別factorial集計、all-complete final one-shot gateを実装。LunaがFSMと
+  checkpoint/protocolを担当し、親がrunner/execute/finalを統合監査。
+  全564 pytest成功、1 skip。formal training・diagnostic観測・final評価なし。
+
 - 2026-09-14: Issue #36 Phase 1の学習前architecture freezeを追加。
   linear/tanh x global/prefix-localの2x2、D_AUX、NO_INPUT、3 seed、600更新、
   parameter budget、18 terminal/checkpoint hash、final one-shot gateを固定。

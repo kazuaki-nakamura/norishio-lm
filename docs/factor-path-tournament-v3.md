@@ -54,3 +54,18 @@ This document and configuration describe an untrained architecture comparison.
 No benchmark-v3 training, diagnostic result, final-confirmation evaluation, or
 claim about learned generation, glyphs, etymology, lexical senses, sememes, or
 general Japanese understanding has been made at this phase.
+
+## Frozen-contract implementation
+
+The implementation now includes the two-template causal prefix FSM, strict row
+preparation, the shared six-arm training runner, source-side swap and true
+single-factor probability intervention diagnostics, authenticated checkpoints,
+immutable terminal records, seed-level factorial aggregation, and an exclusive
+final-confirmation invocation marker. The final gate requires 18 complete
+checkpoints; terminal failures stay visible and cannot make the final gate ready.
+
+Luna implemented the FSM and checkpoint/protocol modules. Parent integration
+added the runner, execution and final gates, corrected byte-ID validation and
+all-complete final readiness, and verified the combined implementation with
+564 passing tests (1 skipped). This is implementation evidence only: formal
+training and both result splits remain unobserved at this point.

@@ -18,8 +18,10 @@ from torch import Tensor, nn
 import torch.nn.functional as F
 
 from .benchmark_v2_model import (
+    BOS_ID,
     BYTE_OFFSET,
     CausalByteDecoder,
+    EOS_ID,
     LATENT_DIM,
     PAD_ID,
     SEP_ID,
@@ -210,7 +212,7 @@ class BenchmarkV3Model(nn.Module):
     def _source(self, source_ids: Tensor, source_mask: Tensor | None) -> tuple[Tensor, Tensor]:
         ids = _check_ids(source_ids, "source_ids")
         if self.arm == "NO_INPUT":
-            ids = torch.tensor([[1, SEP_ID]], dtype=torch.long, device=ids.device).expand(ids.shape[0], -1).clone()
+            ids = torch.tensor([[BOS_ID, SEP_ID]], dtype=torch.long, device=ids.device).expand(ids.shape[0], -1).clone()
             mask = torch.ones_like(ids, dtype=torch.bool)
         else:
             mask = _source_mask(source_mask, ids)
@@ -336,4 +338,5 @@ def build_model(arm: str, *, seed: int = 0) -> BenchmarkV3Model:
 
 
 __all__ = ["ARM_IDS", "MAIN_ARMS", "FACTOR_ORDER", "FACTOR_SIZES", "FACTOR_METADATA",
+           "BOS_ID", "BYTE_OFFSET", "EOS_ID", "PAD_ID", "SEP_ID", "VOCAB_SIZE",
            "BenchmarkV3Model", "ModelOutput", "build_model"]

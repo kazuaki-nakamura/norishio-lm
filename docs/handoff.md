@@ -28,6 +28,14 @@ parameterは31,448〜32,120、差2.137%で3%上限内。canonical config digest�
 18 terminal run、checkpoint hash、final one-shot gateも結果観測前に固定する。
 この時点ではv3学習、diagnostic結果観測、final-confirmation評価を行っていない。
 
+freeze後のPhase 2実装として、2 target templateのprefix-only causal FSM、共通training
+runner、source swapと人工one-hot中間確率介入、checkpoint/state/schedule hash認証、
+immutable terminal record、18-run driver、seed別factorial effect集計、finalの排他的
+one-shot markerを追加した。final-readyは18件すべてcompleteの場合だけtrueになる。
+LunaはFSMとcheckpoint/protocolを担当し、親がrunner/execute/finalを統合・監査した。
+実装時の全pytestは **564 passed, 1 skipped, 1 warning, 2 subtests passed**。
+formal training、diagnostic結果観測、final-confirmation評価はまだ行っていない。
+
 ## 最新の実装状態: Issue #34 benchmark v2 完了
 
 `codex/issue-34`、PR #33 merge `fee9b0923ebdc5034a82f7fd57c1a6b50b155b37`

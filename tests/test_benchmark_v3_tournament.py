@@ -95,6 +95,7 @@ def test_checkpoint_gate_requires_all_exact_records_and_keeps_failure_visible() 
     }
     report = validate_terminal_runs(records, config)
     assert report["terminal"] == 18 and report["complete"] == 17 and report["failed"] == 1
+    assert report["ready_for_single_final_invocation"] is False
     assert ["NO_INPUT", 29] not in report["final_evaluable"]
     with pytest.raises(ValueError, match="incomplete"):
         validate_terminal_runs(records[:-1], config)
@@ -117,6 +118,14 @@ def test_all_failures_are_terminal_and_leave_no_final_evaluable_checkpoint() -> 
     assert report["ready_for_single_final_invocation"] is False
     assert report["complete"] == 0 and report["failed"] == 18
     assert report["final_evaluable"] == []
+
+
+def test_all_complete_runs_are_required_for_final_readiness() -> None:
+    config = load_tournament()
+    records = [_complete_record(config, arm, seed) for arm, seed in required_run_keys(config)]
+    report = validate_terminal_runs(records, config)
+    assert report["ready_for_single_final_invocation"] is True
+    assert report["complete"] == 18 and report["failed"] == 0
 
 
 def test_functional_model_parameter_counts_match_contract() -> None:

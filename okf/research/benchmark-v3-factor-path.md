@@ -35,6 +35,18 @@ sources:
   - id: tournament-model
     resource: src/norishio_lm/benchmark_v3_model.py
     title: Shared model and factor-path variants
+  - id: tournament-fsm
+    resource: src/norishio_lm/benchmark_v3_fsm.py
+    title: Causal prefix-only target grammar gates
+  - id: tournament-runner
+    resource: src/norishio_lm/benchmark_v3_runner.py
+    title: Frozen training and diagnostic evaluation paths
+  - id: tournament-checkpoint
+    resource: src/norishio_lm/benchmark_v3_checkpoint.py
+    title: Authenticated exclusive checkpoints
+  - id: tournament-final
+    resource: src/norishio_lm/benchmark_v3_final.py
+    title: All-complete one-shot final-confirmation gate
 ---
 
 # Benchmark v3 factor-path freeze
@@ -69,3 +81,11 @@ All arms share three seeds, 600 updates, the sampling schedule, and the four
 factor losses. Eighteen terminal records and authenticated checkpoints are
 required before the one-shot final-confirmation gate. No v3 model has been
 trained and no benchmark result has been observed at this phase.
+
+The post-freeze implementation compiles both target templates into a causal
+prefix FSM and provides the fixed runner, both intervention diagnostics,
+checkpoint and terminal authentication, seed-level factorial aggregation, and
+an exclusive final marker. Final readiness requires all 18 checkpoints to be
+complete; recorded failures remain visible but do not authorize final access.
+The integrated suite passed 564 tests with one skip. This verifies wiring and
+protocol behavior, not trained performance or semantic-layer effectiveness.

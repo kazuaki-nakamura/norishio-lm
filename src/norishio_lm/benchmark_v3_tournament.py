@@ -208,7 +208,7 @@ def validate_terminal_runs(records: Sequence[Mapping[str, Any]], config: Mapping
             failed.append(key)
         else: raise ValueError("run status must be complete or failed")
     if seen != expected: raise ValueError("terminal run set is incomplete")
-    return {"ready_for_single_final_invocation": bool(complete), "terminal": len(seen), "complete": len(complete), "failed": len(failed), "final_evaluable": [[arm, seed] for arm, seed in complete]}
+    return {"ready_for_single_final_invocation": len(complete) == len(expected), "terminal": len(seen), "complete": len(complete), "failed": len(failed), "final_evaluable": [[arm, seed] for arm, seed in complete]}
 
 
 __all__ = ["ARM_COUNTS", "ARM_IDS", "BENCHMARK_DIGEST", "BENCHMARK_FREEZE_SHA", "CONFIG_PATH", "EXPECTED_CONFIG_SHA256", "PARAMETER_FORMULAS", "SEEDS", "calculated_parameter_count", "calculated_parameter_counts", "canonical", "config_sha256", "load_tournament", "required_run_keys", "validate_terminal_runs", "validate_tournament"]

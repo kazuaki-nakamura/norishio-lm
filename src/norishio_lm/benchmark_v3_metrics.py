@@ -376,7 +376,9 @@ def _check_probability(value: Any, label: str, width: int) -> list[float]:
         vector = [float(item) for item in value]
     except (TypeError, ValueError) as exc:
         raise ValueError(f"{label} must be numeric") from exc
-    if any(not math.isfinite(item) or item < 0 for item in vector) or not math.isclose(sum(vector), 1.0, rel_tol=0.0, abs_tol=1e-9):
+    # Model probabilities are emitted as float32; tolerate their normal
+    # accumulation error while still rejecting malformed distributions.
+    if any(not math.isfinite(item) or item < 0 for item in vector) or not math.isclose(sum(vector), 1.0, rel_tol=0.0, abs_tol=1e-6):
         raise ValueError(f"{label} must be a finite probability simplex")
     return vector
 
