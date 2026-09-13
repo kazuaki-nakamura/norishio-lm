@@ -338,4 +338,3 @@ __all__ = ["Evaluator", "checkpoint_path", "evaluate_final_once", "main"]
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

@@ -187,4 +187,3 @@ def test_one_complete_checkpoint_with_failures_does_not_open_final(tmp_path):
         evaluate_final_once(tmp_path, evaluate_final=True, evaluator=evaluator)
     assert called is False
     assert not (tmp_path / "final-invocation").exists()
-

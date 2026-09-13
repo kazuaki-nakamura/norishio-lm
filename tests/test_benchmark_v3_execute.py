@@ -142,4 +142,3 @@ def test_factorial_summary_reports_preregistered_effects_by_seed_and_mean(tmp_pa
         "locality_main_effect": 0.25,
         "interaction": 0.3,
     })
-
