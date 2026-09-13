@@ -4,6 +4,8 @@
   checkpoint/terminal認証、18-run driver、最終holdout一回gateを追加。Lunaのモデル/FSM/runner実装と
   独立監査を親が修正統合し、正式実行前の全parameter preflightと463テストを確認。
   保存なしD/E smokeは正式結果に含めず、人の検証印や一般LLM性能主張を追加しない。
+  初回正式実行はA系6件後にBの全候補再走査を理由に中断し、全出力を不採用として削除。
+  同じFSM規則をprefix→next-tag表へ等価最適化し、修正commit後に全件を再実行する。
 
 - 2026-09-13: Issue #34 Phase 1のbenchmark v2を学習前commit `19ce7145495a47b40a178255272050caa615dc79` に固定。
   4因子1152行、pair/triple holdout、source allowlist、factor shuffle、strict parser、final gate、

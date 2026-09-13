@@ -198,6 +198,15 @@ class FrozenLocalPrefixFSM:
 
     def __init__(self, spec: Mapping[str, Any] | None = None) -> None:
         self.candidates = compile_target_grammar(spec)
+        # Compile the same candidate-retention rule into a prefix lookup once.
+        # ``None`` marks a completed candidate, which forces all gates off.
+        next_tags: dict[tuple[int, ...], set[ByteTag | None]] = {}
+        for candidate in self.candidates:
+            for length in range(len(candidate.byte_values) + 1):
+                prefix = candidate.byte_values[:length]
+                tag = candidate.tags[length] if length < len(candidate.tags) else None
+                next_tags.setdefault(prefix, set()).add(tag)
+        self._next_tags = {prefix: frozenset(tags) for prefix, tags in next_tags.items()}
 
     def compatible_candidates(self, history: Sequence[int] | Iterable[int]) -> tuple[GrammarCandidate, ...]:
         """Return all candidates compatible with consumed bytes in ``history``."""
@@ -223,17 +232,10 @@ class FrozenLocalPrefixFSM:
             consumed = _normalise_history(history)
         except (TypeError, ValueError):
             return (False, False, False, False)
-        length = len(consumed)
-        retained = tuple(candidate for candidate in self.candidates
-                         if candidate.byte_values[:length] == consumed)
-        if not retained:
+        next_tags = self._next_tags.get(consumed)
+        if not next_tags or None in next_tags:
             return (False, False, False, False)
-        next_tags: list[ByteTag] = []
-        for candidate in retained:
-            if length >= len(candidate.byte_values):
-                return (False, False, False, False)
-            next_tags.append(candidate.tags[length])
-        return tuple(all(tag == wanted for tag in next_tags)
+        return tuple(next_tags == {wanted}
                      for wanted in (ByteTag.PARTICIPANT, ByteTag.TIME,
                                     ByteTag.PREDICATE, ByteTag.PREDICATE))  # type: ignore[return-value]
 
@@ -244,12 +246,10 @@ class FrozenLocalPrefixFSM:
             consumed = _normalise_history(history)
         except (TypeError, ValueError):
             return ()
-        length = len(consumed)
-        retained = tuple(candidate for candidate in self.candidates
-                         if candidate.byte_values[:length] == consumed)
-        if not retained or any(length >= len(candidate.byte_values) for candidate in retained):
+        next_tags = self._next_tags.get(consumed)
+        if not next_tags or None in next_tags:
             return ()
-        return tuple(candidate.tags[length] for candidate in retained)
+        return tuple(sorted(next_tags, key=lambda tag: tag.value))  # type: ignore[union-attr]
 
     def batch_gates(self, input_ids: Any, *, as_tensor: bool = True) -> Any:
         """Compute causal gates with shape ``[B, T, 4]``.

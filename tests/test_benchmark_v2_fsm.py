@@ -107,3 +107,19 @@ def test_batch_output_is_causal_and_has_expected_shape(fsm: FrozenLocalPrefixFSM
 def test_batch_adapter_can_return_python_values_without_torch_contract(fsm: FrozenLocalPrefixFSM) -> None:
     values = fsm.batch_gates([[BOS], [BOS]], as_tensor=False)
     assert values == (((False, False, False, False),), ((False, False, False, False),))
+
+
+def test_compiled_prefix_lookup_matches_candidate_scan(fsm: FrozenLocalPrefixFSM) -> None:
+    for candidate in fsm.candidates[::37]:
+        for length in range(0, len(candidate.byte_values) + 2):
+            history = [BOS, *(BYTE_OFFSET + value for value in candidate.byte_values[:length])]
+            retained = [item for item in fsm.candidates
+                        if item.byte_values[:length] == candidate.byte_values[:length]]
+            if not retained or any(length >= len(item.tags) for item in retained):
+                expected = (False, False, False, False)
+            else:
+                tags = {item.tags[length] for item in retained}
+                expected = tuple(tags == {wanted} for wanted in (
+                    ByteTag.PARTICIPANT, ByteTag.TIME, ByteTag.PREDICATE, ByteTag.PREDICATE
+                ))
+            assert fsm.gates(history) == expected
