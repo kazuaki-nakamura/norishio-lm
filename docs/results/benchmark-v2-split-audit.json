@@ -1,0 +1,379 @@
+{
+  "evaluations": [
+    {
+      "arm": "A_G0",
+      "seed": 7,
+      "splits": {
+        "seen_pair": {
+          "count": 192,
+          "frame_exact": 0.13020833333333334,
+          "free_exact": 0.06770833333333333,
+          "parse_coverage": 0.4375,
+          "triple_exact": 0.25
+        },
+        "unseen_pair": {
+          "count": 192,
+          "frame_exact": 0.010416666666666666,
+          "free_exact": 0.005208333333333333,
+          "parse_coverage": 0.40625,
+          "triple_exact": 0.041666666666666664
+        }
+      }
+    },
+    {
+      "arm": "A_G0",
+      "seed": 17,
+      "splits": {
+        "seen_pair": {
+          "count": 192,
+          "frame_exact": 0.11979166666666667,
+          "free_exact": 0.0625,
+          "parse_coverage": 0.4166666666666667,
+          "triple_exact": 0.16666666666666666
+        },
+        "unseen_pair": {
+          "count": 192,
+          "frame_exact": 0.041666666666666664,
+          "free_exact": 0.020833333333333332,
+          "parse_coverage": 0.2916666666666667,
+          "triple_exact": 0.041666666666666664
+        }
+      }
+    },
+    {
+      "arm": "A_G0",
+      "seed": 29,
+      "splits": {
+        "seen_pair": {
+          "count": 192,
+          "frame_exact": 0.10416666666666667,
+          "free_exact": 0.07291666666666667,
+          "parse_coverage": 0.15625,
+          "triple_exact": 0.11458333333333333
+        },
+        "unseen_pair": {
+          "count": 192,
+          "frame_exact": 0.020833333333333332,
+          "free_exact": 0.015625,
+          "parse_coverage": 0.13020833333333334,
+          "triple_exact": 0.020833333333333332
+        }
+      }
+    },
+    {
+      "arm": "A_G1",
+      "seed": 7,
+      "splits": {
+        "seen_pair": {
+          "count": 192,
+          "frame_exact": 0.13020833333333334,
+          "free_exact": 0.06770833333333333,
+          "parse_coverage": 0.4375,
+          "triple_exact": 0.25
+        },
+        "unseen_pair": {
+          "count": 192,
+          "frame_exact": 0.010416666666666666,
+          "free_exact": 0.005208333333333333,
+          "parse_coverage": 0.3958333333333333,
+          "triple_exact": 0.03125
+        }
+      }
+    },
+    {
+      "arm": "A_G1",
+      "seed": 17,
+      "splits": {
+        "seen_pair": {
+          "count": 192,
+          "frame_exact": 0.125,
+          "free_exact": 0.057291666666666664,
+          "parse_coverage": 0.4114583333333333,
+          "triple_exact": 0.16666666666666666
+        },
+        "unseen_pair": {
+          "count": 192,
+          "frame_exact": 0.041666666666666664,
+          "free_exact": 0.020833333333333332,
+          "parse_coverage": 0.2916666666666667,
+          "triple_exact": 0.041666666666666664
+        }
+      }
+    },
+    {
+      "arm": "A_G1",
+      "seed": 29,
+      "splits": {
+        "seen_pair": {
+          "count": 192,
+          "frame_exact": 0.10416666666666667,
+          "free_exact": 0.07291666666666667,
+          "parse_coverage": 0.15104166666666666,
+          "triple_exact": 0.11979166666666667
+        },
+        "unseen_pair": {
+          "count": 192,
+          "frame_exact": 0.026041666666666668,
+          "free_exact": 0.020833333333333332,
+          "parse_coverage": 0.15104166666666666,
+          "triple_exact": 0.026041666666666668
+        }
+      }
+    },
+    {
+      "arm": "B",
+      "seed": 7,
+      "splits": {
+        "seen_pair": {
+          "count": 192,
+          "frame_exact": 0.5833333333333334,
+          "free_exact": 0.2916666666666667,
+          "parse_coverage": 0.6927083333333334,
+          "triple_exact": 0.5833333333333334
+        },
+        "unseen_pair": {
+          "count": 192,
+          "frame_exact": 0.2604166666666667,
+          "free_exact": 0.13020833333333334,
+          "parse_coverage": 0.6145833333333334,
+          "triple_exact": 0.2604166666666667
+        }
+      }
+    },
+    {
+      "arm": "B",
+      "seed": 17,
+      "splits": {
+        "seen_pair": {
+          "count": 192,
+          "frame_exact": 0.53125,
+          "free_exact": 0.2708333333333333,
+          "parse_coverage": 0.7552083333333334,
+          "triple_exact": 0.53125
+        },
+        "unseen_pair": {
+          "count": 192,
+          "frame_exact": 0.3072916666666667,
+          "free_exact": 0.15625,
+          "parse_coverage": 0.7552083333333334,
+          "triple_exact": 0.3072916666666667
+        }
+      }
+    },
+    {
+      "arm": "B",
+      "seed": 29,
+      "splits": {
+        "seen_pair": {
+          "count": 192,
+          "frame_exact": 0.703125,
+          "free_exact": 0.3489583333333333,
+          "parse_coverage": 0.9270833333333334,
+          "triple_exact": 0.7708333333333334
+        },
+        "unseen_pair": {
+          "count": 192,
+          "frame_exact": 0.5208333333333334,
+          "free_exact": 0.2604166666666667,
+          "parse_coverage": 0.9479166666666666,
+          "triple_exact": 0.5677083333333334
+        }
+      }
+    },
+    {
+      "arm": "C",
+      "seed": 7,
+      "splits": {
+        "seen_pair": {
+          "count": 192,
+          "frame_exact": 0.234375,
+          "free_exact": 0.125,
+          "parse_coverage": 0.4114583333333333,
+          "triple_exact": 0.2760416666666667
+        },
+        "unseen_pair": {
+          "count": 192,
+          "frame_exact": 0.07291666666666667,
+          "free_exact": 0.041666666666666664,
+          "parse_coverage": 0.4947916666666667,
+          "triple_exact": 0.10416666666666667
+        }
+      }
+    },
+    {
+      "arm": "C",
+      "seed": 17,
+      "splits": {
+        "seen_pair": {
+          "count": 192,
+          "frame_exact": 0.16666666666666666,
+          "free_exact": 0.08333333333333333,
+          "parse_coverage": 0.375,
+          "triple_exact": 0.234375
+        },
+        "unseen_pair": {
+          "count": 192,
+          "frame_exact": 0.09375,
+          "free_exact": 0.046875,
+          "parse_coverage": 0.40625,
+          "triple_exact": 0.109375
+        }
+      }
+    },
+    {
+      "arm": "C",
+      "seed": 29,
+      "splits": {
+        "seen_pair": {
+          "count": 192,
+          "frame_exact": 0.2864583333333333,
+          "free_exact": 0.15104166666666666,
+          "parse_coverage": 0.75,
+          "triple_exact": 0.34375
+        },
+        "unseen_pair": {
+          "count": 192,
+          "frame_exact": 0.09375,
+          "free_exact": 0.057291666666666664,
+          "parse_coverage": 0.7864583333333334,
+          "triple_exact": 0.09895833333333333
+        }
+      }
+    },
+    {
+      "arm": "D",
+      "seed": 7,
+      "splits": {
+        "seen_pair": {
+          "count": 192,
+          "frame_exact": 0.0,
+          "free_exact": 0.0,
+          "parse_coverage": 0.2604166666666667,
+          "triple_exact": 0.0
+        },
+        "unseen_pair": {
+          "count": 192,
+          "frame_exact": 0.0,
+          "free_exact": 0.0,
+          "parse_coverage": 0.25,
+          "triple_exact": 0.0
+        }
+      }
+    },
+    {
+      "arm": "D",
+      "seed": 17,
+      "splits": {
+        "seen_pair": {
+          "count": 192,
+          "frame_exact": 0.0,
+          "free_exact": 0.0,
+          "parse_coverage": 0.0,
+          "triple_exact": 0.0
+        },
+        "unseen_pair": {
+          "count": 192,
+          "frame_exact": 0.0,
+          "free_exact": 0.0,
+          "parse_coverage": 0.0,
+          "triple_exact": 0.0
+        }
+      }
+    },
+    {
+      "arm": "D",
+      "seed": 29,
+      "splits": {
+        "seen_pair": {
+          "count": 192,
+          "frame_exact": 0.0,
+          "free_exact": 0.0,
+          "parse_coverage": 0.0,
+          "triple_exact": 0.0
+        },
+        "unseen_pair": {
+          "count": 192,
+          "frame_exact": 0.0,
+          "free_exact": 0.0,
+          "parse_coverage": 0.0,
+          "triple_exact": 0.0
+        }
+      }
+    },
+    {
+      "arm": "E",
+      "seed": 7,
+      "splits": {
+        "seen_pair": {
+          "count": 192,
+          "frame_exact": 0.14583333333333334,
+          "free_exact": 0.07291666666666667,
+          "parse_coverage": 0.484375,
+          "triple_exact": 0.28125
+        },
+        "unseen_pair": {
+          "count": 192,
+          "frame_exact": 0.015625,
+          "free_exact": 0.010416666666666666,
+          "parse_coverage": 0.3802083333333333,
+          "triple_exact": 0.057291666666666664
+        }
+      }
+    },
+    {
+      "arm": "E",
+      "seed": 17,
+      "splits": {
+        "seen_pair": {
+          "count": 192,
+          "frame_exact": 0.06770833333333333,
+          "free_exact": 0.03125,
+          "parse_coverage": 0.359375,
+          "triple_exact": 0.22395833333333334
+        },
+        "unseen_pair": {
+          "count": 192,
+          "frame_exact": 0.03125,
+          "free_exact": 0.015625,
+          "parse_coverage": 0.34375,
+          "triple_exact": 0.052083333333333336
+        }
+      }
+    },
+    {
+      "arm": "E",
+      "seed": 29,
+      "splits": {
+        "seen_pair": {
+          "count": 192,
+          "frame_exact": 0.13020833333333334,
+          "free_exact": 0.0625,
+          "parse_coverage": 0.34375,
+          "triple_exact": 0.21875
+        },
+        "unseen_pair": {
+          "count": 192,
+          "frame_exact": 0.026041666666666668,
+          "free_exact": 0.020833333333333332,
+          "parse_coverage": 0.2604166666666667,
+          "triple_exact": 0.057291666666666664
+        }
+      }
+    }
+  ],
+  "expected_evaluations": 18,
+  "missing_value_policy": "null with missing_reasons entry",
+  "observed_evaluations": 18,
+  "schema": "norishio.issue34.split-audit.v1",
+  "source": {
+    "path": "codex/work_output/benchmark-v2-tournament-565c2bf/final-invocation/result.json",
+    "schema": "norishio.issue34.final-result.v1",
+    "sha256": "1d21b4cfa950c3c96c50ca0647e33308bb4d0653c18bcc146560ce1da4266554",
+    "status": "complete"
+  },
+  "split_source_paths": {
+    "seen_pair": "result.train_support_groups.seen_pair",
+    "unseen_pair": "result.train_support_groups.unseen_pair"
+  },
+  "validation_issues": []
+}

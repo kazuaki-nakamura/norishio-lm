@@ -2,6 +2,57 @@
 
 検証日: 2026-09-13
 
+## 最新の実装状態: Issue #34 benchmark v2 完了
+
+`codex/issue-34`、PR #33 merge `fee9b0923ebdc5034a82f7fd57c1a6b50b155b37`
+から開始。学習前のbenchmark freezeは
+`BENCHMARK_FREEZE_SHA = 19ce7145495a47b40a178255272050caa615dc79`。
+Phase 1ではv2モデル学習を実行していない。
+
+6 participant x 6 time x 4 event x 4 operator x 2表現の1152行を機械生成する。
+train / diagnostic-validation / final-holdoutは各384行・192 frame group。
+各評価splitはunseen participant-time pair 192行と、pair既知・triple未見192行を持つ。
+trainは全原子値、24 pair、48 tripleを含み、各選択tripleは4 operatorを含む。
+同一frameの2表現はsplitを跨がない。source入力は`context/text`だけで、完全なsource表現を
+単一categorical IDにしない。split seed、語彙、template、規則、各JSONL SHA-256、
+factor shuffle、strict target grammar、content digestをexpected manifestに固定した。
+
+共通scorerは生成frameの4原子accuracy/balanced accuracy、pair/triple exact、train support別、
+exact text、EOS、UTF-8、unique output、intervention localityを同じ分母契約で集計する。
+中間headは生成指標と分離し、利用可能行だけの真の2x2表を出す。parse失敗は分母に残し、
+空群は0でなくnull。teacher-forced byteは型・範囲・整合性を検証した別診断であり、
+自由生成成果には含めない。final-holdoutは明示flagと一致するmanifest digestが必要。
+
+Luna (`gpt-5.6-luna`) へ既存資産監査、漏洩テスト設計、共通scorer実装、generator監査、
+metrics再監査を分担。親がsplit仕様、generator/parser/manifest、統合、レビュー修正、全検証、
+freeze commitを担当した。generator監査で改行依存hashとcustom spec帰属を修正し、metrics監査で
+非有限JSON、teacher-forced検証、2x2表記を修正。最終再監査はblocking issueなし。
+
+```powershell
+.\.venv\Scripts\python.exe data\benchmark_v2\benchmark.py --check
+.\.venv\Scripts\python.exe data\benchmark_v2\benchmark.py --out codex\work_output\benchmark-v2-freeze-a
+.\.venv\Scripts\python.exe data\benchmark_v2\benchmark.py --out codex\work_output\benchmark-v2-freeze-b
+.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider --basetemp codex\work_output\pytest-v2-freeze-final
+.\.venv\Scripts\python.exe -m norishio_lm.demo
+.\.venv\Scripts\python.exe -m norishio_lm.encoder_demo
+```
+
+独立exportは4ファイルすべてbyte一致。最終全テストは **415 passed, 1 warning,
+2 subtests passed**。両demoは終了コード0。encoder demoのNumPy未導入warningは既存で、
+出力はfinite。これは構造fixtureと配線の検証であり、学習済み性能・日本語品質の主張ではない。
+
+Phase 2設定も学習前に
+`TOURNAMENT_FREEZE_SHA = 38e363e1b4e836b890f1c852f6d0a45fe3119296`へ固定した。
+A_G0/A_G1/B/C/D/E、29,272〜29,848 parameters、共通byte encoder/decoder、600更新、
+batch16、Adam .003、clip1、CPU1thread、seed 7/17/29、18 terminal run gateを機械検証する。
+freeze時点の全テストは **423 passed, 1 warning, 2 subtests passed**。
+
+固定仕様どおりのv2 model/checkpoint/evaluator、preflight parameter照合、18 run、
+diagnostic-validation集計、一度限りのfinal-holdout評価まで完了した。正式18 runは18 complete / 0 failed、
+finalは384行・18 evaluation・0 failed。順位は`B > C > A_G1 > A_G0 > E > D`。
+最終結果と制約は[benchmark-v2-final.md](results/benchmark-v2-final.md)、詳細な実装・実行履歴は
+本書の「Issue #34 benchmark v2 architecture tournament」節を参照。PR #35でレビュー待ち。
+
 ## 最新の実装状態: Issue #32
 
 `codex/issue-32`、PR31 merge `29533877a11850bb801f54f28296415797d10f80` から開始。
@@ -1685,6 +1736,103 @@ README の仮想環境・editable install 方針に従い、Windows では activ
 4. CPU で動く小さなベースラインから、同一条件で各層を外した比較実験を実装する。
 
 字形・字源は現代語義の根拠と同一視しない。各意味層の採用は比較実験の結果で判断する。
+
+## Issue #34 benchmark v2 architecture tournament（2026-09-13）
+
+Benchmark freeze `19ce7145495a47b40a178255272050caa615dc79` と tournament
+freeze `38e363e1b4e836b890f1c852f6d0a45fe3119296` の後に、6 arm × 3 seedの
+CPU実行系を実装した。共通source encoder/causal byte GRU、A_G0/A_G1/B/C/D/E、
+Bのprefix-only FSM、固定schedule、checkpoint認証、terminal record、development
+集計、最終holdoutの排他的な一回限りgateを含む。手書きbenchmark fixtureは
+学習済みモデルの成果ではなく、この小規模tournamentから一般LLM性能を主張しない。
+
+正式実行前の統合検証は benchmark-v2 focused **76 passed**、全体 **463 passed,
+2 subtests passed**。既知のzero-element tensor warningが1件ある。NumPyは未導入で、
+torch import時のoptional NumPy warningはfocused実行でのみ確認した。全18 runの
+parameter preflightは29,272〜29,848でfreeze値と一致した。Lunaへモデル/FSM/runner
+実装と独立監査を委譲し、親がraw-latent bypass、B projection、checkpoint認証、
+report schemaを修正して統合した。
+
+正式実行前時点の未完了は、実装コミット後の空の専用出力先で行う正式18 run、development結果の
+記録、全terminal/checkpoint再検証、最終holdout一回評価、結果レビューだった。
+Lunaがrunner動作確認としてD/Eを各1回600 update実行したが、保存も採用もせず、
+正式結果には含めない。
+
+最初の正式実行はA_G0/A_G1の6 terminal完了後、BのFSMが各位置で全1,152候補を
+再走査する性能問題を確認して中断した。6件を含む専用出力全体を削除し、結果は採用していない。
+FSM規則を変えず、全候補から事前構築したprefix→next-tag表による参照へ置換し、候補走査との
+等価性テストを追加した。正式18 runはこの修正commit後の新規出力先から再開する。
+
+修正commit `565c2bf1f8b22435f21a74d5833dfeb4821d8174` からの正式development実行は
+18 complete / 0 failed。checkpoint/terminal再認証とLuna独立集計が成功し、三seed平均の
+順位は `B > C > E > A_G0 > A_G1 > D`。詳細値と解釈上の制約は
+[development tournament result](results/benchmark-v2-development.md) に記録した。
+development結果の記録時点ではfinal holdoutは未開封だった。自動承認レビューが一回限りの開封にはユーザーの明示承認が必要として
+コマンドを拒否したため、承認後に同じ専用出力rootへ一度だけ実行する。
+
+ユーザーの明示承認後、final-holdoutを一度だけ開封した。384行、18 evaluation、0 failed、
+result SHA-256は`1d21b4cfa950c3c96c50ca0647e33308bb4d0653c18bcc146560ce1da4266554`。
+二回目は`FileExistsError`、終了コード1で拒否され、上書きなし。三seed平均の最終順位は
+`B > C > A_G1 > A_G0 > E > D`。全seed値とteacher-forced/localityの制約は
+[final tournament result](results/benchmark-v2-final.md) に記録した。
+
+正式実行と最終検証のコマンドは次のとおり。
+
+```powershell
+.\.venv\Scripts\python.exe -m norishio_lm.benchmark_v2_execute --all --output-root codex\work_output\benchmark-v2-tournament-565c2bf
+.\.venv\Scripts\python.exe -m norishio_lm.benchmark_v2_final --evaluate-final --root codex\work_output\benchmark-v2-tournament-565c2bf
+# 一回限りguard確認のため同じfinalコマンドを再実行し、FileExistsError・終了コード1を確認
+.\.venv\Scripts\python.exe -m pytest tests codex\tools\tests codex\okf_mcp\tests -q -p no:cacheprovider --basetemp codex\work_output\pytest-v2-pr-final-explicit
+.\.venv\Scripts\python.exe -m norishio_lm.demo
+.\.venv\Scripts\python.exe -m norishio_lm.encoder_demo
+.\.venv\Scripts\python.exe codex\tools\build_context.py
+.\.venv\Scripts\python.exe codex\tools\validate_okf.py
+.\.venv\Scripts\python.exe codex\tools\check_knowledge.py --mode full
+.\.venv\Scripts\python.exe codex\okf_mcp\tests\live_check.py --server codex\okf_mcp\server.py --root okf
+```
+
+PR作成時headで明示した3 test rootは **467 passed, 1 warning, 2 subtests passed**。
+rootを限定しないpytest再試行は、過去のアクセス不能なignored一時ディレクトリまで収集して
+54 collection errorsとなった。明示test rootと新しいrepo-local basetempで再実行し、終了コード0を確認した。
+
+PRレビューではLuna 3担当がfinal gate、再現性、checkpoint/FSM/runner/testを独立監査した。
+all-failed development summaryで固定metric keyが消える点、final順位/tie-breakがmachine-readableでない点、
+marker初回書込み失敗時のmarkerless directory、result JSONのprogrammatic attestation不足を修正した。
+標準final evaluatorは全6 arm x 3 seedのselection metricと全arm rankingを必須とし、欠損を成功扱いしない。
+将来のfinal invocationは完成済みmarker directoryを排他的publishし、result SHA-256とfrozen digestを
+`result-attestation.json`へ記録する。既存の消費済みfinal artifactは変更・再生成せず、読み取り専用で
+新しい集計器へ通して順位`B > C > A_G1 > A_G0 > E > D`の一致を確認した。
+
+レビュー修正後の全test rootは **473 passed, 1 warning, 2 subtests passed**、focusedは12 passed。
+checkpointはconfig/benchmark/schedule/architecture/state/file hashを検証するが、formal runner/model/FSMの
+source hashやimplementation commitをcheckpoint metadata自体には持たない。既存18 checkpointとの互換性を
+壊すため本PRでは必須化せず、formal implementation commitとresult digestの外部記録を監査境界として残す。
+消費済みfinal artifactは新しいattestation導入前のため`result-attestation.json`を持たず、文書記録した
+result SHA-256で照合する。
+
+追加メタレビューで、Eのfactor lossがderanged code-spaceを教師とする一方、旧evaluatorがraw argmaxを
+canonical vocabularyで直接decodeしていたことを確認した。Eの保存済みintermediate atomic/pair/triple/frameと
+head-generation 2x2は異なるlabel spaceの比較であり、他armと比較しない。保存resultにはraw logits、row-level
+predicted frame、完全なconfusion matrixがないため、過去値の正確な補正は不能。runnerはinverse derangementで
+canonical化してからscorerへ渡すよう修正し、完全正答E headがcanonical diagnosticsと2x2で正答になる回帰を追加。
+既存学習・checkpoint・development/final inferenceは再実行していない。generation、teacher-forced、locality、
+保存済み順位はこのerratumの影響を受けない。
+
+保存済みfinal resultだけを読むsplit auditを追加し、全18 arm/seedについて`unseen_pair`と`seen_pair`
+（pair既知・triple未見）のcount、free/frame/triple exact、parse coverageを36行で記録した。
+新しい推論、学習、final API呼出しは行っていない。
+
+| 区分 | 実行内容 | artifact | 採否・証拠 |
+|---|---|---|---|
+| planned | freeze後の6 arm x 3 seed、各600 update | 実行前計画 | tournament freeze `38e363e` |
+| pilot / smoke | D 1回 + E 1回、各600 update | 保存なし | 不採用。state/checkpoint/report/hashなし |
+| formal attempt 1 | A_G0/A_G1 x 3 seed、6 terminal後にBの未最適化FSMで中断 | 専用output全体を削除 | 不採用。削除済み証拠を復元しない |
+| formal retained | FSM等価最適化後の6 arm x 3 seed | `565c2bf`後の専用root | 採用。18 complete / 0 failed |
+| final retained | 採用18 checkpointの一回評価 | 384 rows、18 evaluations | 採用。二回目は拒否 |
+
+したがって`18 complete / 0 failed`は採用formal集合の値であり、smokeや削除済みattemptを含む全試行数ではない。
+R1/R2対応後のfocused testは17 passed、全test rootは **480 passed, 1 warning, 2 subtests passed**。
+split auditは独立再生成したJSON/Markdownがbyte一致し、2群から全体値を復元する72 metric照合もerrors 0。
 
 ## AI 作業基盤の追加（2026-09-05）
 

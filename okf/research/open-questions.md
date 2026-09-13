@@ -14,6 +14,9 @@ sources:
   - id: gradient-routing
     resource: docs/gradient-routing-results.md
     title: Issue #32 slot-gradient routing results
+  - id: benchmark-v2
+    resource: docs/benchmark-v2.md
+    title: Frozen four-factor benchmark protocol
 ---
 
 # 未解決課題と次の実験
@@ -62,5 +65,9 @@ sources:
   この単発成功とgold介入の小差だけでは改善を主張できない。
 - 未解決: global clipping・共有encoderを含む経路差の分離、より大きいcompositional split、
   自由生成とtest評価。routing診断は意味層の一般有効性や学習済みLLM性能を証明しない。
+- 実装済み: Issue #34 Phase 1で4因子benchmark v2、pair/triple holdout、共通scorer、
+  predetermined factor shuffle、manifest-bound final gateを学習前に固定。
+- 未実装: 5 architecture familyとparameter/schedule/checkpoint条件のPhase 2事前固定、
+  3 seed学習、全arm完了後の一度だけのfinal評価。fixture検査はモデル性能ではない。
 
 実験の順序は [意味層の分離](semantic-separation.md) と既存 architecture に従う。

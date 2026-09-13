@@ -95,6 +95,19 @@ valid completed text. A fixed 600-update diagnosis recovered UTF-8 and EOS but
 still produced one sentence for all inputs with zero exact matches. Teacher-forced
 loss is not evidence of conditional generation quality.
 
+The [benchmark v2 protocol](docs/benchmark-v2.md) freezes a four-factor
+participant/time/event/operator holdout before the Issue #34 architecture
+tournament. Its generated fixtures and common metrics are evaluation
+infrastructure, not trained output. Final-holdout evaluation remains sealed
+until every preregistered arm and seed has a validated checkpoint.
+The [tournament architecture and execution contract](docs/architecture-tournament-v2.md)
+defines the six CPU arms, deterministic training command, checkpoint gate, and
+separate one-shot final command.
+The frozen [development tournament result](docs/results/benchmark-v2-development.md)
+reports all seeds and the arithmetic means without opening the final holdout.
+The one-shot [final tournament result](docs/results/benchmark-v2-final.md)
+records all frozen checkpoints after the final gate was consumed.
+
 1. Does explicit semantic decomposition improve rare/novel compound understanding?
 2. Does a sememe/concept bottleneck improve paraphrase and compositional generalization?
 3. Can sub-character information help without contaminating modern semantics with etymological overreach?

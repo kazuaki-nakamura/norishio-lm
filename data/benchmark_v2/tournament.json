@@ -1,0 +1,147 @@
+{
+  "schema": "norishio.issue34.tournament.v1",
+  "status": "preregistered",
+  "benchmark": {
+    "version": "norishio-benchmark-v2.0",
+    "benchmark_freeze_sha": "19ce7145495a47b40a178255272050caa615dc79",
+    "content_digest_sha256": "012f57dbefb00f7661ed83aa49047d5736ab03c67d94b043292f40bb780b0134",
+    "development_split": "diagnostic-validation",
+    "final_split": "final-holdout",
+    "final_flag": "--evaluate-final",
+    "maximum_final_invocations": 1
+  },
+  "input_boundary": {
+    "allowed_fields": ["context", "text"],
+    "encoding": "canonical_json_utf8_bytes",
+    "vocabulary_size": 260,
+    "pad_id": 0,
+    "bos_id": 1,
+    "eos_id": 2,
+    "sep_id": 3,
+    "byte_offset": 4,
+    "forbidden_features": ["row_id", "group_id", "split", "template_id", "target", "gold_frame", "full_source_categorical_id", "full_frame_categorical_id"]
+  },
+  "common_model": {
+    "source_encoder": {"kind": "byte_embedding_masked_mean_linear", "embedding_dim": 16, "latent_dim": 32},
+    "decoder": {"kind": "causal_byte_gru", "embedding_dim": 32, "hidden_dim": 32, "layers": 1},
+    "generation": {"kind": "greedy_bos_self_history", "max_new_tokens": 96},
+    "factor_values": {"participant": 6, "time": 6, "event": 4, "operator": 4},
+    "factor_order": ["participant", "time", "event", "operator"]
+  },
+  "compute": {"device": "cpu", "torch_threads": 1, "deterministic_algorithms": true},
+  "training": {
+    "steps": 600,
+    "batch_size": 16,
+    "optimizer": {"name": "Adam", "lr": 0.003, "betas": [0.9, 0.999], "eps": 1e-8, "weight_decay": 0.0},
+    "gradient_clip": {"kind": "global_norm", "max_norm": 1.0},
+    "scheduler": null,
+    "loss_weights": {"lm": 1.0, "participant": 1.0, "time": 1.0, "event": 1.0, "operator": 1.0},
+    "plain_latent_factor_losses": "unavailable",
+    "hyperparameter_search": false
+  },
+  "randomness": {
+    "run_seeds": [7, 17, 29],
+    "source_encoder_seed": "run_seed",
+    "decoder_seed": "run_seed_plus_1000",
+    "factor_path_seed": "run_seed_plus_2000",
+    "batch_schedule_seed": "run_seed",
+    "generation": "greedy"
+  },
+  "parameter_budget": {
+    "maximum_trainable": 30000,
+    "maximum_relative_deviation": 0.03,
+    "count_rule": "sum_numel_requires_grad",
+    "post_result_padding_forbidden": true
+  },
+  "arms": [
+    {
+      "id": "A_G0",
+      "family": "A",
+      "name": "norishio_global_factor_bottleneck",
+      "trainable_parameters": 29272,
+      "factor_heads": "shared_latent_linear_heads",
+      "conditioning": "concatenate_soft_factor_probabilities_linear_to_h0_and_each_step",
+      "gradient_routing": "end_to_end"
+    },
+    {
+      "id": "A_G1",
+      "family": "A",
+      "name": "norishio_global_factor_bottleneck_stop_lm",
+      "trainable_parameters": 29272,
+      "factor_heads": "shared_latent_linear_heads",
+      "conditioning": "concatenate_soft_factor_probabilities_linear_to_h0_and_each_step",
+      "gradient_routing": "stop_factor_head_lm_keep_factor_ce"
+    },
+    {
+      "id": "B",
+      "family": "B",
+      "name": "independent_factor_representations_local_injection",
+      "trainable_parameters": 29848,
+      "factor_heads": "four_independent_linear32_tanh8_then_class_heads",
+      "conditioning": "four_bias_free_probability_projections_with_shared_bias_local_fsm_gates",
+      "gradient_routing": "end_to_end"
+    },
+    {
+      "id": "C",
+      "family": "C",
+      "name": "hard_symbolic_compositional_frame",
+      "trainable_parameters": 29816,
+      "factor_heads": "shared_latent_linear_heads_hard_argmax_for_decoder",
+      "conditioning": "four_class_embedding_tables_dim8_concat_linear_to_h0_and_each_step",
+      "gradient_routing": "factor_ce_only_through_heads"
+    },
+    {
+      "id": "D",
+      "family": "D",
+      "name": "plain_latent_encoder_decoder",
+      "trainable_parameters": 29532,
+      "factor_heads": "none",
+      "conditioning": "latent_linear32_to24_tanh_linear24_to32_to_h0_and_each_step",
+      "gradient_routing": "lm_only"
+    },
+    {
+      "id": "E",
+      "family": "E",
+      "name": "predetermined_broken_semantics_control",
+      "trainable_parameters": 29272,
+      "factor_heads": "A_G0_heads_supervised_and_conditioned_with_manifest_derangements",
+      "conditioning": "A_G0_conditioning_with_shuffled_factor_channels_true_lm_targets",
+      "gradient_routing": "end_to_end"
+    }
+  ],
+  "local_injection_fsm": {
+    "state_source": "already_consumed_generated_utf8_bytes_only",
+    "compiler": "enumerate_spec_target_grammar_and_annotate_each_next_byte_as_literal_participant_time_or_predicate",
+    "transition": "retain_exactly_grammar_candidates_whose_bytes_start_with_consumed_bytes",
+    "activation": "factor_gate_is_one_iff_candidates_nonempty_and_every_retained_candidates_next_byte_has_that_factor_tag",
+    "participant_gate": "participant_tag_only",
+    "time_gate": "time_tag_only",
+    "event_gate": "predicate_tag",
+    "operator_gate": "predicate_tag",
+    "literal_or_ambiguous_next_byte": "all_factor_gates_zero",
+    "invalid_or_unrecognized_prefix": "all_factor_gates_zero",
+    "gold_target_span_access": false,
+    "template_id_access": false
+  },
+  "selection": {
+    "primary_metric": "free_generation_exact.accuracy",
+    "aggregation": "unweighted_arithmetic_mean_over_seeds",
+    "tie_breakers": ["generation_frame_exact.accuracy", "participant_time_event_triple_exact.accuracy", "mean_balanced_atomic_accuracy", "arm_id_ascending"],
+    "development_only": true,
+    "result_driven_changes": false
+  },
+  "metrics": {
+    "version": "benchmark-v2-metrics-1",
+    "required": ["atomic_accuracy", "atomic_balanced_accuracy", "pair_exact", "triple_exact", "train_support_groups", "exact_target_text", "eos", "utf8", "unique_output", "intervention_locality", "intermediate_generation_2x2", "teacher_forced_bytes_separate"],
+    "single_seed_success_claim": false,
+    "general_llm_claim": false
+  },
+  "checkpoint_gate": {
+    "required_terminal_runs": 18,
+    "terminal_statuses": ["complete", "failed"],
+    "required_complete_hashes": ["tournament_config_sha256", "benchmark_content_digest_sha256", "initial_state_sha256", "final_state_sha256", "schedule_sha256", "checkpoint_file_sha256"],
+    "final_requires_all_terminal": true,
+    "failed_runs_remain_visible": true,
+    "retry_requires_identical_frozen_config": true
+  }
+}

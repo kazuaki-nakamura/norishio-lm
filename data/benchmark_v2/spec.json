@@ -1,0 +1,41 @@
+{
+  "version": "norishio-benchmark-v2.0",
+  "split_seed": 3401,
+  "authorship": {
+    "kind": "machine_generated_from_authored_spec",
+    "source": "data/benchmark_v2/spec.json",
+    "human_verified": false,
+    "private_data_used": false
+  },
+  "participants": [
+    {"id": "FRIEND", "surface": "友人"},
+    {"id": "COLLEAGUE", "surface": "同僚"},
+    {"id": "SENIOR", "surface": "先輩"},
+    {"id": "TEACHER", "surface": "先生"},
+    {"id": "FAMILY", "surface": "家族"},
+    {"id": "JUNIOR", "surface": "後輩"}
+  ],
+  "times": [
+    {"id": "TODAY", "surface": "今日"},
+    {"id": "TOMORROW", "surface": "明日"},
+    {"id": "WEEKEND", "surface": "週末"},
+    {"id": "NEXT_WEEK", "surface": "来週"},
+    {"id": "MORNING", "surface": "朝"},
+    {"id": "NIGHT", "surface": "夜"}
+  ],
+  "events": [
+    {"id": "MEET", "predicates": {"ASSERT": "会う", "WANT": "会いたい", "PLAN": "会う予定だ", "NEGATE": "会わない"}},
+    {"id": "TALK", "predicates": {"ASSERT": "話す", "WANT": "話したい", "PLAN": "話す予定だ", "NEGATE": "話さない"}},
+    {"id": "VISIT", "predicates": {"ASSERT": "訪ねる", "WANT": "訪ねたい", "PLAN": "訪ねる予定だ", "NEGATE": "訪ねない"}},
+    {"id": "HELP", "predicates": {"ASSERT": "手伝う", "WANT": "手伝いたい", "PLAN": "手伝う予定だ", "NEGATE": "手伝わない"}}
+  ],
+  "operators": ["ASSERT", "WANT", "PLAN", "NEGATE"],
+  "source_templates": [
+    "私は{time}、{participant}と{predicate}。",
+    "{participant}と{predicate}のは{time}だ。"
+  ],
+  "target_templates": [
+    "{time}、私は{participant}と{predicate}。",
+    "私は{participant}と{time}に{predicate}。"
+  ]
+}
