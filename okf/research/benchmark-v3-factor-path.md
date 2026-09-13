@@ -39,10 +39,11 @@ Source and target surfaces are globally disjoint, and v3 evaluation surfaces
 do not copy benchmark-v2 diagnostic/final records. The expected manifest binds
 the spec, generator, split, payload, and leakage hashes. Its content digest is
 `930958ca1002b9f566fb13d28e072e99fa8ba5c0493308526586dcc128302d84`.
+The learning-free freeze commit is
+`ae8ea2727558a57f6fa7c0e23ad28fc767dcc859`.
 
 The shared scorer separates free generation, exact surface recovery,
 teacher-forced bytes, canonical intermediate heads, source-side swaps, and
 true single-factor probability interventions. This authored fixture is not
 learned output and does not test glyph, etymology, lexical sense, sememe, or
 general Japanese understanding.
-

@@ -13,6 +13,8 @@ unseen pair 192行とpair既知/unseen triple 192行。trainは全原子値を�
 別文型へ修正した。validatorは各行のsource/target不一致、両集合の完全非交差、v2の
 diagnostic/final surface record非再利用を検査する。content digestは
 `930958ca1002b9f566fb13d28e072e99fa8ba5c0493308526586dcc128302d84`。
+学習前freezeは
+`BENCHMARK_V3_FREEZE_SHA = ae8ea2727558a57f6fa7c0e23ad28fc767dcc859`。
 
 Luna (`gpt-5.6-luna`) はgenerator/split/manifestと共通metrics/intervention schemaを分担。
 親がfreeze固定性、漏洩境界、同一source/prefixでの単一factor介入を再監査し、v2回帰を含む

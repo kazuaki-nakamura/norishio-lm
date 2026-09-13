@@ -1,6 +1,7 @@
 # OKF 更新履歴
 
-- 2026-09-14: Issue #36 Phase 0のbenchmark v3 factor-path fixtureを学習前に固定準備。
+- 2026-09-14: Issue #36 Phase 0のbenchmark v3 factor-path fixtureを学習前commit
+  `ae8ea2727558a57f6fa7c0e23ad28fc767dcc859`に固定。
   新しいsurface grammarとsplit seedで1152行を生成し、source/target集合の完全非交差、v2評価行の非再利用、
   pair/triple holdout、manifest/hash、共通scorer、source swapと真の中間確率介入の分離を検査。
   Lunaがgenerator/metricsを分担し、親が直接target漏洩を検出して修正統合。v3学習・final評価・性能主張なし。

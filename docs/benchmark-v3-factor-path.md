@@ -26,6 +26,8 @@ classes, row payloads, leakage contract, and content digest. The frozen Phase
 `930958ca1002b9f566fb13d28e072e99fa8ba5c0493308526586dcc128302d84`.
 The spec digest is
 `9011af9f0596a7ef4f6759930c9e7b5ca1c1cf947f8f027538e6450400c6d994`.
+The learning-free protocol commit is
+`BENCHMARK_V3_FREEZE_SHA = ae8ea2727558a57f6fa7c0e23ad28fc767dcc859`.
 
 The common scorer prioritizes free-generation frame exact, triple exact, pair
 exact, atomic balanced accuracy, and exact text in that order. Exact text also
@@ -45,4 +47,3 @@ Final-confirmation rows require an explicit flag and the exact manifest digest.
 The architecture contract, checkpoint bindings, and one-shot invocation marker
 will be frozen in a later commit before training. Phase 0 contains no training,
 model comparison, final-confirmation evaluation, or performance claim.
-
