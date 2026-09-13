@@ -241,8 +241,9 @@ toy_diagnosisの60/600更新比較では600で両条件の有効UTF-8/EOS終了�
 Issue #32は専用participant/time headへのLM勾配経路を比較した。G0の3 seedはIssue26固定
 baselineの評価と最終stateを完全再現した。G1はdecoder LMからslot headへの勾配を厳密に
 切り、slot CE勾配を保持する。固定16-row probeの全時点でG1のLM-only head gradientは0、
-CEは非ゼロ。通常predictedの両slot正解は全arm0のままで、gold介入の差はtoy grammar内の
-診断に留まる。global clipと共有encoderを保持したため、slot headだけの因果効果とは断定しない。
+CEは非ゼロ。通常predictedの両slot正解はG0が全seed0、G1はseed17だけ1/150で合計1/450。
+この単発成功とgold介入の差はtoy grammar内の診断に留まる。global clipと共有encoderを
+保持したため、slot headだけの因果効果とは断定しない。
 test未評価、自由生成の意味品質・学習済みLLM性能は未実証。byte-v2は正解履歴のteacher-forced
 診断であり、自由生成・意味理解の成果ではない。
 

@@ -21,8 +21,9 @@ parameter数は全arm 42,689。validationは150行すべて未見pair、testは�
 G0のIssue26固定baselineへの評価と最終state digestは3 seedすべて完全一致した。
 
 G1の16-row probeでは、update 0/100/300/600のparticipant/time LM-only head gradientが全て
-厳密ゼロ、slot CE gradientは全て非ゼロ。G0ではLM/CEとも非ゼロ。通常のpredicted条件の
-両slot正解率は全armで0%で、gold介入下の差は固定toy grammar内の診断に留まる。
+厳密ゼロ、slot CE gradientは全て非ゼロ。G0ではLM/CEとも非ゼロ。通常のpredicted条件は
+G0が全seed 0/150、G1がseed7=0/150・seed17=1/150・seed29=0/150（合計1/450）。
+この1件とgold介入下の差は固定toy grammar内の診断に留まり、一般化改善とはしない。
 teacher-forced byte-v2は4条件×6 armで実行し、各checkpointのstate・旧concept・head・logit
 再読込一致も確認した。これは学習済みモデルの意味理解や自由生成品質を示す測定ではない。
 

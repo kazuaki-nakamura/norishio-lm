@@ -58,7 +58,8 @@ sources:
 - 実装済み: Issue #32で専用slot headへのdecoder LM勾配を選択的にdetachするG0/G1 routing control、
   mode付きcheckpoint、固定probe、teacher-forced byte-v2記録を追加。
 - 観測: G0はIssue26の3 seed評価/stateを完全再現。G1は全probeでslot headへのLM-only勾配0、
-  CE勾配は非ゼロ。通常predictedの両slot0は継続し、gold介入の小差だけでは改善を主張できない。
+  CE勾配は非ゼロ。通常predictedはG0全seed0、G1はseed17だけ1/150（合計1/450）。
+  この単発成功とgold介入の小差だけでは改善を主張できない。
 - 未解決: global clipping・共有encoderを含む経路差の分離、より大きいcompositional split、
   自由生成とtest評価。routing診断は意味層の一般有効性や学習済みLLM性能を証明しない。
 

@@ -2,7 +2,8 @@
 
 - 2026-09-13: Issue #32のG0/G1 slot-gradient routing controlを実装。
   G0はIssue26固定baselineの3 seed評価/stateを完全再現し、G1は全probeで専用headへの
-  decoder LM勾配0・slot CE非ゼロを確認。通常predicted両slot0、gold介入の差、byte-v2と
+  decoder LM勾配0・slot CE非ゼロを確認。通常predictedはG0全seed0、G1合計1/450。
+  単発成功を一般化改善とせず、gold介入の差、byte-v2と
   checkpoint再読込一致を記録。Lunaはgradient routing回帰テストを担当し、親が実験・統合・検証。
   test未評価、意味性能の主張なし、人の検証印なし。
 

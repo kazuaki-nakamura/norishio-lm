@@ -28,7 +28,7 @@ Each value below is measured on the 150-row unseen validation set. `predicted` u
 | 29 | `end_to_end` | 0.0% | 42.7% | 13.3% | 13.3% | 0.181583 | 0.113778 |
 | 29 | `stop_slot_lm` | 0.0% | 44.7% | 14.7% | 14.7% | 0.183759 | 0.113354 |
 
-The ordinary predicted condition remains at 0% joint slot accuracy for every arm. G1 changes the toy diagnostic slightly under gold intervention, but this small run does not establish a generalization improvement; the aggregate comparison is underpowered and remains confined to this fixed grammar.
+In the ordinary predicted condition, G0 is 0/150 for every seed; G1 is seed7=0/150, seed17=1/150, and seed29=0/150, or 1/450 in aggregate. The isolated success and the small gold-intervention changes do not establish a generalization improvement; the comparison is underpowered and remains confined to this fixed grammar.
 
 ## Gradient probes
 
