@@ -105,6 +105,8 @@ defines the six CPU arms, deterministic training command, checkpoint gate, and
 separate one-shot final command.
 The frozen [development tournament result](docs/results/benchmark-v2-development.md)
 reports all seeds and the arithmetic means without opening the final holdout.
+The one-shot [final tournament result](docs/results/benchmark-v2-final.md)
+records all frozen checkpoints after the final gate was consumed.
 
 1. Does explicit semantic decomposition improve rare/novel compound understanding?
 2. Does a sememe/concept bottleneck improve paraphrase and compositional generalization?

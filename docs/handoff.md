@@ -1768,6 +1768,12 @@ FSM規則を変えず、全候補から事前構築したprefix→next-tag表に
 final holdoutは未開封。自動承認レビューが一回限りの開封にはユーザーの明示承認が必要として
 コマンドを拒否したため、承認後に同じ専用出力rootへ一度だけ実行する。
 
+ユーザーの明示承認後、final-holdoutを一度だけ開封した。384行、18 evaluation、0 failed、
+result SHA-256は`1d21b4cfa950c3c96c50ca0647e33308bb4d0653c18bcc146560ce1da4266554`。
+二回目は`FileExistsError`、終了コード1で拒否され、上書きなし。三seed平均の最終順位は
+`B > C > A_G1 > A_G0 > E > D`。全seed値とteacher-forced/localityの制約は
+[final tournament result](results/benchmark-v2-final.md) に記録した。
+
 ## AI 作業基盤の追加（2026-09-05）
 
 ユーザー指定の ai-project-foundation から、開発用 OKF、読取専用 MCP、索引・整合性検査を取り込んだ。

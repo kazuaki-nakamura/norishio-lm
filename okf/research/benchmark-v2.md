@@ -41,6 +41,9 @@ sources:
   - id: development-results
     resource: docs/results/benchmark-v2-development.md
     title: Frozen per-seed development observations and limits
+  - id: final-results
+    resource: docs/results/benchmark-v2-final.md
+    title: Consumed one-shot final observations and limits
 ---
 
 # Benchmark v2 freeze protocol
@@ -77,4 +80,9 @@ FSM、seed由来schedule、再構築可能な初期状態とarchitecture/state/f
 commit `565c2bf1f8b22435f21a74d5833dfeb4821d8174`からの正式development実行は
 18 complete / 0 failed。三seed平均の主指標順はB、C、E、A_G0、A_G1、Dで、Bのfree exactは
 0.223090、frame exactは0.453125。詳細な全seed値とparse失敗を含む限界は
-`docs/results/benchmark-v2-development.md`を原本とする。final holdoutは未開封。
+`docs/results/benchmark-v2-development.md`を原本とする。
+
+明示承認後の一回限りfinalは384行、18 evaluation、0 failedで完了し、二回目を拒否した。
+三seed平均の最終順位はB、C、A_G1、A_G0、E、D。Bのfree exactは0.243056、frame exactは
+0.484375。全seed値、tie-break、teacher-forcedとlocalityの限界は
+`docs/results/benchmark-v2-final.md`を原本とする。

@@ -8,6 +8,8 @@
   同じFSM規則をprefix→next-tag表へ等価最適化し、修正commit後に全件を再実行する。
   修正commitから18 complete / 0 failed、checkpoint再認証、Luna独立再集計を確認。
   development順位B>C>E>A_G0>A_G1>Dを全seed値・診断制約と共に記録。finalは未開封。
+  明示承認後にfinalを一度だけ消費し18 evaluation / 0 failed、二回目拒否を確認。
+  最終順位B>C>A_G1>A_G0>E>Dと全seed値・診断制約を記録。一般LLM性能の主張なし。
 
 - 2026-09-13: Issue #34 Phase 1のbenchmark v2を学習前commit `19ce7145495a47b40a178255272050caa615dc79` に固定。
   4因子1152行、pair/triple holdout、source allowlist、factor shuffle、strict parser、final gate、

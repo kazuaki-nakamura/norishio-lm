@@ -60,5 +60,6 @@ four intervention pairs, and several other arms also have failures. A zero
 preservation value can therefore mean that an output was unparsable rather
 than that a non-target factor was demonstrably changed.
 
-The final holdout has not been opened. It requires a separate, one-shot
-`--evaluate-final` invocation after explicit authorization.
+After this report and checkpoint selection were frozen, the explicitly
+authorized one-shot evaluation was consumed. See the
+[final tournament result](benchmark-v2-final.md).
