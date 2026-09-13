@@ -21,6 +21,15 @@ from .benchmark_v2_tournament import ARM_COUNTS, SEEDS, required_run_keys, load_
 Trainer = Callable[[str, int], TrainingResult]
 DevelopmentEvaluator = Callable[[Any], Mapping[str, Any]]
 
+DEVELOPMENT_METRIC_KEYS = (
+    "free_generation_exact",
+    "generation_frame_exact",
+    "triple_exact",
+    "mean_balanced_atomic_accuracy",
+    "teacher_forced_byte_match",
+    "intervention_non_target_preservation",
+)
+
 
 def development_path(root: str | os.PathLike[str], arm: str, seed: int) -> Path:
     return Path(root) / "development" / f"{arm}-{seed}.json"
@@ -145,14 +154,13 @@ def write_development_summary(root: str | os.PathLike[str],
         per_run.append(row)
     arm_means: dict[str, Any] = {}
     for arm, values in by_arm.items():
-        keys = next(iter(values), {}).keys()
         arm_means[arm] = {
             "complete_seeds": len(values),
             "three_seed_mean": {
                 key: (sum(item[key] for item in values if item[key] is not None) / 3
                       if len(values) == 3 and all(item[key] is not None for item in values)
                       else None)
-                for key in keys
+                for key in DEVELOPMENT_METRIC_KEYS
             },
         }
     path = output / "development-summary.json"

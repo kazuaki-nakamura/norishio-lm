@@ -5,14 +5,16 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import math
 import os
 from pathlib import Path
+import shutil
 import tempfile
 from typing import Any, Callable, Mapping, Sequence
 
 from .benchmark_v2_checkpoint import checkpoint_file_sha256, load_tournament_checkpoint
 from .benchmark_v2_protocol import canonical_bytes, collect_terminal_records
-from .benchmark_v2_tournament import BENCHMARK_DIGEST
+from .benchmark_v2_tournament import ARM_COUNTS, BENCHMARK_DIGEST, SEEDS
 
 
 Evaluator = Callable[[Mapping[str, Any], Mapping[str, Any], Sequence[Mapping[str, Any]]], Any]
@@ -32,7 +34,7 @@ def checkpoint_path(root: str | os.PathLike[str], arm: str, seed: int) -> Path:
     return Path(root) / "checkpoints" / f"{arm}-{seed}.pt"
 
 
-def _atomic_exclusive_json(path: Path, value: Mapping[str, Any]) -> None:
+def _atomic_exclusive_json(path: Path, value: Mapping[str, Any]) -> str:
     path.parent.mkdir(parents=True, exist_ok=True)
     if path.exists():
         raise FileExistsError(str(path))
@@ -52,6 +54,152 @@ def _atomic_exclusive_json(path: Path, value: Mapping[str, Any]) -> None:
         except FileNotFoundError:
             pass
         raise
+    return hashlib.sha256(payload).hexdigest()
+
+
+def _publish_invocation_marker(root: Path, marker: Mapping[str, Any]) -> Path:
+    """Publish the consumed directory only after its marker is complete.
+
+    A temporary sibling keeps a failed marker write from leaving a directory
+    that looks consumed but has no marker.  The final rename is exclusive on
+    the supported Windows and POSIX filesystems because a successful publish
+    always leaves a non-empty destination directory.
+    """
+
+    root.mkdir(parents=True, exist_ok=True)
+    invocation = root / "final-invocation"
+    temporary = Path(tempfile.mkdtemp(prefix=".final-invocation.", dir=root))
+    try:
+        _atomic_exclusive_json(temporary / "marker.json", marker)
+        if invocation.exists():
+            raise FileExistsError(str(invocation))
+        os.rename(temporary, invocation)
+    except Exception:
+        shutil.rmtree(temporary, ignore_errors=True)
+        raise
+    return invocation
+
+
+_SELECTION_METRICS = (
+    "free_generation_exact.accuracy",
+    "generation_frame_exact.accuracy",
+    "participant_time_event_triple_exact.accuracy",
+    "mean_balanced_atomic_accuracy",
+)
+
+
+def _selection_metric(result: Mapping[str, Any], name: str) -> float:
+    if name == "mean_balanced_atomic_accuracy":
+        values = result["all"]["balanced_accuracy"]
+        values = [values[field] for field in ("participant", "time", "event", "operator")]
+        value = sum(values) / len(values)
+    else:
+        group, field = name.split(".", 1)
+        value = result["all"][group][field]
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+        raise ValueError(f"selection metric {name} must be finite and numeric")
+    return float(value)
+
+
+def _selection_summary(evaluations: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    """Aggregate frozen selection metrics and expose the tie-break trace.
+
+    Custom evaluators used by protocol tests may intentionally return a small
+    sentinel result.  Such results remain valid final-gate results, but do not
+    claim a selection ranking until the frozen metrics are available.
+    """
+
+    try:
+        by_arm: dict[str, list[Mapping[str, Any]]] = {arm: [] for arm in ARM_COUNTS}
+        seen: set[tuple[str, int]] = set()
+        for evaluation in evaluations:
+            arm = evaluation["arm"]
+            seed = evaluation["seed"]
+            if arm not in by_arm or (arm, seed) in seen:
+                raise ValueError("duplicate or unknown final evaluation arm")
+            seen.add((arm, seed))
+            by_arm[arm].append(evaluation)
+        means: dict[str, dict[str, Any]] = {}
+        for arm, rows in by_arm.items():
+            seeds = sorted(row["seed"] for row in rows)
+            if seeds != sorted(SEEDS):
+                means[arm] = {"complete_seeds": len(rows), "three_seed_mean": None}
+                continue
+            values = {
+                metric: [_selection_metric(row["result"], metric) for row in rows]
+                for metric in _SELECTION_METRICS
+            }
+            means[arm] = {
+                "complete_seeds": len(rows),
+                "three_seed_mean": {
+                    metric: sum(metric_values) / len(SEEDS)
+                    for metric, metric_values in values.items()
+                },
+            }
+        eligible = [arm for arm, value in means.items() if value["three_seed_mean"] is not None]
+        ranking = sorted(
+            eligible,
+            key=lambda arm: tuple(
+                [-means[arm]["three_seed_mean"][metric] for metric in _SELECTION_METRICS]
+                + [arm]
+            ),
+        )
+
+        trace: list[dict[str, Any]] = []
+        primary = _SELECTION_METRICS[0]
+        primary_groups: dict[float, list[str]] = {}
+        for arm in eligible:
+            value = means[arm]["three_seed_mean"][primary]
+            primary_groups.setdefault(value, []).append(arm)
+        trace.append({
+            "stage": "primary",
+            "metric": primary,
+            "groups": [
+                {"value": value, "arms": sorted(arms)}
+                for value, arms in sorted(primary_groups.items(), key=lambda item: -item[0])
+            ],
+        })
+        tied_groups = [sorted(arms) for arms in primary_groups.values() if len(arms) > 1]
+        for index, metric in enumerate(_SELECTION_METRICS[1:], start=1):
+            next_groups: list[list[str]] = []
+            for candidates in tied_groups:
+                scores = {arm: means[arm]["three_seed_mean"][metric] for arm in candidates}
+                best = max(scores.values())
+                survivors = sorted(arm for arm, value in scores.items() if value == best)
+                trace.append({
+                    "stage": f"tie_break_{index}",
+                    "metric": metric,
+                    "candidates": candidates,
+                    "scores": scores,
+                    "survivors": survivors,
+                })
+                if len(survivors) > 1:
+                    next_groups.append(survivors)
+            tied_groups = next_groups
+            if not tied_groups:
+                break
+        if tied_groups:
+            trace.append({
+                "stage": f"tie_break_{len(_SELECTION_METRICS)}",
+                "metric": "arm_id_ascending",
+                "candidates": tied_groups,
+                "survivors": [group[0] for group in tied_groups],
+            })
+        return {
+            "schema": "norishio.issue34.selection.v1",
+            "status": "complete",
+            "primary_metric": primary,
+            "tie_breakers": [*_SELECTION_METRICS[1:], "arm_id_ascending"],
+            "three_seed_means": means,
+            "ranking": ranking,
+            "tie_break_trace": trace,
+        }
+    except (KeyError, TypeError, ValueError):
+        return {
+            "schema": "norishio.issue34.selection.v1",
+            "status": "unavailable",
+            "reason": "frozen selection metrics unavailable",
+        }
 
 
 def _validate_complete_checkpoints(root: Path, records: Sequence[Mapping[str, Any]]) -> list[tuple[Mapping[str, Any], dict[str, Any]]]:
@@ -92,6 +240,7 @@ def evaluate_final_once(root: str | os.PathLike[str], *, evaluate_final: bool,
     """
     if evaluate_final is not True:
         raise PermissionError("final holdout requires explicit --evaluate-final")
+    using_default_evaluator = evaluator is None
     if evaluator is None:
         evaluator = _default_evaluator
     if not callable(evaluator):
@@ -101,10 +250,7 @@ def evaluate_final_once(root: str | os.PathLike[str], *, evaluate_final: bool,
     complete = _validate_complete_checkpoints(output_root, records)
     record_digest = hashlib.sha256(canonical_bytes(records)).hexdigest()
 
-    invocation = output_root / "final-invocation"
-    invocation.parent.mkdir(parents=True, exist_ok=True)
-    invocation.mkdir(exist_ok=False)
-    _atomic_exclusive_json(invocation / "marker.json", {
+    invocation = _publish_invocation_marker(output_root, {
         "schema": "norishio.issue34.final-invocation.v1",
         "status": "consumed",
         "benchmark_content_digest_sha256": BENCHMARK_DIGEST,
@@ -128,6 +274,16 @@ def evaluate_final_once(root: str | os.PathLike[str], *, evaluate_final: bool,
                 "seed": record["seed"],
                 "result": evaluator(record, payload, rows),
             })
+        selection = _selection_summary(evaluations)
+        expected_evaluations = len(ARM_COUNTS) * len(SEEDS)
+        complete_ranking = (
+            selection.get("status") == "complete"
+            and len(evaluations) == expected_evaluations
+            and len(selection.get("ranking", [])) == len(ARM_COUNTS)
+            and set(selection.get("ranking", [])) == set(ARM_COUNTS)
+        )
+        if using_default_evaluator and not complete_ranking:
+            raise ValueError("default final evaluator did not produce frozen selection metrics")
         result = {
             "schema": "norishio.issue34.final-result.v1",
             "status": "complete",
@@ -136,17 +292,33 @@ def evaluate_final_once(root: str | os.PathLike[str], *, evaluate_final: bool,
             "rows": len(rows),
             "evaluations": evaluations,
             "failed_runs": [dict(record) for record in records if record["status"] == "failed"],
+            "selection": selection,
         }
-        _atomic_exclusive_json(invocation / "result.json", result)
+        result_digest = _atomic_exclusive_json(invocation / "result.json", result)
+        _atomic_exclusive_json(invocation / "result-attestation.json", {
+            "schema": "norishio.issue34.result-attestation.v1",
+            "result_sha256": result_digest,
+            "result_schema": result["schema"],
+            "terminal_records_sha256": record_digest,
+            "benchmark_content_digest_sha256": BENCHMARK_DIGEST,
+        })
         return result
     except Exception as exc:
-        failure = {
-            "schema": "norishio.issue34.final-result.v1",
-            "status": "failed",
-            "error_type": type(exc).__name__,
-            "redacted_message": "final evaluation failed after invocation was consumed",
-        }
-        _atomic_exclusive_json(invocation / "result.json", failure)
+        if not (invocation / "result.json").exists():
+            failure = {
+                "schema": "norishio.issue34.final-result.v1",
+                "status": "failed",
+                "error_type": type(exc).__name__,
+                "redacted_message": "final evaluation failed after invocation was consumed",
+            }
+            failure_digest = _atomic_exclusive_json(invocation / "result.json", failure)
+            _atomic_exclusive_json(invocation / "result-attestation.json", {
+                "schema": "norishio.issue34.result-attestation.v1",
+                "result_sha256": failure_digest,
+                "result_schema": failure["schema"],
+                "terminal_records_sha256": record_digest,
+                "benchmark_content_digest_sha256": BENCHMARK_DIGEST,
+            })
         raise
 
 

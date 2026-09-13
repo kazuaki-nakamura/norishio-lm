@@ -86,3 +86,8 @@ commit `565c2bf1f8b22435f21a74d5833dfeb4821d8174`からの正式development実�
 三seed平均の最終順位はB、C、A_G1、A_G0、E、D。Bのfree exactは0.243056、frame exactは
 0.484375。全seed値、tie-break、teacher-forcedとlocalityの限界は
 `docs/results/benchmark-v2-final.md`を原本とする。
+
+final消費後のPRレビューで、失敗summaryの固定schema、machine-readableな三seed順位とtie-break trace、
+marker directoryの完成後排他的publish、将来のresult attestationを追加した。消費済みartifactは変更せず、
+新しい集計器による読み取り専用再計算だけを行い、記録済み順位と一致した。既存checkpointは
+implementation source hashを内包しないため、formal implementation commitは外部provenanceとして扱う。

@@ -66,3 +66,18 @@ benefit from the authored factor labels. D remains at zero free/frame exact
 despite a high teacher-forced byte score. Locality has many strict parse
 failures, so zero preservation cannot be interpreted as a confirmed semantic
 change.
+
+## Post-result review hardening
+
+The consumed artifact above was not regenerated or edited after final access.
+Read-only replay through the review-added selection aggregator reproduced
+`B > C > A_G1 > A_G0 > E > D`. Future invocations now emit machine-readable
+three-seed means, ranking, tie-break traces, and a separate result attestation.
+The already-consumed artifact predates that attestation, so its result digest
+remains externally recorded in this document.
+
+Checkpoint validation binds the frozen config, benchmark, schedule,
+architecture metadata, model state, and file bytes. It does not embed the
+formal runner/model/FSM source hash or implementation commit in checkpoint
+metadata; the implementation commit above remains an external provenance
+constraint for this result.

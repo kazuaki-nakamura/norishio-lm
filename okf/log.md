@@ -1,5 +1,10 @@
 # OKF 更新履歴
 
+- 2026-09-13: Issue #34 PRレビューでLuna 3担当がfinal gate、再現性、checkpoint/FSM/runnerを独立監査。
+  失敗summaryの固定metric schema、機械可読な最終順位/tie-break、marker初期publish、将来のresult attestationを
+  修正し、473テストを確認。消費済みfinalは変更・再評価せず、読み取り専用再集計で順位一致を確認。
+  checkpoint内のimplementation source hash不足は既存artifact互換性のため外部provenance制約として記録。
+
 - 2026-09-13: Issue #34 tournament freeze後の6 arm、prefix FSM、固定training runner、
   checkpoint/terminal認証、18-run driver、最終holdout一回gateを追加。Lunaのモデル/FSM/runner実装と
   独立監査を親が修正統合し、正式実行前の全parameter preflightと463テストを確認。

@@ -1791,9 +1791,24 @@ result SHA-256は`1d21b4cfa950c3c96c50ca0647e33308bb4d0653c18bcc146560ce1da42665
 .\.venv\Scripts\python.exe codex\okf_mcp\tests\live_check.py --server codex\okf_mcp\server.py --root okf
 ```
 
-PR最終headで明示した3 test rootは **467 passed, 1 warning, 2 subtests passed**。
+PR作成時headで明示した3 test rootは **467 passed, 1 warning, 2 subtests passed**。
 rootを限定しないpytest再試行は、過去のアクセス不能なignored一時ディレクトリまで収集して
 54 collection errorsとなった。明示test rootと新しいrepo-local basetempで再実行し、終了コード0を確認した。
+
+PRレビューではLuna 3担当がfinal gate、再現性、checkpoint/FSM/runner/testを独立監査した。
+all-failed development summaryで固定metric keyが消える点、final順位/tie-breakがmachine-readableでない点、
+marker初回書込み失敗時のmarkerless directory、result JSONのprogrammatic attestation不足を修正した。
+標準final evaluatorは全6 arm x 3 seedのselection metricと全arm rankingを必須とし、欠損を成功扱いしない。
+将来のfinal invocationは完成済みmarker directoryを排他的publishし、result SHA-256とfrozen digestを
+`result-attestation.json`へ記録する。既存の消費済みfinal artifactは変更・再生成せず、読み取り専用で
+新しい集計器へ通して順位`B > C > A_G1 > A_G0 > E > D`の一致を確認した。
+
+レビュー修正後の全test rootは **473 passed, 1 warning, 2 subtests passed**、focusedは12 passed。
+checkpointはconfig/benchmark/schedule/architecture/state/file hashを検証するが、formal runner/model/FSMの
+source hashやimplementation commitをcheckpoint metadata自体には持たない。既存18 checkpointとの互換性を
+壊すため本PRでは必須化せず、formal implementation commitとresult digestの外部記録を監査境界として残す。
+消費済みfinal artifactは新しいattestation導入前のため`result-attestation.json`を持たず、文書記録した
+result SHA-256で照合する。
 
 ## AI 作業基盤の追加（2026-09-05）
 
