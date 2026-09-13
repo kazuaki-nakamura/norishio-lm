@@ -1,5 +1,10 @@
 # OKF 更新履歴
 
+- 2026-09-13: Issue #34 Phase 1のbenchmark v2を学習前commit `19ce7145495a47b40a178255272050caa615dc79` に固定。
+  4因子1152行、pair/triple holdout、source allowlist、factor shuffle、strict parser、final gate、
+  共通scorerを追加。全415テストと独立export byte一致を確認。Lunaへ設計・実装・再監査を分担し、
+  親が統合修正とfreezeを担当。v2学習・final評価・性能主張・人の検証印なし。
+
 - 2026-09-13: Issue #32のG0/G1 slot-gradient routing controlを実装。
   G0はIssue26固定baselineの3 seed評価/stateを完全再現し、G1は全probeで専用headへの
   decoder LM勾配0・slot CE非ゼロを確認。通常predictedはG0全seed0、G1合計1/450。

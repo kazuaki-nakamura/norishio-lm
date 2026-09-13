@@ -9,6 +9,10 @@ surface templates, split rule, support classes, file hashes, and negative
 control derangements are committed under `data/benchmark_v2/`. The freeze
 commit is recorded as `BENCHMARK_FREEZE_SHA` before any v2 model training.
 
+`BENCHMARK_FREEZE_SHA = 19ce7145495a47b40a178255272050caa615dc79`
+
+No benchmark-v2 model training occurred before or as part of that commit.
+
 The main contrasts are:
 
 1. participant-time pairs absent from train;

@@ -2,6 +2,49 @@
 
 検証日: 2026-09-13
 
+## 最新の実装状態: Issue #34 Phase 1
+
+`codex/issue-34`、PR #33 merge `fee9b0923ebdc5034a82f7fd57c1a6b50b155b37`
+から開始。学習前のbenchmark freezeは
+`BENCHMARK_FREEZE_SHA = 19ce7145495a47b40a178255272050caa615dc79`。
+Phase 1ではv2モデル学習を実行していない。
+
+6 participant x 6 time x 4 event x 4 operator x 2表現の1152行を機械生成する。
+train / diagnostic-validation / final-holdoutは各384行・192 frame group。
+各評価splitはunseen participant-time pair 192行と、pair既知・triple未見192行を持つ。
+trainは全原子値、24 pair、48 tripleを含み、各選択tripleは4 operatorを含む。
+同一frameの2表現はsplitを跨がない。source入力は`context/text`だけで、完全なsource表現を
+単一categorical IDにしない。split seed、語彙、template、規則、各JSONL SHA-256、
+factor shuffle、strict target grammar、content digestをexpected manifestに固定した。
+
+共通scorerは生成frameの4原子accuracy/balanced accuracy、pair/triple exact、train support別、
+exact text、EOS、UTF-8、unique output、intervention localityを同じ分母契約で集計する。
+中間headは生成指標と分離し、利用可能行だけの真の2x2表を出す。parse失敗は分母に残し、
+空群は0でなくnull。teacher-forced byteは型・範囲・整合性を検証した別診断であり、
+自由生成成果には含めない。final-holdoutは明示flagと一致するmanifest digestが必要。
+
+Luna (`gpt-5.6-luna`) へ既存資産監査、漏洩テスト設計、共通scorer実装、generator監査、
+metrics再監査を分担。親がsplit仕様、generator/parser/manifest、統合、レビュー修正、全検証、
+freeze commitを担当した。generator監査で改行依存hashとcustom spec帰属を修正し、metrics監査で
+非有限JSON、teacher-forced検証、2x2表記を修正。最終再監査はblocking issueなし。
+
+```powershell
+.\.venv\Scripts\python.exe data\benchmark_v2\benchmark.py --check
+.\.venv\Scripts\python.exe data\benchmark_v2\benchmark.py --out codex\work_output\benchmark-v2-freeze-a
+.\.venv\Scripts\python.exe data\benchmark_v2\benchmark.py --out codex\work_output\benchmark-v2-freeze-b
+.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider --basetemp codex\work_output\pytest-v2-freeze-final
+.\.venv\Scripts\python.exe -m norishio_lm.demo
+.\.venv\Scripts\python.exe -m norishio_lm.encoder_demo
+```
+
+独立exportは4ファイルすべてbyte一致。最終全テストは **415 passed, 1 warning,
+2 subtests passed**。両demoは終了コード0。encoder demoのNumPy未導入warningは既存で、
+出力はfinite。これは構造fixtureと配線の検証であり、学習済み性能・日本語品質の主張ではない。
+
+残課題はPhase 2の5 architecture family、parameter budget、schedule、checkpoint manifest、
+final開封条件を学習前に`TOURNAMENT_FREEZE_SHA`へ固定すること。その後もCPU seed 7/17/29を
+同条件で実行し、diagnostic-validationだけで判断する。全arm/seed完了前にfinalを評価しない。
+
 ## 最新の実装状態: Issue #32
 
 `codex/issue-32`、PR31 merge `29533877a11850bb801f54f28296415797d10f80` から開始。
