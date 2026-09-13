@@ -26,6 +26,18 @@ sources:
   - id: data-tests
     resource: tests/test_benchmark_v2_data.py
     title: Split, leakage, parser, and export checks
+  - id: model
+    resource: src/norishio_lm/benchmark_v2_model.py
+    title: Frozen arm implementations and gradient boundaries
+  - id: runner
+    resource: src/norishio_lm/benchmark_v2_runner.py
+    title: Deterministic training and development evaluation
+  - id: execution
+    resource: src/norishio_lm/benchmark_v2_execute.py
+    title: Eighteen-run checkpoint and terminal-record driver
+  - id: final-gate
+    resource: src/norishio_lm/benchmark_v2_final.py
+    title: Exclusive one-shot final holdout command
 ---
 
 # Benchmark v2 freeze protocol
@@ -49,3 +61,12 @@ interventionは別指標で、parse失敗を分母から除かない。final-hol
 必要とし、Phase 2の全arm/seed/checkpoint固定完了後に一度だけ評価する。
 
 これはauthored spec由来の構造fixtureであり、学習成果、一般日本語品質、意味層の有効性を示さない。
+
+freeze後の実装は、source-only encoder、target-only causal decoder、6 arm、Bのprefix-only
+FSM、seed由来schedule、再構築可能な初期状態とarchitecture/state/fileを束縛するcheckpoint、
+厳格terminal record、18-run development driver、排他的な`--evaluate-final` commandを持つ。
+正式実行前の全18 parameter preflightはfreeze値と一致した。development localityは同一評価splitから
+非対象3因子が一致する4組を固定順で選び、modelにはsource context/textだけを渡す。
+
+この時点の検証は実行系の配線・再現境界である。保存されていないsmoke trainingやteacher-forced
+診断を正式tournament結果、自由生成性能、一般LLM性能として扱わない。

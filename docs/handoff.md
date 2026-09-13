@@ -1735,6 +1735,27 @@ README の仮想環境・editable install 方針に従い、Windows では activ
 
 字形・字源は現代語義の根拠と同一視しない。各意味層の採用は比較実験の結果で判断する。
 
+## Issue #34 benchmark v2 architecture tournament（2026-09-13）
+
+Benchmark freeze `19ce7145495a47b40a178255272050caa615dc79` と tournament
+freeze `38e363e1b4e836b890f1c852f6d0a45fe3119296` の後に、6 arm × 3 seedの
+CPU実行系を実装した。共通source encoder/causal byte GRU、A_G0/A_G1/B/C/D/E、
+Bのprefix-only FSM、固定schedule、checkpoint認証、terminal record、development
+集計、最終holdoutの排他的な一回限りgateを含む。手書きbenchmark fixtureは
+学習済みモデルの成果ではなく、この小規模tournamentから一般LLM性能を主張しない。
+
+正式実行前の統合検証は benchmark-v2 focused **76 passed**、全体 **463 passed,
+2 subtests passed**。既知のzero-element tensor warningが1件ある。NumPyは未導入で、
+torch import時のoptional NumPy warningはfocused実行でのみ確認した。全18 runの
+parameter preflightは29,272〜29,848でfreeze値と一致した。Lunaへモデル/FSM/runner
+実装と独立監査を委譲し、親がraw-latent bypass、B projection、checkpoint認証、
+report schemaを修正して統合した。
+
+未完了は、実装コミット後の空の専用出力先で行う正式18 run、development結果の
+記録、全terminal/checkpoint再検証、最終holdout一回評価、結果レビューである。
+Lunaがrunner動作確認としてD/Eを各1回600 update実行したが、保存も採用もせず、
+正式結果には含めない。
+
 ## AI 作業基盤の追加（2026-09-05）
 
 ユーザー指定の ai-project-foundation から、開発用 OKF、読取専用 MCP、索引・整合性検査を取り込んだ。

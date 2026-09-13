@@ -54,3 +54,46 @@ invocation cannot change architecture, budget, seed, or checkpoint.
 It is recorded outside the canonical JSON to avoid hashing a commit into its
 own configuration. No benchmark-v2 model training occurred before or as part
 of that commit.
+
+## Frozen implementation and execution
+
+The implementation uses a target-only causal decoder during training:
+`BOS + preceding target bytes` predicts `target bytes + EOS`. Source bytes go
+only through the masked source encoder. A, C, and E therefore cannot bypass
+their factor bottleneck through the raw source latent. B applies four separate
+bias-free probability projections under the prefix-only FSM gates and one
+shared bias. D conditions on its plain latent adapter.
+
+Before an optimizer is created, the runner validates the generated corpus
+against `expected-manifest.json` and the tournament digest, then checks the
+actual trainable parameter count. Checkpoints reconstruct the initial model and
+batch schedule from the arm and seed, validate the exact state schema and
+tensor bytes, and use exclusive publication. Terminal JSON is strict and is
+re-authenticated from its checkpoint at final intake.
+
+Development locality uses four deterministic pairs selected only from the
+active evaluation split. Each pair differs in one factor and agrees on the
+other three. Gold frames select the comparison pair; the model receives only
+the two source `context`/`text` records. The generated before/after frames are
+then scored for the requested change and preservation of the other factors.
+
+From a source checkout with the model extra installed, run the complete frozen
+development tournament into a new ignored directory:
+
+```powershell
+.\.venv\Scripts\python.exe -m norishio_lm.benchmark_v2_execute --all --output-root codex/work_output/benchmark-v2-tournament
+```
+
+The driver writes every per-seed development report, checkpoint, terminal
+record, and a three-seed arithmetic-mean summary. A failed run remains a failed
+terminal record and is not converted into a zero score.
+
+Only after all 18 terminal records exist, consume the final holdout once:
+
+```powershell
+.\.venv\Scripts\python.exe -m norishio_lm.benchmark_v2_final --evaluate-final --root codex/work_output/benchmark-v2-tournament
+```
+
+The exclusive `final-invocation` marker is created before final rows are
+opened. A callback or write failure after that point is recorded as a consumed
+failed invocation and cannot be retried in the same output root.

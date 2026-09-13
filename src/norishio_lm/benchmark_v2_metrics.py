@@ -478,6 +478,21 @@ def score_benchmark_v2(
                                         "rejection_reason": item["reason"]}
                                        for index, item in enumerate(normalized)],
                               "teacher_forced_bytes": _teacher_forced(rows)}
+    # Canonical tournament-facing aliases. Detailed denominator-bearing data
+    # stays under ``groups``/``all`` while these keys match the frozen contract.
+    result.update({
+        "atomic_accuracy": groups["all"]["field_accuracy"],
+        "atomic_balanced_accuracy": groups["all"]["balanced_accuracy"],
+        "pair_exact": groups["all"]["pair_exact"],
+        "triple_exact": groups["all"]["triple_exact"],
+        "train_support_groups": groups,
+        "exact_target_text": groups["all"]["exact_target_text"],
+        "eos": groups["all"]["generation_validity"]["eos"],
+        "utf8": groups["all"]["generation_validity"]["utf8"],
+        "unique_output": groups["all"]["generation_validity"]["unique_output"],
+        "intermediate_generation_2x2": groups["all"]["contingency_2x2"],
+        "teacher_forced_bytes_separate": result["teacher_forced_bytes"],
+    })
     if interventions is not None:
         result["intervention_locality"] = score_intervention_locality(interventions, parser=parser)
     return _jsonable(result)

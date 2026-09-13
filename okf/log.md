@@ -1,5 +1,10 @@
 # OKF 更新履歴
 
+- 2026-09-13: Issue #34 tournament freeze後の6 arm、prefix FSM、固定training runner、
+  checkpoint/terminal認証、18-run driver、最終holdout一回gateを追加。Lunaのモデル/FSM/runner実装と
+  独立監査を親が修正統合し、正式実行前の全parameter preflightと463テストを確認。
+  保存なしD/E smokeは正式結果に含めず、人の検証印や一般LLM性能主張を追加しない。
+
 - 2026-09-13: Issue #34 Phase 1のbenchmark v2を学習前commit `19ce7145495a47b40a178255272050caa615dc79` に固定。
   4因子1152行、pair/triple holdout、source allowlist、factor shuffle、strict parser、final gate、
   共通scorerを追加。全415テストと独立export byte一致を確認。Lunaへ設計・実装・再監査を分担し、

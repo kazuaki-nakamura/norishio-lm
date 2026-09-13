@@ -100,6 +100,9 @@ participant/time/event/operator holdout before the Issue #34 architecture
 tournament. Its generated fixtures and common metrics are evaluation
 infrastructure, not trained output. Final-holdout evaluation remains sealed
 until every preregistered arm and seed has a validated checkpoint.
+The [tournament architecture and execution contract](docs/architecture-tournament-v2.md)
+defines the six CPU arms, deterministic training command, checkpoint gate, and
+separate one-shot final command.
 
 1. Does explicit semantic decomposition improve rare/novel compound understanding?
 2. Does a sememe/concept bottleneck improve paraphrase and compositional generalization?
