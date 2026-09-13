@@ -2,8 +2,8 @@
 type: OpenQuestion
 title: 未解決課題と次の実験
 status: draft
-generated: { by: ai-assisted-source-review, at: 2026-09-12 }
-stale_after: 2026-10-12
+generated: { by: ai-assisted-source-review, at: 2026-09-13 }
+stale_after: 2026-10-13
 sources:
   - id: handoff
     resource: docs/handoff.md
@@ -11,6 +11,9 @@ sources:
   - id: architecture
     resource: docs/architecture.md
     title: Candidate losses / Key falsification experiments
+  - id: gradient-routing
+    resource: docs/gradient-routing-results.md
+    title: Issue #32 slot-gradient routing results
 ---
 
 # 未解決課題と次の実験
@@ -52,5 +55,12 @@ sources:
 - 観測: 外積CはAと数学的に同じ周辺を返し、全3seed生成一致。未見pair top10 C90%でも通常両slot0は不変。
 - 未実施: 既存2CEの和と非等価な組合せ目的/表現設計。factorized NLLの単純追加を新しい学習制約と呼ばない。
 - 未確認: 明示的な各意味層が単純なベースラインより役立つか。デモや単体テストの成功で代替しない。
+- 実装済み: Issue #32で専用slot headへのdecoder LM勾配を選択的にdetachするG0/G1 routing control、
+  mode付きcheckpoint、固定probe、teacher-forced byte-v2記録を追加。
+- 観測: G0はIssue26の3 seed評価/stateを完全再現。G1は全probeでslot headへのLM-only勾配0、
+  CE勾配は非ゼロ。通常predictedはG0全seed0、G1はseed17だけ1/150（合計1/450）。
+  この単発成功とgold介入の小差だけでは改善を主張できない。
+- 未解決: global clipping・共有encoderを含む経路差の分離、より大きいcompositional split、
+  自由生成とtest評価。routing診断は意味層の一般有効性や学習済みLLM性能を証明しない。
 
 実験の順序は [意味層の分離](semantic-separation.md) と既存 architecture に従う。

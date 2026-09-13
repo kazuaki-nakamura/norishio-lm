@@ -1,6 +1,49 @@
 # Norishio-LM 引き継ぎ記録
 
-検証日: 2026-09-12
+検証日: 2026-09-13
+
+## 最新の実装状態: Issue #32
+
+`codex/issue-32`、PR31 merge `29533877a11850bb801f54f28296415797d10f80` から開始。
+PR #33（レビュー中、未merge）: https://github.com/kazuaki-nakamura/norishio-lm/pull/33。
+事前計画は [gradient-routing.md](gradient-routing.md)、実測結果は
+[gradient-routing-results.md](gradient-routing-results.md) に固定した。
+
+### 実装・観測
+
+G0 `end_to_end` はdecoder LM lossからparticipant/time専用headへの勾配を従来どおり通し、
+G1 `stop_slot_lm` はそのdecoder経路のslot確率だけをdetachした。slot logitsはCE lossに残し、
+decoder/base LM、共有encoder、global gradient clippingは保持した。checkpointにはrouting modeを
+記録し、旧形式は既定値G0として読み込む。専用回帰テストは7 passed。
+
+同一初期state・同一600-step schedule・同一loss/optimizerで、seed 7/17/29を各G0/G1実行。
+parameter数は全arm 42,689。validationは150行すべて未見pair、testは未評価。
+G0のIssue26固定baselineへの評価と最終state digestは3 seedすべて完全一致した。
+
+G1の16-row probeでは、update 0/100/300/600のparticipant/time LM-only head gradientが全て
+厳密ゼロ、slot CE gradientは全て非ゼロ。G0ではLM/CEとも非ゼロ。通常のpredicted条件は
+G0が全seed 0/150、G1がseed7=0/150・seed17=1/150・seed29=0/150（合計1/450）。
+この1件とgold介入下の差は固定toy grammar内の診断に留まり、一般化改善とはしない。
+teacher-forced byte-v2は4条件×6 armで実行し、各checkpointのstate・旧concept・head・logit
+再読込一致も確認した。これは学習済みモデルの意味理解や自由生成品質を示す測定ではない。
+
+raw report `codex/work_output/issue32-gradient-v2/report.json` はignoredな配下に保持し、
+履歴reportを上書きしていない。
+
+```powershell
+.\.venv\Scripts\python.exe -m norishio_lm.toy_gradient_routing --baseline-report codex/work_output/issue26-fixed-v1/report.json --historical-report codex/work_output/issue24-seed7-v1/report.json --out-dir codex/work_output/issue32-gradient-v2
+.\.venv\Scripts\python.exe -m pytest tests/test_slot_gradient_routing.py tests/test_gradient_routing_checkpoint.py -q -p no:cacheprovider
+```
+
+最終検証は **390 passed, 1 warning, 2 subtests passed**（18.18秒、既存のzero-element warning）。
+両デモ、OKF 8files/6concepts、knowledge full healthy、MCP live check も終了コード0。
+NumPy未導入warningはencoder demoの既存環境警告で、実験・テストの判定には使っていない。
+
+### 残課題
+
+この結果だけではslot headが失敗の唯一の原因とも、意味層の有効性とも言えない。global clipを
+共有するため、G1でも共有encoder/base更新はG0と同一ではない。次候補は同じrouting controlを
+大きめのcompositional splitへ移し、共有encoder経路のablationと自由生成評価を事前固定する。
 
 ## 最新の実装状態: Issue #30
 
