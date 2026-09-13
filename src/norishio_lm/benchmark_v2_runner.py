@@ -28,6 +28,7 @@ from .benchmark_v2_model import (
     BYTE_OFFSET,
     EOS_ID,
     FACTOR_ORDER,
+    FROZEN_DERANGEMENTS,
     PAD_ID,
     SEP_ID,
     VOCAB_SIZE,
@@ -362,9 +363,59 @@ def train_benchmark_v2(
     )
 
 
-def _factor_frame(logits: Mapping[str, Tensor], index: int, vocab: FactorVocabulary) -> dict[str, str]:
-    values = tuple(int(logits[field][index].argmax(dim=-1).item()) for field in FACTOR_ORDER)
-    return vocab.decode(values)
+FACTOR_PREDICTION_SPACE_SCHEMA = "norishio.issue34.factor-prediction-space.v1"
+
+
+def factor_prediction_metadata(arm: str) -> dict[str, Any]:
+    """Describe raw factor-logit codes and their canonical semantic decoding."""
+
+    if arm not in ARM_IDS:
+        raise ValueError(f"unknown benchmark-v2 arm: {arm}")
+    raw_to_canonical: dict[str, list[int]] = {}
+    for field in FACTOR_ORDER:
+        width = len(FROZEN_DERANGEMENTS[field]) if arm == "E" else len(
+            factor_vocabulary().values[field]
+        )
+        inverse = list(range(width))
+        if arm == "E":
+            for canonical, raw in enumerate(FROZEN_DERANGEMENTS[field]):
+                inverse[raw] = canonical
+        raw_to_canonical[field] = inverse
+    return {
+        "schema": FACTOR_PREDICTION_SPACE_SCHEMA,
+        "arm": arm,
+        "raw_code_space": "deranged_factor_codes" if arm == "E" else "canonical_semantic_space",
+        "canonical_space": "canonical_semantic_space",
+        "factor_loss_target_space": "raw_code_space" if arm == "E" else "canonical_semantic_space",
+        "canonicalization": "inverse_frozen_derangement" if arm == "E" else "identity",
+        "raw_to_canonical_indices": raw_to_canonical,
+    }
+
+
+def decode_factor_logits(
+    logits: Mapping[str, Tensor], index: int, vocab: FactorVocabulary, *, arm: str,
+) -> dict[str, Any]:
+    """Decode raw factor logits while exposing raw and canonical spaces explicitly."""
+
+    metadata = factor_prediction_metadata(arm)
+    raw_indices = tuple(int(logits[field][index].argmax(dim=-1).item())
+                        for field in FACTOR_ORDER)
+    canonical_indices = tuple(
+        metadata["raw_to_canonical_indices"][field][raw_indices[position]]
+        for position, field in enumerate(FACTOR_ORDER)
+    )
+    return {
+        "raw_code_indices": raw_indices,
+        "canonical_indices": canonical_indices,
+        "raw_code_frame": vocab.decode(raw_indices),
+        "canonical_frame": vocab.decode(canonical_indices),
+        "metadata": metadata,
+    }
+
+
+def _factor_frame(logits: Mapping[str, Tensor], index: int, vocab: FactorVocabulary,
+                  *, arm: str) -> dict[str, str]:
+    return decode_factor_logits(logits, index, vocab, arm=arm)["canonical_frame"]
 
 
 def _decode_generated(tokens: Sequence[int]) -> dict[str, Any]:
@@ -515,7 +566,7 @@ def _evaluate_rows(model: BenchmarkV2Model, raw_rows: Sequence[Mapping[str, Any]
     rows_out: list[dict[str, Any]] = []
     for index, row in enumerate(prepared):
         intermediate = (None if model.arm == "D" else
-                        _factor_frame(output.factor_logits, index, vocabulary))
+                        _factor_frame(output.factor_logits, index, vocabulary, arm=model.arm))
         expected = [label for label in row.labels if label != -100]
         predicted = output["logits"][index, :len(expected)].argmax(dim=-1).tolist()
         matched = sum(int(actual == wanted) for actual, wanted in zip(predicted, expected))
@@ -551,8 +602,10 @@ def _evaluate_rows(model: BenchmarkV2Model, raw_rows: Sequence[Mapping[str, Any]
             "changed": intervention_generations[len(pairs) + index],
         })
     parser = benchmark.parse_target_text
-    return score_benchmark_v2(rows_out, parser, train_support=train_support,
-                              interventions=interventions)
+    report = score_benchmark_v2(rows_out, parser, train_support=train_support,
+                                interventions=interventions)
+    report["intermediate_prediction_metadata"] = factor_prediction_metadata(model.arm)
+    return report
 
 
 @torch.no_grad()
@@ -594,7 +647,7 @@ __all__ = [
     "ADAM_BETAS", "ADAM_EPS", "BATCH_SIZE", "FactorVocabulary", "GRADIENT_CLIP",
     "LEARNING_RATE", "MAX_NEW_TOKENS", "PaddedBatch", "PreparedRow", "TRAIN_STEPS",
     "TrainingResult", "collate_rows", "evaluate_benchmark_v2", "factor_vocabulary",
-    "greedy_generate", "greedy_generate_batch", "load_development_rows", "load_train_rows",
-    "prepare_row",
+    "factor_prediction_metadata", "decode_factor_logits", "greedy_generate",
+    "greedy_generate_batch", "load_development_rows", "load_train_rows", "prepare_row",
     "run_benchmark_v2", "teacher_forced_gates", "train_benchmark_v2", "training_step",
 ]

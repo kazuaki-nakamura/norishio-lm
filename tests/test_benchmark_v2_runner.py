@@ -7,12 +7,19 @@ import pytest
 torch = pytest.importorskip("torch")
 
 from norishio_lm.benchmark_v2_fsm import FrozenLocalPrefixFSM
-from norishio_lm.benchmark_v2_model import build_model
+from norishio_lm.benchmark_v2_model import (
+    FROZEN_DERANGEMENTS,
+    ModelOutput,
+    build_model,
+)
+import norishio_lm.benchmark_v2_runner as runner
 from norishio_lm.benchmark_v2_runner import (
     TRAIN_STEPS,
     collate_rows,
+    decode_factor_logits,
     evaluate_benchmark_v2,
     factor_vocabulary,
+    factor_prediction_metadata,
     greedy_generate,
     greedy_generate_batch,
     load_development_rows,
@@ -35,6 +42,84 @@ def test_factor_vocabulary_is_derived_from_committed_spec() -> None:
     assert vocabulary.encode({
         "participant": "FRIEND", "time": "TODAY", "event": "MEET", "operator": "ASSERT",
     }) == (0, 0, 0, 0)
+
+
+def test_e_deranged_logits_decode_back_to_canonical_semantic_frame() -> None:
+    vocabulary = factor_vocabulary()
+    frame = {
+        "participant": "COLLEAGUE",
+        "time": "MORNING",
+        "event": "VISIT",
+        "operator": "NEGATE",
+    }
+    canonical = vocabulary.encode(frame)
+    logits = {
+        field: torch.full((1, len(vocabulary.values[field])), -100.0)
+        for field in vocabulary.values
+    }
+    raw = tuple(FROZEN_DERANGEMENTS[field][canonical[index]]
+                for index, field in enumerate(("participant", "time", "event", "operator")))
+    for index, field in enumerate(("participant", "time", "event", "operator")):
+        logits[field][0, raw[index]] = 100.0
+
+    decoded = decode_factor_logits(logits, 0, vocabulary, arm="E")
+
+    assert decoded["raw_code_indices"] == raw
+    assert decoded["canonical_indices"] == canonical
+    assert decoded["canonical_frame"] == frame
+    assert decoded["raw_code_frame"] != frame
+    metadata = factor_prediction_metadata("E")
+    assert metadata["raw_code_space"] == "deranged_factor_codes"
+    assert metadata["canonical_space"] == "canonical_semantic_space"
+    assert metadata["factor_loss_target_space"] == "raw_code_space"
+
+
+def test_e_evaluation_routes_canonical_intermediate_into_metrics_and_2x2(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    vocabulary = factor_vocabulary()
+    row = load_development_rows()[0]
+    target = row["targets"]
+    canonical = vocabulary.encode(target["frame"])
+    raw = tuple(FROZEN_DERANGEMENTS[field][canonical[index]]
+                for index, field in enumerate(vocabulary.values))
+
+    class StubE:
+        arm = "E"
+
+        def eval(self) -> "StubE":
+            return self
+
+        def __call__(self, source, decoder, **kwargs) -> ModelOutput:
+            factor_logits = {
+                field: torch.full((source.shape[0], len(vocabulary.values[field])), -100.0)
+                for field in vocabulary.values
+            }
+            for index, field in enumerate(vocabulary.values):
+                factor_logits[field][:, raw[index]] = 100.0
+            return ModelOutput(
+                factor_logits=factor_logits,
+                logits=torch.zeros((source.shape[0], decoder.shape[1], 260)),
+            )
+
+    def fake_generate(model, source_ids, *, fsm=None):
+        return [{"text": target["text"], "ended_eos": True,
+                 "valid_utf8": True, "unique_output": True}
+                for _ in source_ids]
+
+    monkeypatch.setattr(runner, "greedy_generate_batch", fake_generate)
+    report = runner._evaluate_rows(
+        StubE(), [row], intervention_pool=load_development_rows(),
+    )
+
+    assert report["all"]["intermediate_frame_exact"] == {
+        "correct": 1, "count": 1, "accuracy": 1.0,
+    }
+    matrix = report["intermediate_generation_2x2"]
+    assert matrix["intermediate_correct"]["generation_correct"] == 1
+    assert matrix["intermediate_incorrect"]["generation_correct"] == 0
+    assert report["intermediate_prediction_metadata"]["canonicalization"] == \
+        "inverse_frozen_derangement"
 
 
 def test_loaded_rows_are_manifest_validated_and_defensive_copies() -> None:

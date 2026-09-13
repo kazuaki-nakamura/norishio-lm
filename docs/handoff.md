@@ -1810,6 +1810,30 @@ source hashやimplementation commitをcheckpoint metadata自体には持たな�
 消費済みfinal artifactは新しいattestation導入前のため`result-attestation.json`を持たず、文書記録した
 result SHA-256で照合する。
 
+追加メタレビューで、Eのfactor lossがderanged code-spaceを教師とする一方、旧evaluatorがraw argmaxを
+canonical vocabularyで直接decodeしていたことを確認した。Eの保存済みintermediate atomic/pair/triple/frameと
+head-generation 2x2は異なるlabel spaceの比較であり、他armと比較しない。保存resultにはraw logits、row-level
+predicted frame、完全なconfusion matrixがないため、過去値の正確な補正は不能。runnerはinverse derangementで
+canonical化してからscorerへ渡すよう修正し、完全正答E headがcanonical diagnosticsと2x2で正答になる回帰を追加。
+既存学習・checkpoint・development/final inferenceは再実行していない。generation、teacher-forced、locality、
+保存済み順位はこのerratumの影響を受けない。
+
+保存済みfinal resultだけを読むsplit auditを追加し、全18 arm/seedについて`unseen_pair`と`seen_pair`
+（pair既知・triple未見）のcount、free/frame/triple exact、parse coverageを36行で記録した。
+新しい推論、学習、final API呼出しは行っていない。
+
+| 区分 | 実行内容 | artifact | 採否・証拠 |
+|---|---|---|---|
+| planned | freeze後の6 arm x 3 seed、各600 update | 実行前計画 | tournament freeze `38e363e` |
+| pilot / smoke | D 1回 + E 1回、各600 update | 保存なし | 不採用。state/checkpoint/report/hashなし |
+| formal attempt 1 | A_G0/A_G1 x 3 seed、6 terminal後にBの未最適化FSMで中断 | 専用output全体を削除 | 不採用。削除済み証拠を復元しない |
+| formal retained | FSM等価最適化後の6 arm x 3 seed | `565c2bf`後の専用root | 採用。18 complete / 0 failed |
+| final retained | 採用18 checkpointの一回評価 | 384 rows、18 evaluations | 採用。二回目は拒否 |
+
+したがって`18 complete / 0 failed`は採用formal集合の値であり、smokeや削除済みattemptを含む全試行数ではない。
+R1/R2対応後のfocused testは17 passed、全test rootは **480 passed, 1 warning, 2 subtests passed**。
+split auditは独立再生成したJSON/Markdownがbyte一致し、2群から全体値を復元する72 metric照合もerrors 0。
+
 ## AI 作業基盤の追加（2026-09-05）
 
 ユーザー指定の ai-project-foundation から、開発用 OKF、読取専用 MCP、索引・整合性検査を取り込んだ。

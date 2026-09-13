@@ -91,3 +91,9 @@ final消費後のPRレビューで、失敗summaryの固定schema、machine-read
 marker directoryの完成後排他的publish、将来のresult attestationを追加した。消費済みartifactは変更せず、
 新しい集計器による読み取り専用再計算だけを行い、記録済み順位と一致した。既存checkpointは
 implementation source hashを内包しないため、formal implementation commitは外部provenanceとして扱う。
+
+PRメタレビューで、Eのderanged raw factor codeをcanonical labelとして直接採点していた旧evaluatorの
+label-space不一致を確認した。保存済みE intermediate/head/2x2は他armと比較不能で、aggregate-only resultから
+正確な補正値は復元できない。inverse derangement後にcanonical scorerへ渡すrunner回帰を追加したが、
+既存学習・finalは再実行していない。保存result由来のsplit auditと、smoke・削除済みattempt・採用formal集合を
+分けるprotocol deviation表を原本文書へ追加した。

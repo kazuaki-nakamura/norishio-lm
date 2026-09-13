@@ -5,6 +5,16 @@ small authored structural benchmark, not evidence of general Japanese or LLM
 quality. Free generation, parsed frame accuracy, teacher-forced bytes, and
 intervention diagnostics are reported separately.
 
+## Erratum: E intermediate label space
+
+The original evaluator compared arm E's deranged raw factor-code argmax against
+canonical labels without applying the inverse permutation. Saved E intermediate
+atomic, pair, triple, frame, and head-versus-generation 2x2 values are therefore
+not comparable with other arms. The aggregate-only saved report cannot recover
+corrected historical values. Generation, teacher-forced, intervention, and the
+development selection metrics in this document are unaffected; no training or
+evaluation was rerun for this erratum.
+
 - implementation commit: `565c2bf1f8b22435f21a74d5833dfeb4821d8174`
 - benchmark content digest: `012f57dbefb00f7661ed83aa49047d5736ab03c67d94b043292f40bb780b0134`
 - tournament config digest: `a81458f89613215d412bea41ea48d5338a6a9c6c14e681400ab1272a4bcdd174`

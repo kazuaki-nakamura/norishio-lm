@@ -67,6 +67,28 @@ despite a high teacher-forced byte score. Locality has many strict parse
 failures, so zero preservation cannot be interpreted as a confirmed semantic
 change.
 
+The [split audit](benchmark-v2-split-audit.md) exports both 192-row support
+groups for every arm and seed from this saved result only. It performs no new
+inference or final-holdout evaluation.
+
+## Erratum: E intermediate label space
+
+Arm E was trained against the frozen deranged factor-code labels, but the
+original evaluator decoded its raw argmax indices directly with the canonical
+factor vocabulary. Therefore the saved E intermediate atomic, pair, triple,
+frame, and head-versus-generation 2x2 values are in mismatched label spaces and
+must not be compared with other arms. The saved result contains aggregate
+counts only; it does not retain raw logits, row-level predicted factor frames,
+or a complete confusion matrix, so corrected historical E head values are
+unavailable.
+
+The evaluator now applies the inverse frozen derangement before passing E head
+predictions to canonical diagnostics, with an integration regression for the
+2x2 path. This correction was not used to rerun training, inference, or the
+consumed final invocation. It does not affect the saved free-generation,
+parsed-generation, teacher-forced, or locality values, and it does not change
+the frozen ranking reported above.
+
 ## Post-result review hardening
 
 The consumed artifact above was not regenerated or edited after final access.
@@ -81,3 +103,12 @@ architecture metadata, model state, and file bytes. It does not embed the
 formal runner/model/FSM source hash or implementation commit in checkpoint
 metadata; the implementation commit above remains an external provenance
 constraint for this result.
+
+## Execution-set provenance
+
+The reported 18 complete / 0 failed status applies only to the retained formal
+run set executed from `565c2bf1f8b22435f21a74d5833dfeb4821d8174`.
+Two pre-formal one-run smoke checks (D and E) were unsaved and excluded. An
+earlier A_G0/A_G1 six-terminal attempt was interrupted by the unoptimized FSM;
+its dedicated output was deleted and was not used in development or final
+results. Deleted evidence has not been reconstructed.

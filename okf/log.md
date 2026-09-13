@@ -1,5 +1,10 @@
 # OKF 更新履歴
 
+- 2026-09-13: PR #35メタレビューR1/R2へ対応。Eのderanged raw factor codeをcanonicalへ戻さず
+  intermediate/head/2x2採点していた不一致を修正し、保存済みE診断値は補正不能・比較不可とerratum化。
+  final再実行なしで保存resultから18 arm/seed x 2 support groupのsplit auditを出力し、smoke、削除済みattempt、
+  採用formal18 runを分けるprotocol deviation表を追加。生成順位と正式artifactは変更しない。
+
 - 2026-09-13: Issue #34 PRレビューでLuna 3担当がfinal gate、再現性、checkpoint/FSM/runnerを独立監査。
   失敗summaryの固定metric schema、機械可読な最終順位/tie-break、marker初期publish、将来のresult attestationを
   修正し、473テストを確認。消費済みfinalは変更・再評価せず、読み取り専用再集計で順位一致を確認。
