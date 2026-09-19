@@ -1,6 +1,79 @@
 # Norishio-LM 引き継ぎ記録
 
-検証日: 2026-09-13
+検証日: 2026-09-19
+
+## 最新の実装状態: Issue #36 benchmark v3 完了
+
+PR #35 merge `20fdff93ae3befd5b2d39ad28259f03d7d0adda5`から
+`codex/issue-36`を開始。新しいbenchmark v3 factor-pathのgenerator、3 split、
+expected manifest、共通metricsを追加した。各splitは384行で、各評価splitは
+unseen pair 192行とpair既知/unseen triple 192行。trainは全原子値を含む。
+
+初版でsourceとtarget templateが同一になる漏洩を親レビューで検出し、全predicateで成立する
+別文型へ修正した。validatorは各行のsource/target不一致、両集合の完全非交差、v2の
+diagnostic/final surface record非再利用を検査する。content digestは
+`930958ca1002b9f566fb13d28e072e99fa8ba5c0493308526586dcc128302d84`。
+学習前freezeは
+`BENCHMARK_V3_FREEZE_SHA = ae8ea2727558a57f6fa7c0e23ad28fc767dcc859`。
+
+Luna (`gpt-5.6-luna`) はgenerator/split/manifestと共通metrics/intervention schemaを分担。
+親がfreeze固定性、漏洩境界、同一source/prefixでの単一factor介入を再監査し、v2回帰を含む
+45テストを確認した。Phase 0ではv3学習、architecture比較、final-confirmation評価を行っていない。
+Phase 1の学習前freeze `bc69ac3c132c77d9613481ae163b1e8c4342a9eb` で
+2x2主arm（linear/tanh x global/prefix-local）、
+D_AUX、NO_INPUTを実装し、seed 7/17/29、600更新、batch 16、Adam 0.003、
+4補助CEを含む共通lossを固定した。NO_INPUTは全行で`[BOS, SEP]`だけをsourceにする。
+parameterは31,448〜32,120、差2.137%で3%上限内。canonical config digestは
+`ff89911b64d8f6e652ed617f971ff0512dbda07e4c71bd585f5e0f23635fd399`。
+18 terminal run、checkpoint hash、final one-shot gateも結果観測前に固定する。
+この時点ではv3学習、diagnostic結果観測、final-confirmation評価を行っていない。
+
+freeze後のPhase 2実装として、2 target templateのprefix-only causal FSM、共通training
+runner、source swapと人工one-hot中間確率介入、checkpoint/state/schedule hash認証、
+immutable terminal record、18-run driver、seed別factorial effect集計、finalの排他的
+one-shot markerを追加した。final-readyは18件すべてcompleteの場合だけtrueになる。
+LunaはFSMとcheckpoint/protocolを担当し、親がrunner/execute/finalを統合・監査した。
+実装時の全pytestは **564 passed, 1 skipped, 1 warning, 2 subtests passed**。
+formal training、diagnostic結果観測、final-confirmation評価はまだ行っていない。
+
+その後、execution code `50577091f1aaa5b90045ab55bace25b5f69f5a52`から
+凍結済み18 formal runを実行し、18 complete / 0 failed、checkpoint再認証成功。
+diagnostic-validationのfree exact 3-seed平均は
+`H1L1=.217014 > H0L1=.201389 > H1L0=.177083 > H0L0=.171007 > D_AUX=.004340 > NO_INPUT=0`。
+主2x2のfree exact effectはactivation `+.010851`、locality `+.035156`、
+interaction `+.009549`。全sourceありarmでunseen-pairがseen-pair/unseen-tripleより低い。
+人工one-hot中間介入は主arm合計0/12で対象slotを変えず、factor controlの成功証拠ではない。
+詳細とseed別値は[benchmark-v3-development.md](results/benchmark-v3-development.md)。
+ユーザーの明示承認後、保存済み18 checkpointからfinal-confirmationを一度だけ評価した。
+384行、18 evaluation、0 failed。result SHA-256は
+`eb94b2b35d9de0c575b90342d517582e2304c766b3d8bb385ea22f2ac8c56a59`で、
+tracked attestationと一致する。二回目は`FileExistsError`、終了コード1で再評価前に拒否され、
+上書きはない。free exactの最終三seed平均は
+`H1L1=.224826 > H0L1=.190104 > H1L0=.181424 > H0L0=.160590 > D_AUX=.006076 > NO_INPUT=.001736`。
+開発順位と一致したが、固定した手作りfixture上の小型CPUモデルの観測であり、一般的な
+合成性、意味理解、現代語義・sememe・字形・字源の有効性は主張しない。詳細は
+[benchmark-v3-final.md](results/benchmark-v3-final.md)と
+[machine-readable summary](results/benchmark-v3-final-summary.json)。
+
+final実行前の最初のsandbox試行はWindows一時ディレクトリACLでdurable marker作成前に失敗し、
+final行へアクセスせず、一時ディレクトリだけを除去した。明示承認後のformal retained invocationは
+一度だけ成功した。pilot / ACL deviation / retained formal run / final retainedを混同しない。
+
+Luna独立レビューで、generator内のsource/target集合検査がcanonical objectと文字列を比較していた点、
+resultとattestationの二段書込み、二回目拒否の回帰不足、authored factor IDをsemantic spaceと呼ぶ点を検出した。
+generator本体のSHAは凍結manifestとcheckpointに拘束されるため変更せず、独立したpost-freeze auditを
+runner入口へ追加し、実surface交差・target重複・v2評価record再利用を検査する。final result/attestationは
+両方をstageしてから排他publishし、途中失敗時は完全なfailure pairだけを残す。space名は
+`authored_structural_factor_label_space`へ修正。focused回帰は48 passed。
+
+finalの介入pairは開封後のgold target frameで診断対象を選ぶ。goldはmodel入力ではないが、この診断は
+target依存の記述的probeであり、selection evidenceではない。checkpoint認証はconfig/benchmark/schedule/
+state/file hashを拘束するがrunner/optimizer source hashや完全なtraining transcriptは内包しない。
+
+レビュー修正後の最終検証は **569 passed, 1 skipped, 1 warning, 2 subtests passed**。
+辞書デモとencoderデモは終了コード0で、encoderはランダム初期値のCPU配線検査に限る。
+OKFは10 files / 8 concepts / errors 0 / warnings 0、knowledge fullは201 sourcesでhealthy、
+MCP live checkも成功した。GitHub Actions結果はPR作成後に別途確認する。
 
 ## 最新の実装状態: Issue #34 benchmark v2 完了
 

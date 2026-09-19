@@ -1,5 +1,38 @@
 # OKF 更新履歴
 
+- 2026-09-19: Issue #36のfinal-confirmationをユーザー明示承認後に一度だけ評価。
+  384 rows / 18 evaluations / 0 failed、attested result SHA-256
+  `eb94b2b35d9de0c575b90342d517582e2304c766b3d8bb385ea22f2ac8c56a59`。
+  二回目はexclusive markerで再評価前に拒否。最終順位は
+  H1L1>H0L1>H1L0>H0L0>D_AUX>NO_INPUT。開発順位と一致したが、手作りfixture上の
+  小型CPU比較に限定し、一般性能・意味層効果・字形/字源/現代語義の主張なし。
+
+- 2026-09-14: Issue #36の凍結18 formal runをexecution SHA `50577091f1aaa5b90045ab55bace25b5f69f5a52`
+  から実行し、18 complete / 0 failedとcheckpoint再認証を確認。development free exactは
+  H1L1>H0L1>H1L0>H0L0>D_AUX>NO_INPUT。activation/locality/interaction、seed別値、
+  unseen-pairとseen-pair/unseen-tripleを保存。人工one-hot介入は主arm 0/12 target changeで、
+  因果的制御の成功とは扱わない。final-confirmation未開封、一般性能・意味層効果の主張なし。
+
+- 2026-09-14: Issue #36のarchitecture freeze後に、v3 prefix FSM、共通runner、
+  source swap/人工one-hot中間介入、checkpoint/terminal認証、18-run driver、
+  seed別factorial集計、all-complete final one-shot gateを実装。LunaがFSMと
+  checkpoint/protocolを担当し、親がrunner/execute/finalを統合監査。
+  全564 pytest成功、1 skip。formal training・diagnostic観測・final評価なし。
+
+- 2026-09-14: Issue #36 Phase 1の学習前architecture freezeを追加。
+  linear/tanh x global/prefix-localの2x2、D_AUX、NO_INPUT、3 seed、600更新、
+  parameter budget、18 terminal/checkpoint hash、final one-shot gateを固定。
+  親レビューでparameter式と実数の不一致、およびNO_INPUTの契約名と実装の不一致を修正した。
+  config digestは`ff89911b64d8f6e652ed617f971ff0512dbda07e4c71bd585f5e0f23635fd399`。
+  v3学習・diagnostic結果観測・final評価・性能主張なし。
+  学習前freeze commitは`bc69ac3c132c77d9613481ae163b1e8c4342a9eb`。
+
+- 2026-09-14: Issue #36 Phase 0のbenchmark v3 factor-path fixtureを学習前commit
+  `ae8ea2727558a57f6fa7c0e23ad28fc767dcc859`に固定。
+  新しいsurface grammarとsplit seedで1152行を生成し、source/target集合の完全非交差、v2評価行の非再利用、
+  pair/triple holdout、manifest/hash、共通scorer、source swapと真の中間確率介入の分離を検査。
+  Lunaがgenerator/metricsを分担し、親が直接target漏洩を検出して修正統合。v3学習・final評価・性能主張なし。
+
 - 2026-09-13: PR #35メタレビューR1/R2へ対応。Eのderanged raw factor codeをcanonicalへ戻さず
   intermediate/head/2x2採点していた不一致を修正し、保存済みE診断値は補正不能・比較不可とerratum化。
   final再実行なしで保存resultから18 arm/seed x 2 support groupのsplit auditを出力し、smoke、削除済みattempt、
