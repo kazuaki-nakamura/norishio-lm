@@ -28,16 +28,21 @@ constant-source inferenceはOOD診断のままで、learned-path根拠へ昇格�
 新しい96-row確認setを事前固定し、primary分母96、support分母48、source swapは各arm 24 probe。
 各internal probeはsame-class soft-shape、alternate-class one-hot、同じrequested classの
 alternate donor-softを事前固定する。donor tableに該当soft argmaxがなければmissingとして
-失敗・0と分ける。全probability map、parse failure、
-`requested_value_success AND non_target_preserved`を保存する。head/通常frameを保ったまま
+失敗・0と分け、same-classで形状が変わらないprobeも別のunavailableとして記録する。
+PR #43のR3 review後は各controlのbaseline生成を介入前に固定し、
+`baseline_already_requested`、baseline/intervention parse failure、
+`nontrivial_requested_success`とそのnon-target-preserved jointを分ける。baselineからすでに
+requested classだったprobeはH_bypass/H_semanticの成功に数えない。scheduled 24を維持した
+保守的nontrivial joint rateとnontrivial-eligible分母のrateを併記する。全probability map、
+従来のtarget change/requested-value/joint outcomeも保持する。head/通常frameを保ったまま
 H1L1_ANCHORのjoint追随だけが改善する場合、両armが強い場合、headは強いが両armが追随しない場合、
 head自体が弱い場合を別の結論枝にする。既存future-protocol digestはselection/intervention契約
 だけで、新experiment descriptor/digestは未作成である。
 
 このIssueでは文書だけを変更し、データ生成、学習、推論、checkpoint load、使用済みfinalの再開封、
 外部辞書取得を行っていない。Luna (`gpt-5.6-luna`)へ根拠監査、次実験案、blocking review対応を
-分担し、親が実装原本・git履歴との照合、統合、最終検証を担当した。修正後の独立再監査で
-R1/R2の残存blockerなしを確認した。
+分担し、親が実装原本・git履歴との照合、統合、最終検証を担当した。各review修正後の独立再監査で
+R1/R2/R3の残存blockerがないことを確認した。
 
 検証結果:
 
@@ -54,7 +59,7 @@ R1/R2の残存blockerなしを確認した。
 最終pytestコマンド:
 
 ```powershell
-& 'D:\projects\codex\norishio-lm\codex\work_output\issue-worker\issue-39\.venv\Scripts\python.exe' -m pytest tests codex\tools\tests codex\okf_mcp\tests -q -p no:cacheprovider --basetemp D:\projects\codex\norishio-lm\codex\work_output\pytest-issue42-reviewfix-admin
+& 'D:\projects\codex\norishio-lm\codex\work_output\issue-worker\issue-39\.venv\Scripts\python.exe' -m pytest tests codex\tools\tests codex\okf_mcp\tests -q -p no:cacheprovider --basetemp D:\projects\codex\norishio-lm\codex\work_output\pytest-issue42-r3-admin
 ```
 
 ## 最新の実装状態: Issue #39 benchmark v3 protocol errata

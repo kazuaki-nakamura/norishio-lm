@@ -20,10 +20,13 @@ The smallest useful next experiment should distinguish:
 
 The three working hypotheses are non-exclusive. **H_bypass** says row-specific
 source information in decoder h0 competes with or dominates the explicit factor
-path. **H_semantic** says the decoder follows the requested canonical factor
-class. **H_continuous** says behavior also depends on the soft probability
-shape within a class, so one-hot forcing and donor-soft transfer are not
-interchangeable evidence.
+path. **H_semantic** says the decoder follows a requested canonical factor
+transition from a baseline with a different parsed value; baseline outputs that
+already equal the requested class do not support this claim. **H_continuous**
+says behavior also depends on the soft probability shape within a class, so
+one-hot forcing and donor-soft transfer are not interchangeable evidence.
+H_semantic claims are restricted to nontrivial internal transitions; source
+swaps and already-requested baselines remain separate diagnostics.
 
 The corrected selection primary is exactly
 `all.generation_frame_exact.accuracy`. Teacher-forced byte accuracy remains a
@@ -92,12 +95,13 @@ permanently frozen vector.
 
 Before running, preregister these decision branches: preserved head accuracy and
 ordinary generation frame accuracy together with improved
-`requested_value_success` **and** `non_target_preserved` for H1L1_ANCHOR supports
-the source-dependent-h0 bypass hypothesis; strong results for both learned arms
+scheduled-24 `nontrivial_joint_success` for H1L1_ANCHOR supports the
+source-dependent-h0 bypass hypothesis; strong results for both learned arms
 weaken that hypothesis; weak ordinary and bypass generation with strong heads
 points to decoder follow-through or continuous-distribution limitations; weak
-heads prevent a decoder-path conclusion. No branch treats donor-soft success as
-proof of a learned joint factor distribution.
+heads prevent a decoder-path conclusion. No branch gives success credit to an
+already-requested baseline or treats donor-soft success as proof of a learned
+joint factor distribution.
 
 Parameter count, initialization family, byte vocabulary, optimizer, schedule,
 sampling order, fixture manifest, probe identities, selection paths, and raw
@@ -162,17 +166,65 @@ per support group, including parse failures:
    Otherwise record `missing`; do not search for or substitute another donor.
    No generated outcome may influence donor selection or map construction.
 
+For every arm/seed/control, generate and retain the baseline output and complete
+baseline probability map **before** constructing or generating that control's
+intervention. Freeze the baseline source identity, decoder prefix, probability
+map, generated tokens/text, parsed frame, and digest; each control record keeps
+that baseline snapshot by value or digest and does not regenerate it after any
+intervention. Source-swap baselines are likewise generated before changed-source
+outputs. No intervention outcome may affect baseline retention, donor selection,
+or probability-map construction.
+
 For all three controls, source identity, decoder prefix, and every non-target
-probability vector are held fixed. Record `target_changed` (generated factor
-differs from the baseline output), `requested_value_success` (generated factor
-equals the selected class/value), and `non_target_preserved` (every other
-parsed factor is unchanged). Also report the joint outcome
-`requested_value_success AND non_target_preserved`; target change alone is not
-requested-value success. For each control type report scheduled, available,
-missing, and scored denominators separately; missing or unchanged-shape
-controls are unavailable, not failures or zeros. Available controls retain
-parse failures in the scored denominator. Save the donor and probe probability
-maps in full.
+probability vector are held fixed. Let `requested_class` be the canonical class
+selected by that control: `k` for same-class soft shape, `(baseline_argmax + 1)
+% width` for alternate one-hot, and the frozen donor argmax for donor-soft. The
+exact booleans are:
+
+- `baseline_parse_failed`: the retained baseline has no parsed target factor;
+- `intervention_parse_failed`: the intervention has no parsed target factor;
+- `baseline_already_requested`: baseline parses and its target factor equals
+  `requested_class`;
+- `target_changed`: both parsed outputs exist and the intervention factor
+  differs from the baseline factor;
+- `requested_value_success`: intervention parses and its factor equals
+  `requested_class` (retained for compatibility, but baseline-already-requested
+  rows never earn claim credit);
+- `nontrivial_requested_success`: baseline parses, baseline factor differs from
+  `requested_class`, intervention parses, and intervention factor equals
+  `requested_class`;
+- `non_target_preserved`: both parsed frames exist and every other factor is
+  unchanged;
+- `nontrivial_joint_success`:
+  `nontrivial_requested_success AND non_target_preserved`.
+
+Report, for each control type and arm/seed, `scheduled_count` (24),
+`available_count`, `missing_count`, `unchanged_shape_count`, `scored_count`,
+`baseline_already_requested_count` and denominator,
+`baseline_parse_failed_count` and denominator,
+`intervention_parse_failed_count` and denominator,
+`nontrivial_eligible_count` and denominator, and counts/rates for
+`target_changed`, the existing `requested_value_success`, the existing
+`requested_value_success AND non_target_preserved`,
+`nontrivial_requested_success`, and `nontrivial_joint_success`. Alternate
+one-hot has `available_count = 24`. Same-class soft-shape has
+`available_count = scheduled_count - unchanged_shape_count`; donor-soft has
+`available_count = scheduled_count - missing_count`. Missing donors and
+unchanged-shape probes are unavailable rather than parse failures or scored
+failures. Parse failures remain in the scheduled denominator and are never
+successes. The eligible-denominator rate for nontrivial success is
+`nontrivial_joint_success_count / nontrivial_eligible_count`; the conservative
+claim rate is `nontrivial_joint_success_count / scheduled_count` (24), treating
+missing, unchanged-shape, parse-failed, already-requested, and other ineligible
+probes as zero. Each parse-failure and baseline-already-requested rate uses
+`available_count` as its denominator; `scored_count` is the available subset
+with both baseline and intervention parses; `nontrivial_eligible_count` is the
+scored subset whose baseline target differs from `requested_class`.
+`target_changed` and `non_target_preserved` diagnostic rates use
+`scored_count`; compatibility `requested_value_success` and its existing joint
+rate use `available_count`, with parse failures contributing no success. Keep both the scheduled-24
+nontrivial rate and the eligible-denominator rate in every arm/seed aggregate.
+Save the donor and probe probability maps in full.
 
 `target_changed` without `requested_value_success` is a wrong response, not
 factor-level control. Donor-soft success measures decoder response to an
@@ -191,17 +243,20 @@ Retain every confirmation row with:
 - parsed frame or parse-failure reason;
 - teacher-forced byte counts.
 
-For every source swap retain both source identities, expected frames, baseline
-and changed tokens/text/parsed frames, and all scored booleans with their
-denominators. For every internal control retain the control type, both prefixes,
-the complete baseline map for all four factors, the target replacement map,
-all three unchanged non-target maps, the same-class L1 shape distance,
-baseline argmax, declared/actual intervention class, canonical requested value,
-actual one-hot when applicable, frozen donor table and selected donor
-row/factor/map when applicable, availability flag, missing
-reason when applicable, both generated outputs/parsed frames, parse failures,
-and the three intervention outcomes plus the joint requested-success-and-
-non-target-preserved outcome.
+For every source swap retain both source identities, expected frames, the frozen
+baseline generated tokens/text/parsed frame and digest, changed tokens/text/
+parsed frames, and all scored booleans with their denominators. For every
+internal control retain the control type, both prefixes, the complete frozen
+baseline output/map/digest, target replacement map, all three unchanged
+non-target maps, same-class L1 shape distance, baseline argmax, declared/actual
+intervention class, canonical requested value, actual one-hot when applicable,
+frozen donor table and selected donor row/factor/map when applicable,
+availability flag, missing reason when applicable, both generated outputs/
+parsed frames, `baseline_parse_failed`, `intervention_parse_failed`,
+`baseline_already_requested`, `target_changed`,
+`requested_value_success`, `nontrivial_requested_success`,
+`non_target_preserved`, `nontrivial_joint_success`, and all scheduled/
+available/missing/unchanged-shape/scored/eligible counts and denominators.
 
 ## Stop and falsification conditions
 
@@ -217,37 +272,45 @@ The numeric cutoffs below are proposed review-time definitions and are not
 historical results or approved thresholds. `Preserved` means that the H1L1_ANCHOR
 three-seed mean is no more than 0.05 below H1L1 for both intermediate head-frame
 exactness and ordinary generation frame exactness. `Improved` means an absolute
-gain of at least 0.10 in the alternate-one-hot joint
-`requested_value_success AND non_target_preserved` rate over the same 24
-scheduled probes. A `strong` head rate is at least 0.80; a `weak` joint
-follow-through rate is at most 0.05. A joint rate of at least 0.25 is the
-proposed positive follow-through floor. These values must enter the new
-descriptor before any run.
+gain of at least 0.10 in the alternate-one-hot **nontrivial** joint rate
+`nontrivial_joint_success_count / scheduled_count` over the same 24 scheduled
+probes. Also report the eligible-denominator rate
+`nontrivial_joint_success_count / nontrivial_eligible_count`; it is descriptive
+and cannot replace the conservative scheduled-24 rate for the H1L1_ANCHOR
+comparison used to test H_bypass.
+A `strong` head rate is at least 0.80; a `weak` scheduled nontrivial joint
+follow-through rate is at most 0.05. A scheduled nontrivial joint rate of at
+least 0.25 is the proposed positive follow-through floor. These values must
+enter the new descriptor before any run. No baseline-already-requested row earns
+success credit in any positive or H_semantic claim.
 
 - If H1L1_ANCHOR fails either the preservation rule or the improvement rule for
-  the joint `requested_value_success AND non_target_preserved` outcome, the
+  the scheduled-24 alternate-one-hot `nontrivial_joint_success` outcome, the
   source-dependent-h0 bypass hypothesis is not supported. Per-seed direction is
   descriptive robustness evidence; the comparison is decided by the frozen
   three-seed primary and the preregistered joint intervention outcome, not by a
   new factorial ranking.
-- If both learned arms meet the strong-head and positive joint-follow-through
-  floors and their ordinary frame means differ by less than 0.05, the h0-bypass
-  hypothesis is weakened. If both arms are weak on joint follow-through while
-  heads are strong, the result points to decoder follow-through or
-  continuous-distribution limitations. A head-frame rate below the fixed
-  strong-head floor prevents a decoder-path conclusion for that arm.
-- Heads are correct while `requested_value_success` remains zero in the
+- If both learned arms meet the strong-head and positive scheduled nontrivial
+  joint-follow-through floors and their ordinary frame means differ by less than
+  0.05, the h0-bypass hypothesis is weakened. If both arms are weak on scheduled
+  nontrivial joint follow-through while heads are strong, the result points to
+  decoder follow-through or continuous-distribution limitations. A head-frame
+  rate below the fixed strong-head floor prevents a decoder-path conclusion for
+  that arm.
+- Heads are correct while `nontrivial_requested_success` remains zero in the
   alternate-class one-hot control: decoder follow-through is unconfirmed.
 - `target_changed > 0` but `requested_value_success = 0`: the intervention causes
   nonspecific changes.
 - If the same-class soft-shape control changes parsed target values or lowers
   non-target preservation by at least 0.10 relative to the paired baseline,
   withhold a canonical-class interpretation because probability shape alone is
-  behaviorally active. Stable same-class controls plus joint success for both
-  alternate one-hot and same-requested-class donor-soft probes support class
-  use. One-hot-only success leaves continuous soft-distribution following
-  unconfirmed; donor-soft-only success shows shape sensitivity but does not by
-  itself establish canonical-class control.
+  behaviorally active. Stable same-class controls plus nontrivial joint success
+  for both alternate one-hot and alternate-class donor-soft probes support
+  canonical-class transitions. One-hot-only nontrivial success leaves
+  continuous soft-distribution following unconfirmed; donor-soft-only success
+  shows shape sensitivity but does not by itself establish canonical-class
+  control. `requested_value_success` that comes only from
+  `baseline_already_requested` is explicitly excluded from H_semantic evidence.
 - H1L1's constant-source ablation comes within 0.05 absolute on the three-seed
   mean of `all.generation_frame_exact.accuracy`: withhold source-dependent
   interpretation. This OOD ablation is not learned-path evidence and does not

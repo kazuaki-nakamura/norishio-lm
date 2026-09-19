@@ -91,6 +91,7 @@ v1 concept toy、benchmark v2、benchmark v3はfixture・分割・目的が異�
 - 未承認案: H1L1と、実sourceをfactor pathに残しつつdecoder h0だけ固定anchor由来にする
   parameter-matched H1L1_ANCHORを比較する。same-class soft-shape、alternate one-hot、同じrequested
   classのdonor-softを分け、head精度、decoder追随、連続分布形状、unseen-pair失敗を切り分ける。
-  D_AUXは旧fixtureの参考情報だけで、新runや新比較根拠にしない。旧2×2を無条件に再実行しない。
+  baseline生成がすでにrequested classのprobeは非自明な追随成功に数えず、parse failureと分母を
+  別記する。D_AUXは旧fixtureの参考情報だけで、新runや新比較根拠にしない。旧2×2を無条件に再実行しない。
 
 実験の順序は [意味層の分離](semantic-separation.md) と既存 architecture に従う。
