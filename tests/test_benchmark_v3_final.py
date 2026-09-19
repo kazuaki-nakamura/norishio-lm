@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import hashlib
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -76,6 +77,64 @@ def test_result_attestation_binds_result_and_frozen_digests(tmp_path, monkeypatc
     }
 
 
+def test_second_invocation_is_rejected_before_evaluator(tmp_path, monkeypatch):
+    records = [{"arm": arm, "seed": seed, "status": "complete"}
+               for arm in ARM_COUNTS for seed in SEEDS]
+    complete = [(record, {"model": object()}) for record in records]
+    monkeypatch.setattr(final_gate, "collect_terminal_records", lambda _root: records)
+    monkeypatch.setattr(final_gate, "_validate_complete_checkpoints", lambda *_: complete)
+    monkeypatch.setattr(final_gate, "_fixture_module", lambda: SimpleNamespace(
+        build=lambda: {}, evaluation_rows=lambda *_args, **_kwargs: [{}],
+    ))
+    calls = 0
+
+    def evaluator(*_args):
+        nonlocal calls
+        calls += 1
+        return {}
+
+    evaluate_final_once(tmp_path, evaluate_final=True, evaluator=evaluator)
+    with pytest.raises(FileExistsError):
+        evaluate_final_once(tmp_path, evaluate_final=True, evaluator=evaluator)
+    assert calls == len(ARM_COUNTS) * len(SEEDS)
+
+
+def test_attestation_write_failure_publishes_only_a_complete_failure_pair(
+    tmp_path, monkeypatch
+):
+    records = [{"arm": arm, "seed": seed, "status": "complete"}
+               for arm in ARM_COUNTS for seed in SEEDS]
+    complete = [(record, {"model": object()}) for record in records]
+    monkeypatch.setattr(final_gate, "collect_terminal_records", lambda _root: records)
+    monkeypatch.setattr(final_gate, "_validate_complete_checkpoints", lambda *_: complete)
+    monkeypatch.setattr(final_gate, "_fixture_module", lambda: SimpleNamespace(
+        build=lambda: {}, evaluation_rows=lambda *_args, **_kwargs: [{}],
+    ))
+    original = final_gate._atomic_exclusive_json
+    failed_once = False
+
+    def fail_first_attestation(path: Path, value):
+        nonlocal failed_once
+        if path.name == "result-attestation.json" and not failed_once:
+            failed_once = True
+            raise OSError("injected attestation failure")
+        return original(path, value)
+
+    monkeypatch.setattr(final_gate, "_atomic_exclusive_json", fail_first_attestation)
+    with pytest.raises(OSError, match="injected attestation failure"):
+        evaluate_final_once(tmp_path, evaluate_final=True, evaluator=lambda *_: {})
+
+    result_path = tmp_path / "final-invocation" / "result.json"
+    attestation_path = tmp_path / "final-invocation" / "result-attestation.json"
+    assert result_path.exists() and attestation_path.exists()
+    result = json.loads(result_path.read_text("utf-8"))
+    attestation = json.loads(attestation_path.read_text("utf-8"))
+    assert result["status"] == "failed"
+    assert attestation["result_sha256"] == hashlib.sha256(
+        result_path.read_bytes()
+    ).hexdigest()
+
+
 def test_selection_summary_reports_three_seed_means_and_tie_break_trace():
     def evaluation(arm, seed, free, pair, triple, balanced):
         return {
@@ -147,6 +206,7 @@ def test_marker_publish_cleans_temporary_directory_on_failure(tmp_path, monkeypa
     with pytest.raises(OSError, match="marker write failed"):
         final_gate._publish_invocation_marker(tmp_path, {"schema": "test"})
     assert not (tmp_path / "final-invocation").exists()
+    assert not (tmp_path / ".final-invocation.lock").exists()
     assert list(tmp_path.glob(".final-invocation.*")) == []
 
 

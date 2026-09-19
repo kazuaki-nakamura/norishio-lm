@@ -1,5 +1,10 @@
 # Benchmark v3 factor-path tournament freeze
 
+This document is the freeze-time snapshot for Issue #36. Current diagnostic
+observations are recorded in
+[`docs/results/benchmark-v3-development.md`](results/benchmark-v3-development.md);
+the pre-training wording below describes the state at the freeze boundary.
+
 Issue #36 Phase 1 fixes the model comparison and execution contract before any
 benchmark-v3 training or result observation. The canonical configuration is
 [`data/benchmark_v3_factor_path/tournament.json`](../data/benchmark_v3_factor_path/tournament.json),
@@ -50,6 +55,12 @@ initial state, final state, sampling schedule, and checkpoint file by SHA-256.
 The final-confirmation split remains unavailable until this gate passes and may
 be invoked only once with the frozen manifest.
 
+For Issue #36 v1, the final gate also requires all 18 terminal records to be
+`complete`. The canonical tournament JSON predates an explicit field for this
+rule; adding one would change the frozen config digest embedded in existing
+checkpoints. The all-complete rule is therefore retained as an explicit
+final-gate binding for compatibility.
+
 This document and configuration describe an untrained architecture comparison.
 No benchmark-v3 training, diagnostic result, final-confirmation evaluation, or
 claim about learned generation, glyphs, etymology, lexical senses, sememes, or
@@ -63,6 +74,13 @@ single-factor probability intervention diagnostics, authenticated checkpoints,
 immutable terminal records, seed-level factorial aggregation, and an exclusive
 final-confirmation invocation marker. The final gate requires 18 complete
 checkpoints; terminal failures stay visible and cannot make the final gate ready.
+The final result keeps the historical machine-readable `selection` key for
+artifact compatibility; it is a frozen confirmation ranking only and cannot
+trigger result-driven architecture or training changes.
+
+Final intervention-pair diagnostics are selected from final target frames after
+the final split is opened. They are descriptive probes of the frozen models,
+are not model inputs, and are not selection evidence.
 
 Luna implemented the FSM and checkpoint/protocol modules. Parent integration
 added the runner, execution and final gates, corrected byte-ID validation and

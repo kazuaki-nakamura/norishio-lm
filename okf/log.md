@@ -1,5 +1,12 @@
 # OKF 更新履歴
 
+- 2026-09-19: Issue #36のfinal-confirmationをユーザー明示承認後に一度だけ評価。
+  384 rows / 18 evaluations / 0 failed、attested result SHA-256
+  `eb94b2b35d9de0c575b90342d517582e2304c766b3d8bb385ea22f2ac8c56a59`。
+  二回目はexclusive markerで再評価前に拒否。最終順位は
+  H1L1>H0L1>H1L0>H0L0>D_AUX>NO_INPUT。開発順位と一致したが、手作りfixture上の
+  小型CPU比較に限定し、一般性能・意味層効果・字形/字源/現代語義の主張なし。
+
 - 2026-09-14: Issue #36の凍結18 formal runをexecution SHA `50577091f1aaa5b90045ab55bace25b5f69f5a52`
   から実行し、18 complete / 0 failedとcheckpoint再認証を確認。development free exactは
   H1L1>H0L1>H1L0>H0L0>D_AUX>NO_INPUT。activation/locality/interaction、seed別値、

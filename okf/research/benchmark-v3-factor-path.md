@@ -41,6 +41,9 @@ sources:
   - id: tournament-runner
     resource: src/norishio_lm/benchmark_v3_runner.py
     title: Frozen training and diagnostic evaluation paths
+  - id: post-freeze-audit
+    resource: src/norishio_lm/benchmark_v3_audit.py
+    title: Runtime source-target and prior-benchmark isolation audit
   - id: tournament-checkpoint
     resource: src/norishio_lm/benchmark_v3_checkpoint.py
     title: Authenticated exclusive checkpoints
@@ -53,6 +56,12 @@ sources:
   - id: development-summary
     resource: docs/results/benchmark-v3-development-summary.json
     title: Machine-readable seed and factorial summaries
+  - id: final-results
+    resource: docs/results/benchmark-v3-final.md
+    title: Attested one-shot final-confirmation observations and limits
+  - id: final-summary
+    resource: docs/results/benchmark-v3-final-summary.json
+    title: Machine-readable final selection, seed, support, and intervention summary
 ---
 
 # Benchmark v3 factor-path freeze
@@ -103,4 +112,14 @@ D_AUX, NO_INPUT. The 2x2 descriptive effects are +0.010851 for activation,
 performance is substantially below pair-known/unseen-triple performance for
 every source-conditioned arm. The fixed one-hot intervention changed the
 target factor in none of the 12 main-arm probes, so it supplies no positive
-evidence of factor-level causal control. Final-confirmation remains unopened.
+evidence of factor-level causal control.
+
+After explicit user authorization, the one-shot final-confirmation evaluation
+completed from the frozen 18 checkpoints: 384 rows, 18 evaluations, and zero
+failed runs. The attested result SHA-256 is
+`eb94b2b35d9de0c575b90342d517582e2304c766b3d8bb385ea22f2ac8c56a59`.
+The frozen primary ranking is H1L1, H0L1, H1L0, H0L0, D_AUX, NO_INPUT. A
+second call was rejected before evaluation by the exclusive marker. The final
+intervention result also supplies no positive evidence of factor-level causal
+control. Agreement with the development order is descriptive evidence on the
+authored fixture, not general semantic or language-model performance.

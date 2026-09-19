@@ -100,7 +100,7 @@ def test_canonical_probabilities_and_single_factor_intervention_are_validated():
     assert all(torch.equal(intervened[field], probabilities[field]) for field in ("participant", "time", "operator"))
     with pytest.raises(ValueError, match="width 4"):
         model.intervene_probabilities(probabilities, "event", torch.tensor([[1.0, 0.0]]))
-    assert output["factor_metadata"]["canonical_space"] == "canonical_semantic_space"
+    assert output["factor_metadata"]["canonical_space"] == "authored_structural_factor_label_space"
     assert output["factor_metadata"]["code_space"] == "canonical_factor_class_indices"
 
 

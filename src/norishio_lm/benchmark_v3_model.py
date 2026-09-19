@@ -37,7 +37,7 @@ FACTOR_HIDDEN_DIM = 16
 HIDDEN_DIM = 32
 FACTOR_METADATA = {
     "code_space": "canonical_factor_class_indices",
-    "canonical_space": "canonical_semantic_space",
+    "canonical_space": "authored_structural_factor_label_space",
     "factor_order": list(FACTOR_ORDER),
     "probability_semantics": "softmax over canonical factor logits",
 }

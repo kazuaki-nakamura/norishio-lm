@@ -21,6 +21,7 @@ from torch.nn.utils import clip_grad_norm_
 
 from .benchmark_v3_checkpoint import state_sha256, trainable_parameter_count
 from . import benchmark_v3_data as benchmark
+from .benchmark_v3_audit import audit_frozen_bundle
 from .benchmark_v3_fsm import FrozenLocalPrefixFSM
 from .benchmark_v3_metrics import score_benchmark_v3
 from .benchmark_v3_model import (
@@ -64,6 +65,7 @@ def _validated_bundle() -> dict[str, list[dict[str, Any]]]:
     bundle = benchmark.build()
     report = benchmark.validate(bundle)
     benchmark.check_expected(report)
+    audit_frozen_bundle(bundle)
     if report.get("content_digest_sha256") != BENCHMARK_DIGEST:
         raise ValueError("benchmark fixture digest differs from the frozen tournament")
     return bundle
@@ -366,8 +368,8 @@ def factor_prediction_metadata(arm: str) -> dict[str, Any]:
         "schema": FACTOR_PREDICTION_SPACE_SCHEMA,
         "arm": arm,
         "raw_code_space": "canonical_factor_class_indices",
-        "canonical_space": "canonical_semantic_space",
-        "factor_loss_target_space": "canonical_semantic_space",
+        "canonical_space": "authored_structural_factor_label_space",
+        "factor_loss_target_space": "authored_structural_factor_label_space",
         "canonicalization": "identity",
         "raw_to_canonical_indices": raw_to_canonical,
     }

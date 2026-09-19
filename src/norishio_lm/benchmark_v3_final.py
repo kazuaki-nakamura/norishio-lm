@@ -18,6 +18,14 @@ from .benchmark_v3_tournament import ARM_COUNTS, BENCHMARK_DIGEST, SEEDS
 
 
 Evaluator = Callable[[Mapping[str, Any], Mapping[str, Any], Sequence[Mapping[str, Any]]], Any]
+
+# The canonical tournament JSON and its digest are already bound into every
+# existing Issue #36 checkpoint.  Adding a new checkpoint-gate key would change
+# that digest and invalidate those artifacts, so this v1 policy remains an
+# explicit code-level binding and is documented alongside the frozen config.
+FINAL_REQUIRES_ALL_COMPLETE = True
+
+
 def _fixture_module() -> Any:
     return benchmark
 
@@ -53,23 +61,100 @@ def _publish_invocation_marker(root: Path, marker: Mapping[str, Any]) -> Path:
     """Publish the consumed directory only after its marker is complete.
 
     A temporary sibling keeps a failed marker write from leaving a directory
-    that looks consumed but has no marker.  The final rename is exclusive on
-    the supported Windows and POSIX filesystems because a successful publish
-    always leaves a non-empty destination directory.
+    that looks consumed but has no marker.  A root-level O_EXCL reservation
+    serializes concurrent calls on Windows and POSIX; the reservation is
+    removed only after the durable marker is visible.
     """
 
     root.mkdir(parents=True, exist_ok=True)
     invocation = root / "final-invocation"
-    temporary = Path(tempfile.mkdtemp(prefix=".final-invocation.", dir=root))
+    lock = root / ".final-invocation.lock"
+    if invocation.exists():
+        raise FileExistsError(str(invocation))
     try:
+        descriptor = os.open(
+            str(lock), os.O_CREAT | os.O_EXCL | os.O_WRONLY
+        )
+        os.close(descriptor)
+    except FileExistsError:
+        raise FileExistsError(str(invocation)) from None
+    temporary: Path | None = None
+    try:
+        temporary = Path(tempfile.mkdtemp(prefix=".final-invocation.", dir=root))
         _atomic_exclusive_json(temporary / "marker.json", marker)
         if invocation.exists():
             raise FileExistsError(str(invocation))
         os.rename(temporary, invocation)
     except Exception:
-        shutil.rmtree(temporary, ignore_errors=True)
+        if temporary is not None:
+            shutil.rmtree(temporary, ignore_errors=True)
+        try:
+            lock.unlink()
+        except FileNotFoundError:
+            pass
         raise
+    try:
+        lock.unlink()
+    except FileNotFoundError:
+        pass
     return invocation
+
+
+def _publish_exclusive_file(source: Path, target: Path) -> None:
+    """Move one staged file into place without replacing an existing file."""
+    if target.exists():
+        raise FileExistsError(str(target))
+    if os.name == "nt":
+        os.rename(source, target)
+    else:
+        # A hard link is the POSIX no-replace primitive for regular files.
+        os.link(source, target)
+        os.unlink(source)
+
+
+def _publish_result_pair(
+    invocation: Path,
+    result: Mapping[str, Any],
+    *,
+    terminal_records_digest: str,
+    benchmark_digest: str,
+) -> str:
+    """Stage result and attestation, then publish them as one guarded pair.
+
+    Both JSON documents are fully serialized before either destination is
+    touched.  If publication of the second file fails, the first newly-created
+    file is removed, so an injected write failure cannot leave result.json
+    without its attestation.
+    """
+    result_path = invocation / "result.json"
+    attestation_path = invocation / "result-attestation.json"
+    temporary = Path(tempfile.mkdtemp(prefix=".result-publish.", dir=invocation))
+    published: list[Path] = []
+    try:
+        result_digest = _atomic_exclusive_json(temporary / "result.json", result)
+        _atomic_exclusive_json(temporary / "result-attestation.json", {
+            "schema": "norishio.issue36.result-attestation.v1",
+            "result_sha256": result_digest,
+            "result_schema": result["schema"],
+            "terminal_records_sha256": terminal_records_digest,
+            "benchmark_content_digest_sha256": benchmark_digest,
+        })
+        if result_path.exists() or attestation_path.exists():
+            raise FileExistsError("final result artifact already exists")
+        _publish_exclusive_file(temporary / "result.json", result_path)
+        published.append(result_path)
+        _publish_exclusive_file(temporary / "result-attestation.json", attestation_path)
+        published.append(attestation_path)
+        return result_digest
+    except Exception:
+        for path in reversed(published):
+            try:
+                path.unlink()
+            except FileNotFoundError:
+                pass
+        raise
+    finally:
+        shutil.rmtree(temporary, ignore_errors=True)
 
 
 _SELECTION_METRICS = (
@@ -241,7 +326,7 @@ def evaluate_final_once(root: str | os.PathLike[str], *, evaluate_final: bool,
     output_root = Path(root)
     records = collect_terminal_records(output_root)
     complete = _validate_complete_checkpoints(output_root, records)
-    if len(complete) != len(ARM_COUNTS) * len(SEEDS):
+    if FINAL_REQUIRES_ALL_COMPLETE and len(complete) != len(ARM_COUNTS) * len(SEEDS):
         raise ValueError("all 18 arm/seed checkpoints must complete before final-confirmation")
     record_digest = hashlib.sha256(canonical_bytes(records)).hexdigest()
 
@@ -289,14 +374,14 @@ def evaluate_final_once(root: str | os.PathLike[str], *, evaluate_final: bool,
             "failed_runs": [dict(record) for record in records if record["status"] == "failed"],
             "selection": selection,
         }
-        result_digest = _atomic_exclusive_json(invocation / "result.json", result)
-        _atomic_exclusive_json(invocation / "result-attestation.json", {
-            "schema": "norishio.issue36.result-attestation.v1",
-            "result_sha256": result_digest,
-            "result_schema": result["schema"],
-            "terminal_records_sha256": record_digest,
-            "benchmark_content_digest_sha256": BENCHMARK_DIGEST,
-        })
+        # Keep the historical artifact key for compatibility.  Its value is a
+        # frozen confirmation ranking and cannot drive a result-based change.
+        _publish_result_pair(
+            invocation,
+            result,
+            terminal_records_digest=record_digest,
+            benchmark_digest=BENCHMARK_DIGEST,
+        )
         return result
     except Exception as exc:
         if not (invocation / "result.json").exists():
@@ -306,14 +391,12 @@ def evaluate_final_once(root: str | os.PathLike[str], *, evaluate_final: bool,
                 "error_type": type(exc).__name__,
                 "redacted_message": "final evaluation failed after invocation was consumed",
             }
-            failure_digest = _atomic_exclusive_json(invocation / "result.json", failure)
-            _atomic_exclusive_json(invocation / "result-attestation.json", {
-                "schema": "norishio.issue36.result-attestation.v1",
-                "result_sha256": failure_digest,
-                "result_schema": failure["schema"],
-                "terminal_records_sha256": record_digest,
-                "benchmark_content_digest_sha256": BENCHMARK_DIGEST,
-            })
+            _publish_result_pair(
+                invocation,
+                failure,
+                terminal_records_digest=record_digest,
+                benchmark_digest=BENCHMARK_DIGEST,
+            )
         raise
 
 

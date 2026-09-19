@@ -35,7 +35,9 @@ def test_factor_vocabulary_is_derived_from_committed_spec() -> None:
     assert vocabulary.encode({
         "participant": "FRIEND", "time": "TODAY", "event": "MEET", "operator": "ASSERT",
     }) == (0, 0, 0, 0)
-    assert factor_prediction_metadata("D_AUX")["canonicalization"] == "identity"
+    metadata = factor_prediction_metadata("D_AUX")
+    assert metadata["canonicalization"] == "identity"
+    assert metadata["canonical_space"] == "authored_structural_factor_label_space"
 
 
 def test_loaded_rows_are_manifest_validated_and_defensive_copies() -> None:
