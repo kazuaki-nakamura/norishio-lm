@@ -2,6 +2,53 @@
 
 検証日: 2026-09-19
 
+## 最新の実装状態: Issue #42 post-v3 research handoff
+
+PR #41 merge `9331eda9d918adbc1b415e01fddeae62249cb5ed`時点の研究状態を
+[post-v3 research status](research-status-post-v3.md)へ整理した。実装済み、実測済み、
+未測定、補正不能、仮説を分け、各主張へrepo内path・section・実装/結果SHAを付けた。
+v1 concept toy、benchmark v2、benchmark v3は異なるfixture・目的のため、単一の性能向上曲線にしない。
+
+`okf/research/open-questions.md`に残っていた「benchmark v2 Phase 2、3 seed学習、final評価が未実装」
+という古い現在形を訂正した。v2は6 arm × 3 seedと一度限りのfinalまで完了し、arm Eの
+historical intermediate/head/2×2はraw logits等がないため補正不能。v3も6 arm × 3 seedと
+final-confirmationを完了し、Issue #39の訂正primaryは
+`all.generation_frame_exact.accuracy`。historical fixed-class-0 0/48はその固定介入の結果であり、baseline確率がないため
+alternate-class介入の否定結果にはしない。
+
+[next factor-path confirmation experiment](factor-path-next-experiment.md)は**review未承認の計画**。
+候補を比較し、優先案をH1L1対D_AUX、seed 7/17/29、各600 update、最大6 attempted run・
+3,600 scheduled optimizer update、失敗分を含むCPU 2時間上限とした。新しい96-row確認setを
+事前固定する案で、primary分母96、support分母48、source swap/internal interventionは各arm
+24 probe（factor当たり6、support当たり12）。intermediateのframe exactと2×2は利用可能な
+head予測だけを分母にし、全96 rowと欠損数も別記する。frame保持とsurface完全一致、source
+swapと内部介入、target changeとrequested-value successを分離する。constant-source診断が
+通常H1L1の3-seed mean frame exactから0.05以内ならsource依存解釈を保留し、trained NO_INPUT
+対照を要求する。既存future-protocol digestはselection/intervention契約だけで、新experiment
+descriptor/digestは未作成である。
+
+このIssueでは文書だけを変更し、データ生成、学習、推論、checkpoint load、使用済みfinalの再開封、
+外部辞書取得を行っていない。Luna (`gpt-5.6-luna`)へ根拠監査と次実験案の独立設計を分担し、
+親が原本・git履歴照合、統合、最終検証を担当した。
+
+検証結果:
+
+- 初回quick knowledge checkはworktree内のindex未生成でinvalid。`build_context.py`で再生成後に
+  quickを通し、最終source変更後は222 entryを生成してfull check **healthy / errors 0**。
+- `validate_okf.py`: **11 files / 9 concepts / errors 0 / warnings 0**。
+- MCP `--self-check`とlive check: **ok**（11 concepts、6 tools）。
+- 変更7 Markdownのlocal linkと58件の40-character commit SHA: missing/invalid **0**。
+- 最初の全pytestはrepo共有venvにTorchがなく3 collection error。既存Issue #39 CPU Torch
+  2.14.0環境へ切り替えたsandbox再試行もWindows一時ディレクトリACLで失敗したため、
+  同じ明示範囲を専用basetemp・権限付きで再実行し、**626 passed / 1 skipped /
+  1 warning / 2 subtests passed**。未解決のtest failureはない。
+
+最終pytestコマンド:
+
+```powershell
+& 'D:\projects\codex\norishio-lm\codex\work_output\issue-worker\issue-39\.venv\Scripts\python.exe' -m pytest tests codex\tools\tests codex\okf_mcp\tests -q -p no:cacheprovider --basetemp D:\projects\codex\norishio-lm\codex\work_output\pytest-issue42-final-admin
+```
+
 ## 最新の実装状態: Issue #39 benchmark v3 protocol errata
 
 Issue #36の保存済みdevelopment 18 JSONと、attested final result

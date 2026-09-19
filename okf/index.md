@@ -11,7 +11,7 @@ okf_version: "0.2"
 - [SemanticCompiler の実装範囲](design/semantic-compiler.md)
 - [Multi-channel encoder の実装範囲](design/multichannel-encoder.md)
 - [Concept bottleneck toy実験](design/concept-toy.md)
-- [未解決課題](research/open-questions.md)
+- [未解決課題と post-v3 次実験](research/open-questions.md)
 - [Benchmark v2 freeze protocol](research/benchmark-v2.md)
 - [Benchmark v3 factor-path freeze](research/benchmark-v3-factor-path.md)
 - [Plastic memory toy prototype](research/plastic-memory.md)

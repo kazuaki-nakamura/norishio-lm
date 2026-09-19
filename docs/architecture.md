@@ -119,3 +119,11 @@ freeze-only versus detached-feature gradient reach are reported independently.
 This mechanism test consumes authored numeric vectors only; it is not wired into
 the SemanticCompiler, lexical/sememe/concept channels, or a trained language
 model. See [the plastic-memory protocol](plastic-memory.md).
+
+## 7. Current evidence boundary
+
+The [post-v3 research status](research-status-post-v3.md) separates implemented
+wiring, measured toy observations, unavailable corrections, unmeasured questions,
+and hypotheses. The [next factor-path experiment](factor-path-next-experiment.md)
+is a review-unapproved proposal only; it does not authorize data generation,
+training, inference, or reopening any consumed final split.
