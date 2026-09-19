@@ -46,8 +46,8 @@ and refuses to overwrite an existing output path.
 ## Consolidation
 
 At least two fast adapters with the same configuration and core fingerprint are
-combined deterministically into one slow adapter. The initial additive rule is
-only defined for compatible state. Reports compare:
+combined deterministically into one slow adapter. The initial arithmetic-mean
+rule is only defined for compatible state. Reports compare:
 
 - no-memory behavior;
 - each fast adapter on its own held-out queries;
@@ -62,7 +62,7 @@ silently averaged away.
 ## Reproducible entry point
 
 ```powershell
-.\.venv\Scripts\python.exe -m norishio_lm.plastic_memory_demo --seed 7
+.\.venv\Scripts\python.exe -m norishio_lm.plastic_memory_demo --seed 37
 ```
 
 The JSON output distinguishes fixed protocol metadata, observed metrics, and

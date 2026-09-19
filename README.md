@@ -95,6 +95,19 @@ valid completed text. A fixed 600-update diagnosis recovered UTF-8 and EOS but
 still produced one sentence for all inputs with zero exact matches. Teacher-forced
 loss is not evidence of conditional generation quality.
 
+The [plastic-memory prototype](docs/plastic-memory.md) is a separate CPU toy
+mechanism test. A fixed four-dimensional core feeds a small associative adapter;
+only the adapter state is written. It reports no-memory versus one-episode
+behavior, exact checkpoint replay, two-adapter consolidation, core drift, and
+the observed gradient-boundary proxy for ordinary freezing versus detached
+features. Its authored vectors are not language-model output or evidence of
+human-like memory, semantic learning, or practical continual learning.
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -e '.[model,dev]'
+.\.venv\Scripts\python.exe -m norishio_lm.plastic_memory_demo --seed 37 --output-dir codex\work_output\issue37-seed37-v1
+```
+
 The [benchmark v2 protocol](docs/benchmark-v2.md) freezes a four-factor
 participant/time/event/operator holdout before the Issue #34 architecture
 tournament. Its generated fixtures and common metrics are evaluation

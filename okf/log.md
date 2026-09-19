@@ -1,5 +1,11 @@
 # OKF 更新履歴
 
+- 2026-09-19: Issue #37の固定core + plastic adapter toy prototypeを追加。
+  seed 37の手作り2 episodeでenabled/disabled、core drift 0、checkpoint同一replay、
+  2 adapterのmean consolidation、freeze/detach gradient proxyを記録。mean統合は
+  argmax accuracyを保持したがfast adapter和よりMSE悪化。LLM・人間記憶・意味学習・
+  実用的継続学習の根拠にはしない。
+
 - 2026-09-19: Issue #36のfinal-confirmationをユーザー明示承認後に一度だけ評価。
   384 rows / 18 evaluations / 0 failed、attested result SHA-256
   `eb94b2b35d9de0c575b90342d517582e2304c766b3d8bb385ea22f2ac8c56a59`。

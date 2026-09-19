@@ -110,3 +110,12 @@ probabilities only. Auxiliary sense/sememe predictions never bypass that boundar
 See [the toy experiment](concept-toy.md). Semantic usefulness and general language
 generation quality remain unverified; the source encoder still has no sequence
 or graph structure.
+
+Issue #37 adds a pluggable associative adapter around a separate fixed toy core.
+The adapter has explicit read/write/reset, snapshot, authenticated checkpoint,
+and deterministic arithmetic-mean consolidation interfaces. Core fingerprints,
+exact parameter drift, adapter-only optimizer membership, replay equality, and
+freeze-only versus detached-feature gradient reach are reported independently.
+This mechanism test consumes authored numeric vectors only; it is not wired into
+the SemanticCompiler, lexical/sememe/concept channels, or a trained language
+model. See [the plastic-memory protocol](plastic-memory.md).
