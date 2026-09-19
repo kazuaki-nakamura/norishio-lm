@@ -88,6 +88,43 @@ for the runner or optimizer implementation, so the recorded execution commit is
 the external implementation boundary rather than a cryptographic training
 transcript.
 
+## Protocol erratum (Issue #39)
+
+The implementation used `all.free_generation_exact.accuracy` for the table and
+ranking above. The preregistration instead names
+`all.generation_frame_exact.accuracy` as primary. A read-only audit of the
+attested result, whose SHA-256 was independently confirmed as
+`eb94b2b35d9de0c575b90342d517582e2304c766b3d8bb385ea22f2ac8c56a59`,
+reconstructed all 18 arm/seed values without loading checkpoints, opening the
+holdout again, or running inference.
+
+| Arm | Generation frame exact |
+| --- | ---: |
+| H1L1 | 0.226562 |
+| H0L1 | 0.190972 |
+| H1L0 | 0.183160 |
+| H0L0 | 0.162326 |
+| D_AUX | 0.006076 |
+| NO_INPUT | 0.003472 |
+
+The preregistered ranking remains `H1L1 > H0L1 > H1L0 > H0L0 > D_AUX >
+NO_INPUT`; no tie-breaker changes it. The corrected generation-frame effects
+are activation `+0.028212`, locality `+0.036024`, and interaction `+0.014757`.
+This agreement is a retained-result audit, not a new final evaluation.
+
+The retained scored result confirms that all historical probe vectors selected
+class 0 and that the four main arms had 0 target changes in 48 probes. It does
+not retain baseline probability vectors, so `baseline argmax == class 0` versus
+`!= class 0` cannot be reconstructed. The result must therefore be described as
+**0/48 target changes under fixed class-0 probability intervention**. It is not
+evidence about the future alternate-value rule. A separate future-only helper
+selects `(baseline_argmax + 1) % width`, preserves source identity, decoder
+prefix, and non-target factor vectors, and records the baseline and selected
+class indices. It rejects any actual intervened one-hot vector that selects a
+different class. The historical Issue #36 final path remains unchanged.
+The machine-readable audit is
+[`benchmark-v3-protocol-errata.json`](benchmark-v3-protocol-errata.json).
+
 ## Protocol record
 
 Before authorization, a sandbox-created temporary invocation directory failed

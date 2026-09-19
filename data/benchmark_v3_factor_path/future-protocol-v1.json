@@ -1,0 +1,59 @@
+{
+  "descriptor": {
+    "execution_binding": {
+      "digest_field": "future_benchmark_v3_protocol_sha256",
+      "required_before": [
+        "future_training",
+        "future_evaluator",
+        "future_final_marker_publication",
+        "future_final_row_access"
+      ],
+      "required_future_artifacts": [
+        "trainer_result",
+        "development_result",
+        "checkpoint",
+        "terminal_record",
+        "final_marker",
+        "final_result",
+        "final_attestation"
+      ],
+      "run_metadata_schema": "norishio.issue39.future-benchmark-v3-run-metadata.v1"
+    },
+    "intervention": {
+      "class_selection": "(baseline_argmax + 1) % width",
+      "requires_different_class": true,
+      "rule": "alternate_after_baseline_argmax_mod_width"
+    },
+    "schema": "norishio.issue39.future-benchmark-v3-protocol.v1",
+    "scope": {
+      "applies_to": "future_benchmark_v3_runs_only",
+      "historical_issue36_artifacts": "excluded_immutable"
+    },
+    "selection": {
+      "aggregation": "unweighted_three_seed_mean",
+      "derived_metrics": {
+        "all.atomic_balanced_accuracy.mean": {
+          "reducer": "unweighted_arithmetic_mean",
+          "source_paths": [
+            "all.atomic_balanced_accuracy.participant",
+            "all.atomic_balanced_accuracy.time",
+            "all.atomic_balanced_accuracy.event",
+            "all.atomic_balanced_accuracy.operator"
+          ]
+        }
+      },
+      "direction": "maximize",
+      "primary": "all.generation_frame_exact.accuracy",
+      "schema": "norishio.issue39.selection-contract.v1",
+      "tie_breakers": [
+        "all.triple_exact.accuracy",
+        "all.pair_exact.accuracy",
+        "all.atomic_balanced_accuracy.mean",
+        "all.exact_target_text.accuracy",
+        "arm_id_ascending"
+      ]
+    }
+  },
+  "descriptor_sha256": "bacf9d952ca159048740a06a941f9bdf9e3b6d531b719da666f034aa8a2bae6c",
+  "schema": "norishio.issue39.future-protocol-freeze.v1"
+}

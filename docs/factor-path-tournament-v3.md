@@ -87,3 +87,44 @@ added the runner, execution and final gates, corrected byte-ID validation and
 all-complete final readiness, and verified the combined implementation with
 564 passing tests (1 skipped). This is implementation evidence only: formal
 training and both result splits remain unobserved at this point.
+
+## Post-merge protocol erratum and future contract
+
+Issue #39 found that the Issue #36 selection implementation used
+`all.free_generation_exact.accuracy` although the preregistered primary was
+`all.generation_frame_exact.accuracy`. Existing development and final artifacts
+remain immutable. Their read-only audit is recorded in
+[`docs/results/benchmark-v3-protocol-errata.json`](results/benchmark-v3-protocol-errata.json).
+
+Future tournaments use this exact unweighted three-seed ordering, maximizing
+each numeric metric before the final lexical arm-ID tie-break:
+
+1. `all.generation_frame_exact.accuracy`
+2. `all.triple_exact.accuracy`
+3. `all.pair_exact.accuracy`
+4. `all.atomic_balanced_accuracy.mean`
+5. `all.exact_target_text.accuracy`
+6. `arm_id_ascending`
+
+The machine-readable future-only source is
+[`future-protocol-v1.json`](../data/benchmark_v3_factor_path/future-protocol-v1.json),
+whose canonical descriptor SHA-256 is
+`bacf9d952ca159048740a06a941f9bdf9e3b6d531b719da666f034aa8a2bae6c`.
+It binds the exact primary, tie-breakers, derived source paths and reducer,
+three-seed aggregation, direction, intervention rule, and protected usage
+phases. `benchmark_v3_future_protocol.py` validates that descriptor and digest
+before a future trainer, evaluator, final-marker publisher, or final-row
+accessor runs, and requires future run metadata and returned artifacts to carry
+the same digest. The historical Issue #36 runner, scorer, final gate,
+configuration, checkpoints, marker, and attestation remain unchanged.
+
+The balanced mean is explicitly the unweighted arithmetic mean of
+`all.atomic_balanced_accuracy.{participant,time,event,operator}`; the contract
+lists all four source paths rather than treating `mean` as a stored JSON field.
+Future probability interventions choose a deterministic class different from
+the baseline argmax using `(baseline_argmax + 1) % width`. They record both
+class indices, require the actual intervened one-hot vector to select that exact
+class, and retain the existing source-identity, decoder-prefix, and
+non-target-probability checks in the separate future-only intervention module.
+This future rule does not reinterpret or replace the historical fixed class-0
+results.

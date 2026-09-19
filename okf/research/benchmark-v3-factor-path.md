@@ -2,8 +2,8 @@
 type: ResearchConstraint
 title: Benchmark v3 factor-path freeze
 status: draft
-generated: { by: ai-assisted-source-review, at: 2026-09-14 }
-stale_after: 2026-10-14
+generated: { by: ai-assisted-source-review, at: 2026-09-19 }
+stale_after: 2026-10-19
 sources:
   - id: protocol
     resource: docs/benchmark-v3-factor-path.md
@@ -62,6 +62,24 @@ sources:
   - id: final-summary
     resource: docs/results/benchmark-v3-final-summary.json
     title: Machine-readable final selection, seed, support, and intervention summary
+  - id: protocol-errata
+    resource: docs/results/benchmark-v3-protocol-errata.json
+    title: Read-only primary-metric and intervention-target audit
+  - id: future-contract
+    resource: src/norishio_lm/benchmark_v3_contract.py
+    title: Future machine-readable selection and intervention contracts
+  - id: future-protocol-freeze
+    resource: data/benchmark_v3_factor_path/future-protocol-v1.json
+    title: Canonical future-only execution descriptor and digest
+  - id: future-protocol-code
+    resource: src/norishio_lm/benchmark_v3_future_protocol.py
+    title: Future run binding and pre-execution validation gates
+  - id: future-intervention-code
+    resource: src/norishio_lm/benchmark_v3_future_intervention.py
+    title: Future alternate-value intervention helper
+  - id: errata-audit-code
+    resource: src/norishio_lm/benchmark_v3_errata.py
+    title: Saved-JSON-only protocol errata audit
 ---
 
 # Benchmark v3 factor-path freeze
@@ -110,9 +128,10 @@ generation exact, the three-seed development order is H1L1, H0L1, H1L0, H0L0,
 D_AUX, NO_INPUT. The 2x2 descriptive effects are +0.010851 for activation,
 +0.035156 for locality, and +0.009549 for their interaction. Unseen-pair
 performance is substantially below pair-known/unseen-triple performance for
-every source-conditioned arm. The fixed one-hot intervention changed the
-target factor in none of the 12 main-arm probes, so it supplies no positive
-evidence of factor-level causal control.
+every source-conditioned arm. The original Issue #36 record counted no target
+changes in 12 main-arm probes; Issue #39 supersedes that aggregation with 0/48
+fixed class-0 probes. Neither count supplies positive evidence of factor-level
+causal control.
 
 After explicit user authorization, the one-shot final-confirmation evaluation
 completed from the frozen 18 checkpoints: 384 rows, 18 evaluations, and zero
@@ -123,3 +142,29 @@ second call was rejected before evaluation by the exclusive marker. The final
 intervention result also supplies no positive evidence of factor-level causal
 control. Agreement with the development order is descriptive evidence on the
 authored fixture, not general semantic or language-model performance.
+
+Issue #39 records a post-merge protocol erratum. The selection implementation
+used free-generation exact, while the preregistration named generation-frame
+exact. A read-only audit of the saved 18 development JSON files and the attested
+final result reconstructed the preregistered field without checkpoint loading,
+training, inference, or final access. Both corrected rankings remain H1L1,
+H0L1, H1L0, H0L0, D_AUX, NO_INPUT. Development generation-frame effects are
+activation +0.011719, locality +0.036024, interaction +0.013021; final effects
+are +0.028212, +0.036024, +0.014757. Equality of rankings does not erase the
+metric mismatch.
+
+The historical intervention was a fixed class-0 probability intervention. The
+scored saved artifacts confirm 0 target changes among 48 main-arm probes in
+each split, but omit baseline probability vectors, so baseline-argmax class-0
+classification is unavailable. This is not evidence about an alternate-value
+intervention. A separately versioned future protocol freezes the primary,
+tie-break paths, derived source paths and reducer, aggregation, direction, and
+usage phases. Its canonical SHA-256 is
+`bacf9d952ca159048740a06a941f9bdf9e3b6d531b719da666f034aa8a2bae6c`.
+Future wrappers validate this digest before trainer, evaluator, final marker
+publication, and final-row access, and bind it into run metadata and returned
+artifacts. A future-only helper selects `(baseline_argmax + 1) % width`, retaining
+the class indices and requiring the actual intervened one-hot to select that
+exact class while preserving source identity, decoder prefix, and non-target
+factor probabilities. Historical Issue #36 execution code and all
+existing final artifacts, marker, checkpoints, and attestations remain unchanged.
