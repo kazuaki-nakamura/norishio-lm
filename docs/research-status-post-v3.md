@@ -23,6 +23,9 @@ performance-improvement curve.
 - The cause of the unseen-pair gap is unresolved: factor-head error, decoder
   follow-through, surface realization, or fixture-specific grammatical priors
   may each contribute.
+- Whether row-specific source information reaches generation mainly through
+  decoder h0 rather than the explicit factor path is unmeasured. Canonical class
+  use and sensitivity to the continuous probability shape are also unresolved.
 - External dictionary and morphology adapters, contextual lexical-sense
   selection, ordered/graph encoders, and sourced semantic-layer ablations remain
   unimplemented or unmeasured.

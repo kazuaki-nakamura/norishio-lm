@@ -17,19 +17,27 @@ final-confirmationを完了し、Issue #39の訂正primaryは
 alternate-class介入の否定結果にはしない。
 
 [next factor-path confirmation experiment](factor-path-next-experiment.md)は**review未承認の計画**。
-候補を比較し、優先案をH1L1対D_AUX、seed 7/17/29、各600 update、最大6 attempted run・
-3,600 scheduled optimizer update、失敗分を含むCPU 2時間上限とした。新しい96-row確認setを
-事前固定する案で、primary分母96、support分母48、source swap/internal interventionは各arm
-24 probe（factor当たり6、support当たり12）。intermediateのframe exactと2×2は利用可能な
-head予測だけを分母にし、全96 rowと欠損数も別記する。frame保持とsurface完全一致、source
-swapと内部介入、target changeとrequested-value successを分離する。constant-source診断が
-通常H1L1の3-seed mean frame exactから0.05以内ならsource依存解釈を保留し、trained NO_INPUT
-対照を要求する。既存future-protocol digestはselection/intervention契約だけで、新experiment
-descriptor/digestは未作成である。
+PR #43のhead `3c31a5c48b0af8413d9ce050c36890a2780d7154`に対するblocking reviewを受け、
+優先するlearned比較をH1L1対D_AUXからH1L1対H1L1_ANCHORへ変更した。H1L1_ANCHORは実source latentを
+factor heads/projectionsへ渡したまま、同じ共有encoderで固定`[BOS, SEP]`をencodeしたanchorだけを
+decoder h0へ渡す。両armは同一module、seeded初期state、32,120 parameter、decoder、語彙、loss、
+sampling、seed 7/17/29、各600 updateを使い、最大6 attempted run・3,600 scheduled update、
+失敗分を含むCPU 2時間上限とする。D_AUXは旧fixtureの参考情報だけで、新runや比較根拠にしない。
+constant-source inferenceはOOD診断のままで、learned-path根拠へ昇格しない。
+
+新しい96-row確認setを事前固定し、primary分母96、support分母48、source swapは各arm 24 probe。
+各internal probeはsame-class soft-shape、alternate-class one-hot、同じrequested classの
+alternate donor-softを事前固定する。donor tableに該当soft argmaxがなければmissingとして
+失敗・0と分ける。全probability map、parse failure、
+`requested_value_success AND non_target_preserved`を保存する。head/通常frameを保ったまま
+H1L1_ANCHORのjoint追随だけが改善する場合、両armが強い場合、headは強いが両armが追随しない場合、
+head自体が弱い場合を別の結論枝にする。既存future-protocol digestはselection/intervention契約
+だけで、新experiment descriptor/digestは未作成である。
 
 このIssueでは文書だけを変更し、データ生成、学習、推論、checkpoint load、使用済みfinalの再開封、
-外部辞書取得を行っていない。Luna (`gpt-5.6-luna`)へ根拠監査と次実験案の独立設計を分担し、
-親が原本・git履歴照合、統合、最終検証を担当した。
+外部辞書取得を行っていない。Luna (`gpt-5.6-luna`)へ根拠監査、次実験案、blocking review対応を
+分担し、親が実装原本・git履歴との照合、統合、最終検証を担当した。修正後の独立再監査で
+R1/R2の残存blockerなしを確認した。
 
 検証結果:
 
@@ -37,7 +45,7 @@ descriptor/digestは未作成である。
   quickを通し、最終source変更後は222 entryを生成してfull check **healthy / errors 0**。
 - `validate_okf.py`: **11 files / 9 concepts / errors 0 / warnings 0**。
 - MCP `--self-check`とlive check: **ok**（11 concepts、6 tools）。
-- 変更7 Markdownのlocal linkと58件の40-character commit SHA: missing/invalid **0**。
+- 変更7 Markdownのlocal linkと59件の40-character commit SHA: missing/invalid **0**。
 - 最初の全pytestはrepo共有venvにTorchがなく3 collection error。既存Issue #39 CPU Torch
   2.14.0環境へ切り替えたsandbox再試行もWindows一時ディレクトリACLで失敗したため、
   同じ明示範囲を専用basetemp・権限付きで再実行し、**626 passed / 1 skipped /
@@ -46,7 +54,7 @@ descriptor/digestは未作成である。
 最終pytestコマンド:
 
 ```powershell
-& 'D:\projects\codex\norishio-lm\codex\work_output\issue-worker\issue-39\.venv\Scripts\python.exe' -m pytest tests codex\tools\tests codex\okf_mcp\tests -q -p no:cacheprovider --basetemp D:\projects\codex\norishio-lm\codex\work_output\pytest-issue42-final-admin
+& 'D:\projects\codex\norishio-lm\codex\work_output\issue-worker\issue-39\.venv\Scripts\python.exe' -m pytest tests codex\tools\tests codex\okf_mcp\tests -q -p no:cacheprovider --basetemp D:\projects\codex\norishio-lm\codex\work_output\pytest-issue42-reviewfix-admin
 ```
 
 ## 最新の実装状態: Issue #39 benchmark v3 protocol errata
