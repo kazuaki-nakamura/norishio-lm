@@ -20,7 +20,6 @@ from torch import Tensor
 from torch.nn.utils import clip_grad_norm_
 
 from .benchmark_v3_checkpoint import state_sha256, trainable_parameter_count
-from .benchmark_v3_contract import INTERVENTION_RULE
 from . import benchmark_v3_data as benchmark
 from .benchmark_v3_audit import audit_frozen_bundle
 from .benchmark_v3_fsm import FrozenLocalPrefixFSM
@@ -549,34 +548,6 @@ def _probability_lists(probabilities: Mapping[str, Tensor], index: int = 0) -> d
             for field in FACTOR_ORDER}
 
 
-def alternate_intervention_one_hot(
-    probabilities: Mapping[str, Tensor], factor: str, *, index: int = 0,
-) -> tuple[Tensor, int, int]:
-    """Select a deterministic class after the baseline argmax for intervention.
-
-    The selected class is fixed by the pre-result rule
-    ``(baseline_argmax + 1) % width``.  Returning the baseline and selected
-    indices alongside the one-hot makes the intervention auditable without
-    consulting target labels.
-    """
-
-    if factor not in FACTOR_ORDER:
-        raise ValueError(f"unknown factor {factor!r}")
-    selected = probabilities.get(factor)
-    if not isinstance(selected, Tensor) or selected.ndim != 2:
-        raise ValueError("factor probabilities must be rank-2 tensors")
-    if type(index) is not int or not 0 <= index < selected.shape[0]:
-        raise ValueError("probability row index is out of range")
-    width = selected.shape[1]
-    if width < 2:
-        raise ValueError("intervention requires at least two factor classes")
-    baseline_class = int(selected[index].argmax(dim=-1).item())
-    intervention_class = (baseline_class + 1) % width
-    one_hot = torch.zeros((1, width), dtype=torch.float32, device=selected.device)
-    one_hot[0, intervention_class] = 1.0
-    return one_hot, baseline_class, intervention_class
-
-
 def _development_intervention_pairs(rows: Sequence[Mapping[str, Any]]) -> list[tuple[str, Mapping[str, Any], Mapping[str, Any]]]:
     """Select one deterministic source-side pair for each factor.
 
@@ -667,18 +638,15 @@ def _evaluate_rows(model: BenchmarkV3Model, raw_rows: Sequence[Mapping[str, Any]
         baseline_output = model(source_tensor, source_mask=source_mask)
         effective_source = baseline_output.source_ids[0].detach().cpu().tolist()
         baseline_probabilities = baseline_output.factor_probs
-        one_hot, baseline_class, intervention_class = alternate_intervention_one_hot(
-            baseline_probabilities, factor,
-        )
+        width = len(vocabulary.values[factor])
+        one_hot = torch.zeros((1, width), dtype=torch.float32)
+        one_hot[0, 0] = 1.0
         intervened_probabilities = model.intervene_probabilities(
             baseline_probabilities, factor, one_hot,
         )
         probability_interventions.append({
             "factor": factor,
             "oracle": False,
-            "intervention_rule": INTERVENTION_RULE,
-            "baseline_argmax_class": baseline_class,
-            "intervention_class": intervention_class,
             "baseline_source_identity": _source_identity(effective_source),
             "intervened_source_identity": _source_identity(effective_source),
             "baseline_decoder_prefix": [BOS_ID],
@@ -734,10 +702,9 @@ def run_benchmark_v3(
 
 __all__ = [
     "ADAM_BETAS", "ADAM_EPS", "BATCH_SIZE", "FactorVocabulary", "GRADIENT_CLIP",
-    "INTERVENTION_RULE", "LEARNING_RATE", "MAX_NEW_TOKENS", "PaddedBatch", "PreparedRow", "TRAIN_STEPS",
+    "LEARNING_RATE", "MAX_NEW_TOKENS", "PaddedBatch", "PreparedRow", "TRAIN_STEPS",
     "TrainingResult", "collate_rows", "evaluate_benchmark_v3", "factor_vocabulary",
-    "factor_prediction_metadata", "decode_factor_logits", "alternate_intervention_one_hot",
-    "greedy_generate",
+    "factor_prediction_metadata", "decode_factor_logits", "greedy_generate",
     "greedy_generate_batch", "load_development_rows", "load_train_rows", "prepare_row",
     "run_benchmark_v3", "teacher_forced_gates", "train_benchmark_v3", "training_step",
 ]

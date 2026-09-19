@@ -134,7 +134,8 @@ main arms, three seeds, and four factor probes per run: the retained scored
 artifacts record **0 target changes in 48 fixed class-0 probability
 interventions**. They omit the pre-scoring baseline probability vectors, so a
 post-hoc split into `baseline argmax == class 0` and `!= class 0` is unavailable.
-The 0/48 result is not evidence about an alternate-value intervention. Future
-runs select `(baseline_argmax + 1) % width` and record both class indices.
+The 0/48 result is not evidence about an alternate-value intervention. A
+separate future-only helper selects `(baseline_argmax + 1) % width` and records
+both class indices; the historical Issue #36 runner and scorer remain unchanged.
 Machine-readable paths, source hashes, per-run values, and effects are in
 [`benchmark-v3-protocol-errata.json`](benchmark-v3-protocol-errata.json).

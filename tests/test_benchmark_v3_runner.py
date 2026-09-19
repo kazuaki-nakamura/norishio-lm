@@ -11,8 +11,6 @@ from norishio_lm.benchmark_v3_model import ARM_IDS, build_model
 import norishio_lm.benchmark_v3_runner as runner
 from norishio_lm.benchmark_v3_runner import (
     TRAIN_STEPS,
-    INTERVENTION_RULE,
-    alternate_intervention_one_hot,
     collate_rows,
     evaluate_benchmark_v3,
     factor_prediction_metadata,
@@ -40,24 +38,6 @@ def test_factor_vocabulary_is_derived_from_committed_spec() -> None:
     metadata = factor_prediction_metadata("D_AUX")
     assert metadata["canonicalization"] == "identity"
     assert metadata["canonical_space"] == "authored_structural_factor_label_space"
-
-
-def test_alternate_intervention_is_fixed_after_baseline_argmax() -> None:
-    probabilities = {
-        "participant": torch.tensor([[0.1, 0.2, 0.7, 0.0, 0.0, 0.0]]),
-        "time": torch.tensor([[0.0, 0.0, 0.0, 0.0, 0.0, 1.0]]),
-        "event": torch.tensor([[0.2, 0.8, 0.0, 0.0]]),
-        "operator": torch.tensor([[0.0, 0.0, 1.0, 0.0]]),
-    }
-    one_hot, baseline, selected = alternate_intervention_one_hot(probabilities, "event")
-    assert (baseline, selected) == (1, 2)
-    assert torch.equal(one_hot, torch.tensor([[0.0, 0.0, 1.0, 0.0]]))
-    assert INTERVENTION_RULE == "alternate_after_baseline_argmax_mod_width"
-    wrapped, baseline, selected = alternate_intervention_one_hot(probabilities, "time")
-    assert (baseline, selected) == (5, 0)
-    assert torch.equal(wrapped, torch.tensor([[1.0, 0.0, 0.0, 0.0, 0.0, 0.0]]))
-    with pytest.raises(ValueError, match="unknown factor"):
-        alternate_intervention_one_hot(probabilities, "unknown")
 
 
 def test_loaded_rows_are_manifest_validated_and_defensive_copies() -> None:

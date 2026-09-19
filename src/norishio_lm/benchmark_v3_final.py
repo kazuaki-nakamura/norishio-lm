@@ -13,7 +13,6 @@ from typing import Any, Callable, Mapping, Sequence
 
 from . import benchmark_v3_data as benchmark
 from .benchmark_v3_checkpoint import checkpoint_file_sha256, load_tournament_checkpoint
-from .benchmark_v3_contract import SELECTION_CONTRACT
 from .benchmark_v3_protocol import canonical_bytes, collect_terminal_records
 from .benchmark_v3_tournament import ARM_COUNTS, BENCHMARK_DIGEST, SEEDS
 
@@ -158,29 +157,23 @@ def _publish_result_pair(
         shutil.rmtree(temporary, ignore_errors=True)
 
 
-# Keep the complete order in one immutable value so ranking, trace emission,
-# and the machine-readable contract cannot silently drift apart.
-_SELECTION_PATHS = (
-    SELECTION_CONTRACT["primary"],
-    *SELECTION_CONTRACT["tie_breakers"][:-1],
+_SELECTION_METRICS = (
+    "free_generation_exact.accuracy",
+    "triple_exact.accuracy",
+    "pair_exact.accuracy",
+    "mean_balanced_atomic_accuracy",
+    "exact_target_text.accuracy",
 )
 
 
 def _selection_metric(result: Mapping[str, Any], name: str) -> float:
-    derived = SELECTION_CONTRACT.get("derived_metrics", {}).get(name)
-    if derived is not None:
-        if derived.get("reducer") != "unweighted_arithmetic_mean":
-            raise ValueError(f"unsupported selection metric reducer: {name}")
-        source_paths = derived.get("source_paths")
-        if not isinstance(source_paths, list) or not source_paths:
-            raise ValueError(f"selection metric sources are missing: {name}")
-        values = [_selection_metric(result, path) for path in source_paths]
+    if name == "mean_balanced_atomic_accuracy":
+        values = result["all"]["atomic_balanced_accuracy"]
+        values = [values[field] for field in ("participant", "time", "event", "operator")]
         value = sum(values) / len(values)
     else:
-        scope, group, field = name.split(".")
-        if scope != "all":
-            raise ValueError(f"selection metric path must start with all: {name}")
-        value = result[scope][group][field]
+        group, field = name.split(".", 1)
+        value = result["all"][group][field]
     if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
         raise ValueError(f"selection metric {name} must be finite and numeric")
     return float(value)
@@ -211,27 +204,27 @@ def _selection_summary(evaluations: Sequence[Mapping[str, Any]]) -> dict[str, An
                 means[arm] = {"complete_seeds": len(rows), "three_seed_mean": None}
                 continue
             values = {
-                path: [_selection_metric(row["result"], path) for row in rows]
-                for path in _SELECTION_PATHS
+                metric: [_selection_metric(row["result"], metric) for row in rows]
+                for metric in _SELECTION_METRICS
             }
             means[arm] = {
                 "complete_seeds": len(rows),
                 "three_seed_mean": {
-                    path: sum(metric_values) / len(SEEDS)
-                    for path, metric_values in values.items()
+                    metric: sum(metric_values) / len(SEEDS)
+                    for metric, metric_values in values.items()
                 },
             }
         eligible = [arm for arm, value in means.items() if value["three_seed_mean"] is not None]
         ranking = sorted(
             eligible,
             key=lambda arm: tuple(
-                [-means[arm]["three_seed_mean"][path] for path in _SELECTION_PATHS]
+                [-means[arm]["three_seed_mean"][metric] for metric in _SELECTION_METRICS]
                 + [arm]
             ),
         )
 
         trace: list[dict[str, Any]] = []
-        primary = _SELECTION_PATHS[0]
+        primary = _SELECTION_METRICS[0]
         primary_groups: dict[float, list[str]] = {}
         for arm in eligible:
             value = means[arm]["three_seed_mean"][primary]
@@ -245,7 +238,7 @@ def _selection_summary(evaluations: Sequence[Mapping[str, Any]]) -> dict[str, An
             ],
         })
         tied_groups = [sorted(arms) for arms in primary_groups.values() if len(arms) > 1]
-        for index, metric in enumerate(_SELECTION_PATHS[1:], start=1):
+        for index, metric in enumerate(_SELECTION_METRICS[1:], start=1):
             next_groups: list[list[str]] = []
             for candidates in tied_groups:
                 scores = {arm: means[arm]["three_seed_mean"][metric] for arm in candidates}
@@ -265,7 +258,7 @@ def _selection_summary(evaluations: Sequence[Mapping[str, Any]]) -> dict[str, An
                 break
         if tied_groups:
             trace.append({
-                "stage": f"tie_break_{len(_SELECTION_PATHS)}",
+                "stage": f"tie_break_{len(_SELECTION_METRICS)}",
                 "metric": "arm_id_ascending",
                 "candidates": tied_groups,
                 "survivors": [group[0] for group in tied_groups],
@@ -274,8 +267,7 @@ def _selection_summary(evaluations: Sequence[Mapping[str, Any]]) -> dict[str, An
             "schema": "norishio.issue36.selection.v1",
             "status": "complete",
             "primary_metric": primary,
-            "selection_contract": dict(SELECTION_CONTRACT),
-            "tie_breakers": list(SELECTION_CONTRACT["tie_breakers"]),
+            "tie_breakers": [*_SELECTION_METRICS[1:], "arm_id_ascending"],
             "three_seed_means": means,
             "ranking": ranking,
             "tie_break_trace": trace,
@@ -424,9 +416,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     return 0
 
 
-__all__ = [
-    "Evaluator", "SELECTION_CONTRACT", "checkpoint_path", "evaluate_final_once", "main",
-]
+__all__ = ["Evaluator", "checkpoint_path", "evaluate_final_once", "main"]
 
 
 if __name__ == "__main__":

@@ -106,13 +106,24 @@ each numeric metric before the final lexical arm-ID tie-break:
 5. `all.exact_target_text.accuracy`
 6. `arm_id_ascending`
 
-The machine-readable source of this order is `SELECTION_CONTRACT` in
-`benchmark_v3_contract.py`; ranking and trace code derive from that same value.
+The machine-readable future-only source is
+[`future-protocol-v1.json`](../data/benchmark_v3_factor_path/future-protocol-v1.json),
+whose canonical descriptor SHA-256 is
+`bacf9d952ca159048740a06a941f9bdf9e3b6d531b719da666f034aa8a2bae6c`.
+It binds the exact primary, tie-breakers, derived source paths and reducer,
+three-seed aggregation, direction, intervention rule, and protected usage
+phases. `benchmark_v3_future_protocol.py` validates that descriptor and digest
+before a future trainer, evaluator, final-marker publisher, or final-row
+accessor runs, and requires future run metadata and returned artifacts to carry
+the same digest. The historical Issue #36 runner, scorer, final gate,
+configuration, checkpoints, marker, and attestation remain unchanged.
+
 The balanced mean is explicitly the unweighted arithmetic mean of
 `all.atomic_balanced_accuracy.{participant,time,event,operator}`; the contract
 lists all four source paths rather than treating `mean` as a stored JSON field.
 Future probability interventions choose a deterministic class different from
 the baseline argmax using `(baseline_argmax + 1) % width`. They record both
 class indices and retain the existing source-identity, decoder-prefix, and
-non-target-probability checks. This future rule does not reinterpret or replace
-the historical fixed class-0 results.
+non-target-probability checks in the separate future-only intervention module.
+This future rule does not reinterpret or replace the historical fixed class-0
+results.

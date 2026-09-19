@@ -13,7 +13,6 @@ from collections.abc import Iterable, Mapping, Sequence
 import math
 from typing import Any, Callable
 
-from .benchmark_v3_contract import INTERVENTION_RULE
 from .benchmark_v2_metrics import (
     FIELDS,
     _MISSING,
@@ -482,28 +481,6 @@ def score_intermediate_probability_interventions(
         for non_target in FIELDS:
             if non_target != factor and baseline_probabilities[non_target] != intervened_probabilities[non_target]:
                 raise ValueError(f"interventions[{index}] changed non-target probability vector {non_target!r}")
-        intervention_rule = item.get("intervention_rule")
-        baseline_class = item.get("baseline_argmax_class")
-        intervention_class = item.get("intervention_class")
-        if intervention_rule is not None or baseline_class is not None or intervention_class is not None:
-            if intervention_rule != INTERVENTION_RULE:
-                raise ValueError(f"interventions[{index}] has unknown intervention rule")
-            if type(baseline_class) is not int or type(intervention_class) is not int:
-                raise ValueError(f"interventions[{index}] requires integer intervention classes")
-            observed_baseline = max(
-                range(len(baseline_probabilities[factor])),
-                key=baseline_probabilities[factor].__getitem__,
-            )
-            observed_intervention = vector.index(1.0)
-            expected_intervention = (observed_baseline + 1) % len(vector)
-            if baseline_class != observed_baseline:
-                raise ValueError(
-                    f"interventions[{index}] baseline argmax metadata differs from probabilities"
-                )
-            if intervention_class != observed_intervention or intervention_class != expected_intervention:
-                raise ValueError(
-                    f"interventions[{index}] does not follow the alternate intervention rule"
-                )
         before = _swap_output(item, ("baseline", "before", "baseline_generation", "baseline_frame"), index)
         after = _swap_output(item, ("intervened", "changed", "after", "intervention_generation", "intervened_frame"), index)
         if all(field in before for field in FIELDS):
@@ -520,16 +497,9 @@ def score_intermediate_probability_interventions(
         changed = bool(bframe is not None and aframe is not None and bframe[factor] != aframe[factor])
         preserved = bool(bframe is not None and aframe is not None and
                          all(bframe[field] == aframe[field] for field in FIELDS if field != factor))
-        example = {"index": index, "factor": factor, "one_hot": vector,
-                   "target_changed": changed, "non_target_preserved": preserved,
-                   "parse_failure": bool(failures), "parse_failures": failures}
-        if intervention_rule is not None:
-            example.update({
-                "intervention_rule": intervention_rule,
-                "baseline_argmax_class": baseline_class,
-                "intervention_class": intervention_class,
-            })
-        examples.append(example)
+        examples.append({"index": index, "factor": factor, "one_hot": vector,
+                         "target_changed": changed, "non_target_preserved": preserved,
+                         "parse_failure": bool(failures), "parse_failures": failures})
     by_factor: dict[str, Any] = {}
     for factor in FIELDS:
         subset = [row for row in examples if row["factor"] == factor]
@@ -541,10 +511,6 @@ def score_intermediate_probability_interventions(
     return _jsonable({"schema": "norishio.benchmark-v3.intermediate-probability-intervention.v1",
                       "kind": "true_intermediate_probability_intervention", "oracle": False,
                       "intervention": "fixed_artificial_one_hot",
-                      "intervention_rules": sorted({
-                          row["intervention_rule"] for row in examples
-                          if "intervention_rule" in row
-                      }),
                       "space_metadata": {"code_space": CODE_SPACE, "canonical_space": CANONICAL_SPACE},
                       "rows": len(examples), "by_factor": by_factor,
                       "parse_failures": sum(row["parse_failure"] for row in examples),

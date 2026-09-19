@@ -68,6 +68,15 @@ sources:
   - id: future-contract
     resource: src/norishio_lm/benchmark_v3_contract.py
     title: Future machine-readable selection and intervention contracts
+  - id: future-protocol-freeze
+    resource: data/benchmark_v3_factor_path/future-protocol-v1.json
+    title: Canonical future-only execution descriptor and digest
+  - id: future-protocol-code
+    resource: src/norishio_lm/benchmark_v3_future_protocol.py
+    title: Future run binding and pre-execution validation gates
+  - id: future-intervention-code
+    resource: src/norishio_lm/benchmark_v3_future_intervention.py
+    title: Future alternate-value intervention helper
   - id: errata-audit-code
     resource: src/norishio_lm/benchmark_v3_errata.py
     title: Saved-JSON-only protocol errata audit
@@ -148,7 +157,13 @@ The historical intervention was a fixed class-0 probability intervention. The
 scored saved artifacts confirm 0 target changes among 48 main-arm probes in
 each split, but omit baseline probability vectors, so baseline-argmax class-0
 classification is unavailable. This is not evidence about an alternate-value
-intervention. Future code freezes the primary and tie-break paths and selects
-`(baseline_argmax + 1) % width`, retaining the class indices while preserving
-source identity, decoder prefix, and non-target factor probabilities. Existing
-final artifacts, marker, checkpoints, and attestations remain unchanged.
+intervention. A separately versioned future protocol freezes the primary,
+tie-break paths, derived source paths and reducer, aggregation, direction, and
+usage phases. Its canonical SHA-256 is
+`bacf9d952ca159048740a06a941f9bdf9e3b6d531b719da666f034aa8a2bae6c`.
+Future wrappers validate this digest before trainer, evaluator, final marker
+publication, and final-row access, and bind it into run metadata and returned
+artifacts. A future-only helper selects `(baseline_argmax + 1) % width`, retaining
+the class indices while preserving source identity, decoder prefix, and
+non-target factor probabilities. Historical Issue #36 execution code and all
+existing final artifacts, marker, checkpoints, and attestations remain unchanged.

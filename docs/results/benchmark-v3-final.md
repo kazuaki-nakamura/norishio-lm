@@ -117,9 +117,10 @@ class 0 and that the four main arms had 0 target changes in 48 probes. It does
 not retain baseline probability vectors, so `baseline argmax == class 0` versus
 `!= class 0` cannot be reconstructed. The result must therefore be described as
 **0/48 target changes under fixed class-0 probability intervention**. It is not
-evidence about the future alternate-value rule. Future code selects
-`(baseline_argmax + 1) % width`, preserves source identity, decoder prefix, and
-non-target factor vectors, and records the baseline and selected class indices.
+evidence about the future alternate-value rule. A separate future-only helper
+selects `(baseline_argmax + 1) % width`, preserves source identity, decoder
+prefix, and non-target factor vectors, and records the baseline and selected
+class indices. The historical Issue #36 final path remains unchanged.
 The machine-readable audit is
 [`benchmark-v3-protocol-errata.json`](benchmark-v3-protocol-errata.json).
 
