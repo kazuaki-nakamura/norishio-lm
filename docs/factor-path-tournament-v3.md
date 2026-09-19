@@ -123,7 +123,8 @@ The balanced mean is explicitly the unweighted arithmetic mean of
 lists all four source paths rather than treating `mean` as a stored JSON field.
 Future probability interventions choose a deterministic class different from
 the baseline argmax using `(baseline_argmax + 1) % width`. They record both
-class indices and retain the existing source-identity, decoder-prefix, and
+class indices, require the actual intervened one-hot vector to select that exact
+class, and retain the existing source-identity, decoder-prefix, and
 non-target-probability checks in the separate future-only intervention module.
 This future rule does not reinterpret or replace the historical fixed class-0
 results.

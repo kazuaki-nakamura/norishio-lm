@@ -120,7 +120,8 @@ not retain baseline probability vectors, so `baseline argmax == class 0` versus
 evidence about the future alternate-value rule. A separate future-only helper
 selects `(baseline_argmax + 1) % width`, preserves source identity, decoder
 prefix, and non-target factor vectors, and records the baseline and selected
-class indices. The historical Issue #36 final path remains unchanged.
+class indices. It rejects any actual intervened one-hot vector that selects a
+different class. The historical Issue #36 final path remains unchanged.
 The machine-readable audit is
 [`benchmark-v3-protocol-errata.json`](benchmark-v3-protocol-errata.json).
 

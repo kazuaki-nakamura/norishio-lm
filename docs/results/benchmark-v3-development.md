@@ -136,6 +136,7 @@ interventions**. They omit the pre-scoring baseline probability vectors, so a
 post-hoc split into `baseline argmax == class 0` and `!= class 0` is unavailable.
 The 0/48 result is not evidence about an alternate-value intervention. A
 separate future-only helper selects `(baseline_argmax + 1) % width` and records
-both class indices; the historical Issue #36 runner and scorer remain unchanged.
+both class indices. It also requires the actual intervened one-hot vector to
+select that class; the historical Issue #36 runner and scorer remain unchanged.
 Machine-readable paths, source hashes, per-run values, and effects are in
 [`benchmark-v3-protocol-errata.json`](benchmark-v3-protocol-errata.json).

@@ -164,6 +164,7 @@ usage phases. Its canonical SHA-256 is
 Future wrappers validate this digest before trainer, evaluator, final marker
 publication, and final-row access, and bind it into run metadata and returned
 artifacts. A future-only helper selects `(baseline_argmax + 1) % width`, retaining
-the class indices while preserving source identity, decoder prefix, and
-non-target factor probabilities. Historical Issue #36 execution code and all
+the class indices and requiring the actual intervened one-hot to select that
+exact class while preserving source identity, decoder prefix, and non-target
+factor probabilities. Historical Issue #36 execution code and all
 existing final artifacts, marker, checkpoints, and attestations remain unchanged.

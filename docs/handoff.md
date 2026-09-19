@@ -25,7 +25,8 @@ runner/scorer/final gate/config/checkpoint/marker/attestationは変更せず、�
 各48 probe中target change 0を再確認した。baseline probability vectorはscorer出力から欠落しており、
 baseline argmaxがclass 0か否かの事後分類はunavailable。0/48はalternate-value介入の結果ではない。
 将来専用intervention helperは`(baseline_argmax + 1) % width`を使い、baseline/selected classを保持し、
-source identity、decoder prefix、非対象probability vectorの不変条件もscorerが検査する。
+実際のintervened one-hotがそのselected classを指すことまで照合する。source identity、decoder
+prefix、非対象probability vectorの不変条件もscorerが検査する。
 
 監査実装は`benchmark_v3_errata.py`、machine-readable記録は
 [benchmark-v3-protocol-errata.json](results/benchmark-v3-protocol-errata.json)。Luna
@@ -43,6 +44,13 @@ pytestはWindows一時ディレクトリACLで12 errorsとなり、同じ変更�
 再実行して37 passedを確認した。raw artifact監査を担当したLunaも同ACLでfinal resultを読めず、
 親が読み取り専用の権限付きauditを実行してSHA一致と18 evaluationを確認した。PyTorchの
 NumPy未導入warningは既存環境警告。GitHub Actions結果はPR作成後に別途確認する。
+
+再レビューR2で、alternate classのmetadataと実際のintervened one-hot classが未照合と判明した。
+future-only scorerでactual classをone-hotから導出し、`actual == declared == expected`かつ
+baseline argmaxと異なることを必須化した。bool/非int metadata、同class、別の非baseline class、
+4 factorとwrap-around、既存source/prefix/非対象factor検査を回帰化した。historical scorer/runner/finalは
+変更していない。R2後はfocused **71 passed**、全体 **626 passed, 1 skipped, 1 warning,
+2 subtests passed**。Luna (`gpt-5.6-luna`)がfuture scorer/testを実装し、親が統合検証した。
 
 ## 最新の実装状態: Issue #37 plastic memory prototype
 

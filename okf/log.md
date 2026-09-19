@@ -6,6 +6,7 @@
   主arm 0/48 target change、baseline確率欠落のためargmax class分類はunavailable。
   final再実行・checkpoint load・学習・推論なし。Issue #36のhistorical実行経路は変更せず、
   将来専用descriptor/digest、run/artifact binding、pre-execution gateとalternate-value規則を固定。
+  再レビュー後、宣言classと実際のone-hot classの一致・baseline argmaxとの差もfuture-only scorerで必須化。
 
 - 2026-09-19: Issue #37の固定core + plastic adapter toy prototypeを追加。
   seed 37の手作り2 episodeでenabled/disabled、core drift 0、checkpoint同一replay、

@@ -8,7 +8,11 @@ import torch
 from torch import Tensor
 
 from .benchmark_v3_contract import INTERVENTION_RULE
-from .benchmark_v3_metrics import FIELDS, score_intermediate_probability_interventions
+from .benchmark_v3_metrics import (
+    FIELDS,
+    _check_one_hot,
+    score_intermediate_probability_interventions,
+)
 
 
 FACTOR_WIDTHS = {"participant": 6, "time": 6, "event": 4, "operator": 4}
@@ -64,12 +68,31 @@ def score_future_intermediate_probability_interventions(
             raise ValueError(f"interventions[{index}] requires baseline probabilities")
         baseline_class = _argmax(baseline.get(factor), factor=factor, index=index)
         expected_class = (baseline_class + 1) % FACTOR_WIDTHS[factor]
+        baseline_metadata = item.get("baseline_argmax_class")
+        intervention_metadata = item.get("intervention_class")
+        if type(baseline_metadata) is not int:
+            raise ValueError(f"interventions[{index}] baseline argmax metadata must be an int")
+        if type(intervention_metadata) is not int:
+            raise ValueError(f"interventions[{index}] intervention class metadata must be an int")
         if item.get("intervention_rule") != INTERVENTION_RULE:
             raise ValueError(f"interventions[{index}] has unknown intervention rule")
-        if item.get("baseline_argmax_class") != baseline_class:
+        if baseline_metadata != baseline_class:
             raise ValueError(f"interventions[{index}] baseline argmax metadata mismatch")
-        if item.get("intervention_class") != expected_class:
+        if intervention_metadata != expected_class:
             raise ValueError(f"interventions[{index}] alternate intervention class mismatch")
+        intervened = item.get("intervened_probabilities")
+        if not isinstance(intervened, Mapping):
+            raise ValueError(f"interventions[{index}] requires intervened probabilities")
+        actual_vector = _check_one_hot(
+            intervened.get(factor),
+            f"interventions[{index}].intervened_probabilities.{factor}",
+            FACTOR_WIDTHS[factor],
+        )
+        actual_class = actual_vector.index(1.0)
+        if actual_class == baseline_class:
+            raise ValueError(f"interventions[{index}] actual intervention class must differ from baseline argmax")
+        if actual_class != intervention_metadata:
+            raise ValueError(f"interventions[{index}] actual intervention class mismatch")
         metadata.append({
             "intervention_rule": INTERVENTION_RULE,
             "baseline_argmax_class": baseline_class,
