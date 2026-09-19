@@ -2,6 +2,44 @@
 
 検証日: 2026-09-19
 
+## 最新の実装状態: Issue #37 plastic memory prototype
+
+`codex/issue-37`で、固定CPU toy coreへ差し込む小型associative adapterを追加した。
+adapterは明示read/write/reset、detach/through-time state境界、snapshot/digest、
+互換性検査付きarithmetic-mean consolidationを持つ。checkpointはCPU float32有限tensor、
+payload/schema/content/metadata digest、base fingerprint、adapter/episode IDを検査し、
+既存pathを上書きしない。外部ユーザーデータ、会話、OKF、SemanticCompilerの意味層は入力しない。
+
+seed 37の手作り4次元key/2次元value、2 episode各2 support/2 queryで、memory無効時は
+各episode accuracy 0.5 / MSE 0.5、1 episode書込み後はaccuracy 1.0 / MSE 0.00125。
+coreは16 parameterでbitwise不変、最大drift 0。adapter trainable parameterは20、plastic
+stateは8要素。optimizer対象はadapterだけで、Adam moment要素の理論値は全parameter対象72に
+対しadapter-only 40。ただし本runは明示plastic writeのみでoptimizer stepを実行しておらず、
+実optimizer stateは0。freeze-onlyではsource gradient非零1要素、feature detachでは0だった。
+これはbackward graphの観測proxyであり、FLOP・時間短縮の測定ではない。
+
+checkpoint load後の出力は完全一致し、state digestも一致。2 fast adapterの和はaccuracy 1.0 /
+MSE 0.00125、arithmetic-mean consolidated adapterはaccuracy 1.0 / MSE 0.1253125。
+accuracy保持だけで統合成功を主張せず、振幅縮小によるMSE悪化を記録する。これは固定した手作り
+fixtureの機構確認であり、LLM性能、人間記憶、意味学習、実用的継続学習を示さない。
+
+Luna (`gpt-5.6-luna`) はcore adapterとcheckpointを独立実装。親がepisode fixture、実験、
+文書、統合監査を担当し、Lunaの一時ディレクトリ制約下の報告を親の許可付きpytestで再検証した。
+Lunaの最終read-only監査でoperation countのcheckpoint欠落とper-episode retention差分欠落を
+検出し、両方を修正・再監査した。最終全pytestは **586 passed, 1 skipped, 1 warning,
+2 subtests passed**。辞書、encoder、plastic-memory demoは終了コード0。OKFは11 files /
+9 concepts / errors 0 / warnings 0、knowledge fullは211 sourcesでhealthy、MCP self/live check成功。
+PyTorchのNumPy未導入warningは既存環境警告で、今回の実装はNumPyを使わない。
+
+```powershell
+.\.venv\Scripts\python.exe -m norishio_lm.plastic_memory_demo --seed 37 --output-dir codex\work_output\issue37-seed37-v1
+.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider --basetemp codex\work_output\pytest-issue37-final
+```
+
+未実装は、実言語モデルへの接続、競合keyの保持戦略、複数episode学習、時間/FLOP計測、
+optimizer更新を含む比較、長期retentionとforgetting評価。次の候補は共有keyでの干渉fixtureと、
+同一予算下でのfast ensemble / mean consolidation / learned consolidation比較。
+
 ## 最新の実装状態: Issue #36 benchmark v3 完了
 
 PR #35 merge `20fdff93ae3befd5b2d39ad28259f03d7d0adda5`から

@@ -14,5 +14,6 @@ okf_version: "0.2"
 - [未解決課題](research/open-questions.md)
 - [Benchmark v2 freeze protocol](research/benchmark-v2.md)
 - [Benchmark v3 factor-path freeze](research/benchmark-v3-factor-path.md)
+- [Plastic memory toy prototype](research/plastic-memory.md)
 - [Issue 自動開発](operations/issue-automation.md)
 - [更新履歴](log.md)
