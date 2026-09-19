@@ -92,6 +92,9 @@ v1 concept toy、benchmark v2、benchmark v3はfixture・分割・目的が異�
   parameter-matched H1L1_ANCHORを比較する。same-class soft-shape、alternate one-hot、同じrequested
   classのdonor-softを分け、head精度、decoder追随、連続分布形状、unseen-pair失敗を切り分ける。
   baseline生成がすでにrequested classのprobeは非自明な追随成功に数えず、parse failureと分母を
-  別記する。D_AUXは旧fixtureの参考情報だけで、新runや新比較根拠にしない。旧2×2を無条件に再実行しない。
+  別記する。internal interventionのprimaryはBOS開始に固定し、authored targetから事前計算した
+  L1 gate scheduleで対象factorの到達可能性をtraining前に検証する。実生成gate traceはbaseline/
+  intervention別に保存し、common-prefixはslot出力済み・partialを区別する別stratumにする。
+  D_AUXは旧fixtureの参考情報だけで、新runや新比較根拠にしない。旧2×2を無条件に再実行しない。
 
 実験の順序は [意味層の分離](semantic-separation.md) と既存 architecture に従う。

@@ -142,6 +142,46 @@ over all 24. Report `target_change_correct` with its separate parseable/comparab
 denominator; do not substitute that denominator for 24. A source swap changes
 the source identity and is not an internal intervention.
 
+The primary internal-intervention prefix policy is frozen to BOS start:
+`prefix_stratum = "bos_start_primary"` and `prefix_token_ids = [BOS_ID]` for
+both the retained baseline and every intervention. The intervention is applied
+from that same prefix under the frozen L1 prefix-local FSM. A separately
+identified `common_prefix_secondary` stratum may be recorded for diagnostic
+purposes, but its rows, denominators, gate reachability, and outcomes are never
+pooled with the BOS-start primary or used in the primary decision.
+For that secondary stratum, derive
+`prefix_bytes = [t - BYTE_OFFSET for t in prefix_token_ids[1:]]` and use each
+compiled candidate's target-factor half-open byte interval
+`[slot_start, slot_end)`. Full/partial timing is classified only when every
+compatible candidate has the same target-factor interval; differing intervals
+are `invalid_or_ambiguous_common_prefix`. When the interval is unanimous, set
+`target_slot_already_emitted_before_intervention = true` exactly when
+`len(prefix_bytes) >= slot_end`. Record
+`partial_target_slot = true` separately when
+`slot_start < len(prefix_bytes) < slot_end`; it is not silently treated as an
+already-emitted slot. The next prediction position is
+`len(prefix_token_ids) - 1`; BOS has no consumed byte and therefore has both
+flags false. An empty compatible set or disagreement among compatible
+candidates is `intervention_unavailable` with an explicit
+`invalid_or_ambiguous_common_prefix` reason.
+
+Before training, machine-check the frozen primary probe subset and every target
+factor's FSM schedule. Resolve each primary probe's evaluator-side authored
+target text to exactly one `GrammarCandidate`; zero or multiple matches stop the
+protocol. Its `GrammarCandidate.byte_values` are raw bytes, so at consumed-byte
+position `p` construct
+`history_p = [BOS_ID] + [BYTE_OFFSET + b for b in byte_values[:p]]`, from `p=0`
+through the final pre-completion byte. Evaluate and retain the complete
+four-factor vector `fsm.gates(history_p)` as the expected schedule, and retain
+`fsm.gates(history_p)[target_factor_index]` as the expected target mask. The
+primary reachability condition is that this target mask contains at least one
+`True` position at or after the consumed prefix and before the candidate's
+target-tagged half-open interval ends. The machine check must pass for every
+frozen primary probe identity and target factor, including event/operator's
+shared predicate gate. A missing factor gate, zero/non-unique authored target
+candidate, invalid compatible set, or failed expected schedule check stops the
+protocol before training; no probe may be silently reseated or reselected.
+
 For each arm, every frozen probe identity receives three internal controls, each
 with a scheduled denominator of 24, split as six observations per factor and 12
 per support group, including parse failures:
@@ -165,6 +205,34 @@ per support group, including parse failures:
    and only when that donor's recorded soft factor vector has argmax `q`.
    Otherwise record `missing`; do not search for or substitute another donor.
    No generated outcome may influence donor selection or map construction.
+
+For each control row, save `prefix_token_ids` (and optional `prefix_text`),
+`prefix_stratum`, `target_factor`, the complete ordered
+`expected_target_gate_schedule` and same-length preflight boolean
+`expected_target_gate_mask` computed from the frozen authored-target histories
+`history_p = [BOS_ID] + [BYTE_OFFSET + b for b in byte_values[:p]]`. Save
+`target_gate_reachable_after_prefix` as the structural predicate that this
+expected mask has at least one `True` position at or after the consumed prefix
+and before that unique candidate's target slot ends. For the retained baseline
+and intervention-generated histories, also
+save separate `baseline_observed_target_gate_schedule` and
+`intervention_observed_target_gate_schedule`, their actual causal
+`baseline_target_gate_mask` and `intervention_target_gate_mask`, and an
+explicit `baseline_observed_gate_not_reached` or
+`intervention_observed_gate_not_reached` flag/reason when the corresponding
+observed mask has no true gate. An observed gate miss is a generated-history outcome;
+it is not retroactively `intervention_unavailable` and remains available for
+parse/follow-through failure accounting.
+
+Save `target_slot_already_emitted_before_intervention` and
+`partial_target_slot` as well; both are false in the BOS-start primary and are
+meaningful only in the separate common-prefix stratum. If no expected target
+gate remains after the prefix, or the target slot was already emitted, set
+`intervention_unavailable = true` with an explicit reason
+(`target_gate_unreachable_after_prefix` or
+`target_slot_already_emitted_before_intervention`). Keep that row in
+`scheduled_count`, but exclude it from decoder follow-through scoring and do not
+call it a follow-through failure.
 
 For every arm/seed/control, generate and retain the baseline output and complete
 baseline probability map **before** constructing or generating that control's
@@ -198,8 +266,10 @@ exact booleans are:
 - `nontrivial_joint_success`:
   `nontrivial_requested_success AND non_target_preserved`.
 
-Report, for each control type and arm/seed, `scheduled_count` (24),
-`available_count`, `missing_count`, `unchanged_shape_count`, `scored_count`,
+Report, for each control type and arm/seed/`prefix_stratum`, `scheduled_count`
+(24), `available_count`, `structural_unavailable_count`,
+`intervention_unavailable_count`,
+`missing_count`, `unchanged_shape_count`, and `scored_count`,
 `baseline_already_requested_count` and denominator,
 `baseline_parse_failed_count` and denominator,
 `intervention_parse_failed_count` and denominator,
@@ -207,23 +277,46 @@ Report, for each control type and arm/seed, `scheduled_count` (24),
 `target_changed`, the existing `requested_value_success`, the existing
 `requested_value_success AND non_target_preserved`,
 `nontrivial_requested_success`, and `nontrivial_joint_success`. Alternate
-one-hot has `available_count = 24`. Same-class soft-shape has
-`available_count = scheduled_count - unchanged_shape_count`; donor-soft has
-`available_count = scheduled_count - missing_count`. Missing donors and
-unchanged-shape probes are unavailable rather than parse failures or scored
-failures. Parse failures remain in the scheduled denominator and are never
-successes. The eligible-denominator rate for nontrivial success is
+one-hot has no missing or unchanged-shape rows. Define
+`structural_unavailable_count = missing_count + unchanged_shape_count +
+intervention_unavailable_count` and
+`available_count = scheduled_count - structural_unavailable_count`. Missing
+donors, unchanged-shape probes, and gate/slot-unavailable rows are structural
+unavailability, not parse failures or scored failures; they remain in
+`scheduled_count` but are excluded from `available_count`, `scored_count`, and
+`nontrivial_eligible_count`. The BOS-start primary must have zero gate/slot
+`intervention_unavailable` rows by the pre-training FSM check. Parse failures
+remain in the available denominator and are never successes.
+
+These three structural-unavailability categories are mutually exclusive per
+row. Assign exactly one `structural_unavailable_reason` by this frozen priority:
+`missing_donor`, then `unchanged_shape`, then one gate/prefix reason from
+`invalid_or_ambiguous_common_prefix`,
+`target_slot_already_emitted_before_intervention`, or
+`target_gate_unreachable_after_prefix`. Once an earlier reason applies, later
+reasons may remain diagnostic booleans but do not add another unavailable count.
+`missing_count`, `unchanged_shape_count`, and
+`intervention_unavailable_count` count only their assigned exclusive reasons;
+their sum therefore equals the number of structurally unavailable row IDs.
+
+The eligible-denominator rate for nontrivial success is
 `nontrivial_joint_success_count / nontrivial_eligible_count`; the conservative
 claim rate is `nontrivial_joint_success_count / scheduled_count` (24), treating
 missing, unchanged-shape, parse-failed, already-requested, and other ineligible
-probes as zero. Each parse-failure and baseline-already-requested rate uses
-`available_count` as its denominator; `scored_count` is the available subset
-with both baseline and intervention parses; `nontrivial_eligible_count` is the
-scored subset whose baseline target differs from `requested_class`.
+probes as absent from the numerator; intervention-unavailable rows remain
+separately classified and are not decoder follow-through failures. Each parse-failure and
+baseline-already-requested rate uses
+`available_count` as its denominator; each intervention parse-failure rate uses
+`available_count`; `scored_count` is the available subset with both baseline and
+intervention parses; `nontrivial_eligible_count`
+is the scored subset whose baseline target differs from `requested_class`.
 `target_changed` and `non_target_preserved` diagnostic rates use
 `scored_count`; compatibility `requested_value_success` and its existing joint
-rate use `available_count`, with parse failures contributing no success. Keep both the scheduled-24
-nontrivial rate and the eligible-denominator rate in every arm/seed aggregate.
+rate use `available_count`, with parse failures contributing no success and
+structural-unavailable rows excluded. Keep both the scheduled-24 nontrivial rate and the
+eligible-denominator rate in every arm/seed/stratum aggregate. Any nonzero
+BOS-start primary gate/slot-unavailable count is a protocol violation, while a
+secondary common-prefix count is reported separately and never pooled.
 Save the donor and probe probability maps in full.
 
 `target_changed` without `requested_value_success` is a wrong response, not
@@ -246,8 +339,20 @@ Retain every confirmation row with:
 For every source swap retain both source identities, expected frames, the frozen
 baseline generated tokens/text/parsed frame and digest, changed tokens/text/
 parsed frames, and all scored booleans with their denominators. For every
-internal control retain the control type, both prefixes, the complete frozen
-baseline output/map/digest, target replacement map, all three unchanged
+internal control retain the control type, `prefix_stratum`,
+`prefix_token_ids` and optional `prefix_text`, `target_factor`, the complete
+ordered `expected_target_gate_schedule` and same-length boolean
+`expected_target_gate_mask`, `target_gate_reachable_after_prefix`, the separate
+`baseline_observed_target_gate_schedule` and
+`intervention_observed_target_gate_schedule`, actual causal
+`baseline_target_gate_mask` and `intervention_target_gate_mask`, and
+`baseline_observed_gate_not_reached` and
+`intervention_observed_gate_not_reached` flags/reasons,
+`target_slot_already_emitted_before_intervention`,
+`partial_target_slot`,
+`intervention_unavailable`, the exclusive `structural_unavailable_reason`,
+any non-counting diagnostic reason flags, both prefixes, the complete
+frozen baseline output/map/digest, target replacement map, all three unchanged
 non-target maps, same-class L1 shape distance, baseline argmax, declared/actual
 intervention class, canonical requested value, actual one-hot when applicable,
 frozen donor table and selected donor row/factor/map when applicable,
@@ -256,15 +361,24 @@ parsed frames, `baseline_parse_failed`, `intervention_parse_failed`,
 `baseline_already_requested`, `target_changed`,
 `requested_value_success`, `nontrivial_requested_success`,
 `non_target_preserved`, `nontrivial_joint_success`, and all scheduled/
-available/missing/unchanged-shape/scored/eligible counts and denominators.
+available/structural-unavailable/intervention-unavailable/missing/
+unchanged-shape/scored/eligible counts and denominators.
 
 ## Stop and falsification conditions
 
 Stop before training or scoring on any descriptor/digest mismatch, fixture leak,
 source/target overlap, gold-field input leak, parameter or initialization mismatch,
 missing seed, duplicate probe, wrong one-hot class, changed non-target vector,
-changed intervention source/prefix, missing raw field, or CPU-budget breach. A
-failed or incomplete run set is reported as incomplete and produces no ranking.
+changed intervention source/prefix, primary prefix not exactly `[BOS_ID]`, failed
+pre-training FSM reachability check, missing expected gate schedule/mask, or
+missing raw field, or CPU-budget breach. A failed or incomplete run set is
+reported as incomplete and produces no ranking. If a secondary common-prefix row
+has no remaining target gate or its
+target slot was already emitted, retain it as scheduled with
+`intervention_unavailable` and its reason, but exclude it from decoder
+follow-through failure counts. A primary row with the same condition is a
+protocol violation because the freeze-time reachability check must have
+prevented it.
 
 The proposed factor-path claim is rejected or withheld when any of these hold:
 

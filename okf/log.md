@@ -1,5 +1,11 @@
 # OKF 更新履歴
 
+- 2026-09-20: Issue #42 PR #43のR4 reviewに合わせ、future-only internal interventionの
+  primary prefixをBOS開始へ固定。authored target由来のexpected L1 gate scheduleとtraining前の
+  到達可能性検査、baseline/intervention別のobserved gate trace、common-prefixのfull/partial slot、
+  structural unavailableを分けた。既存R3分母・probability map・donor bindingは維持し、学習・推論・
+  データ生成・final再開封なし。
+
 - 2026-09-19: Issue #42でpost-v3研究状態を整理。v2 Phase 2未実装という古い記述を、
   v2/v3の完了・実測・補正不能・未測定へ更新した。v1/v2/v3を性能曲線にせず、
   review後はH1L1対parameter-matched H1L1_ANCHORをfuture-only最小比較とし、same-class soft-shape、

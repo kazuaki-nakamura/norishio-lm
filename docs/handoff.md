@@ -39,10 +39,20 @@ H1L1_ANCHORのjoint追随だけが改善する場合、両armが強い場合、h
 head自体が弱い場合を別の結論枝にする。既存future-protocol digestはselection/intervention契約
 だけで、新experiment descriptor/digestは未作成である。
 
+PR #43のhead `e34435b8c6e5aa34cc42ceb68580b0d218685e4f`に対するR4 review後は、
+internal interventionのprimary prefixを`[BOS_ID]`開始へ固定し、common-prefixは別stratumとして
+primaryへ混ぜない。各probeの一意なauthored targetからtraining前のexpected L1 gate schedule/maskを
+作り、対象factorがprefix後に到達可能であることを全primary probeで機械検証する。baselineと
+interventionの自己生成履歴からobserved gate traceを別々に保存し、実生成のgate未到達を事後的な
+structural unavailableへ変えない。common-prefixではUTF-8 byteの半開slot区間からfull/partial emissionを
+判定し、gate到達不能またはslot出力済みをreason付きunavailableとしてscheduledに残しつつ
+follow-through失敗から除外する。`available_count`はmissing donor、unchanged shape、gate/slot unavailableを
+すべて除いた値とし、BOS primaryのgate/slot unavailableが1件でもあればtraining前のprotocol violationとする。
+
 このIssueでは文書だけを変更し、データ生成、学習、推論、checkpoint load、使用済みfinalの再開封、
 外部辞書取得を行っていない。Luna (`gpt-5.6-luna`)へ根拠監査、次実験案、blocking review対応を
 分担し、親が実装原本・git履歴との照合、統合、最終検証を担当した。各review修正後の独立再監査で
-R1/R2/R3の残存blockerがないことを確認した。
+R1/R2/R3/R4の残存blockerがないことを確認した。
 
 検証結果:
 
@@ -59,7 +69,7 @@ R1/R2/R3の残存blockerがないことを確認した。
 最終pytestコマンド:
 
 ```powershell
-& 'D:\projects\codex\norishio-lm\codex\work_output\issue-worker\issue-39\.venv\Scripts\python.exe' -m pytest tests codex\tools\tests codex\okf_mcp\tests -q -p no:cacheprovider --basetemp D:\projects\codex\norishio-lm\codex\work_output\pytest-issue42-r3-admin
+& 'D:\projects\codex\norishio-lm\codex\work_output\issue-worker\issue-39\.venv\Scripts\python.exe' -m pytest tests codex\tools\tests codex\okf_mcp\tests -q -p no:cacheprovider --basetemp D:\projects\codex\norishio-lm\codex\work_output\pytest-issue42-r4-admin
 ```
 
 ## 最新の実装状態: Issue #39 benchmark v3 protocol errata
