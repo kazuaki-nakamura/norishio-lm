@@ -87,3 +87,32 @@ added the runner, execution and final gates, corrected byte-ID validation and
 all-complete final readiness, and verified the combined implementation with
 564 passing tests (1 skipped). This is implementation evidence only: formal
 training and both result splits remain unobserved at this point.
+
+## Post-merge protocol erratum and future contract
+
+Issue #39 found that the Issue #36 selection implementation used
+`all.free_generation_exact.accuracy` although the preregistered primary was
+`all.generation_frame_exact.accuracy`. Existing development and final artifacts
+remain immutable. Their read-only audit is recorded in
+[`docs/results/benchmark-v3-protocol-errata.json`](results/benchmark-v3-protocol-errata.json).
+
+Future tournaments use this exact unweighted three-seed ordering, maximizing
+each numeric metric before the final lexical arm-ID tie-break:
+
+1. `all.generation_frame_exact.accuracy`
+2. `all.triple_exact.accuracy`
+3. `all.pair_exact.accuracy`
+4. `all.atomic_balanced_accuracy.mean`
+5. `all.exact_target_text.accuracy`
+6. `arm_id_ascending`
+
+The machine-readable source of this order is `SELECTION_CONTRACT` in
+`benchmark_v3_contract.py`; ranking and trace code derive from that same value.
+The balanced mean is explicitly the unweighted arithmetic mean of
+`all.atomic_balanced_accuracy.{participant,time,event,operator}`; the contract
+lists all four source paths rather than treating `mean` as a stored JSON field.
+Future probability interventions choose a deterministic class different from
+the baseline argmax using `(baseline_argmax + 1) % width`. They record both
+class indices and retain the existing source-identity, decoder-prefix, and
+non-target-probability checks. This future rule does not reinterpret or replace
+the historical fixed class-0 results.

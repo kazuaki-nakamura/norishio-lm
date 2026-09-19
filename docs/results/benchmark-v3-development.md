@@ -96,8 +96,9 @@ All learned-source arms show a large gap between unseen pairs and pairs seen in
 training with unseen triples. This limits the claim to the fixed compositional
 fixture and motivates retaining both support groups in final reporting.
 
-The artificial one-hot intermediate intervention changed the target factor in
-0/12 main-arm probes across the three seeds. Non-target preservation therefore
+The original Issue #36 report stated that the artificial one-hot intermediate
+intervention changed the target factor in 0/12 main-arm probes across the three
+seeds; Issue #39 supersedes that count below. Non-target preservation therefore
 does not demonstrate factor control here: the intervention generally failed to
 change the decoded target slot. NO_INPUT reached 0 free exact despite perfect
 parse coverage, confirming that grammatical output alone is insufficient for
@@ -105,3 +106,35 @@ row-level exactness. D_AUX remained far below all four conditioned arms on the
 primary metric. These are model observations on authored benchmark data, not
 claims about learned modern word meaning, sememes, glyph structure, or general
 Japanese understanding.
+
+## Protocol erratum (Issue #39)
+
+The original implementation ranked arms with
+`all.free_generation_exact.accuracy`. The preregistered primary metric was
+`all.generation_frame_exact.accuracy`. A read-only audit of the 18 retained
+development JSON files reconstructed the preregistered metric without loading
+checkpoints or running inference. The corrected three-seed means are:
+
+| Arm | Generation frame exact |
+| --- | ---: |
+| H1L1 | 0.219618 |
+| H0L1 | 0.201389 |
+| H1L0 | 0.177083 |
+| H0L0 | 0.171875 |
+| D_AUX | 0.004340 |
+| NO_INPUT | 0.000000 |
+
+The preregistered ranking is therefore still `H1L1 > H0L1 > H1L0 > H0L0 >
+D_AUX > NO_INPUT`; agreement in ordering does not make the original metric
+choice correct. The corrected generation-frame 2x2 effects are activation
+`+0.011719`, locality `+0.036024`, and interaction `+0.013021`.
+
+The earlier `0/12` statement undercounted the main-arm probes. There are four
+main arms, three seeds, and four factor probes per run: the retained scored
+artifacts record **0 target changes in 48 fixed class-0 probability
+interventions**. They omit the pre-scoring baseline probability vectors, so a
+post-hoc split into `baseline argmax == class 0` and `!= class 0` is unavailable.
+The 0/48 result is not evidence about an alternate-value intervention. Future
+runs select `(baseline_argmax + 1) % width` and record both class indices.
+Machine-readable paths, source hashes, per-run values, and effects are in
+[`benchmark-v3-protocol-errata.json`](benchmark-v3-protocol-errata.json).

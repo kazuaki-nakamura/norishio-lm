@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 
+from norishio_lm.benchmark_v3_contract import INTERVENTION_RULE
 from norishio_lm.benchmark_v3_metrics import (
     score_benchmark_v3,
     score_intermediate_probability_interventions,
@@ -124,6 +125,43 @@ def test_true_intermediate_intervention_requires_fixed_one_hot_and_is_separate_f
              "baseline_probabilities": baseline_probabilities,
              "intervened_probabilities": intervened_probabilities,
              **evidence, "baseline": output("ok"), "intervened": output("changed")},
+        ], parser=parse)
+
+
+def test_future_intervention_rule_is_validated_and_retained():
+    baseline_probabilities = {
+        "participant": [0.1, 0.7, 0.2, 0.0, 0.0, 0.0],
+        "time": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        "event": [1.0, 0.0, 0.0, 0.0],
+        "operator": [1.0, 0.0, 0.0, 0.0],
+    }
+    intervened_probabilities = {
+        **baseline_probabilities,
+        "participant": [0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+    }
+    item = {
+        "factor": "participant",
+        "intervention_rule": INTERVENTION_RULE,
+        "baseline_argmax_class": 1,
+        "intervention_class": 2,
+        "baseline_probabilities": baseline_probabilities,
+        "intervened_probabilities": intervened_probabilities,
+        "baseline_source_identity": "s",
+        "intervened_source_identity": "s",
+        "baseline_decoder_prefix": [3],
+        "intervened_decoder_prefix": [3],
+        "baseline": output("ok"),
+        "intervened": output("changed"),
+    }
+
+    report = score_intermediate_probability_interventions([item], parser=parse)
+
+    assert report["intervention_rules"] == [INTERVENTION_RULE]
+    assert report["examples"][0]["baseline_argmax_class"] == 1
+    assert report["examples"][0]["intervention_class"] == 2
+    with pytest.raises(ValueError, match="alternate intervention rule"):
+        score_intermediate_probability_interventions([
+            {**item, "intervention_class": 0}
         ], parser=parse)
 
 

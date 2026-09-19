@@ -2,6 +2,40 @@
 
 検証日: 2026-09-19
 
+## 最新の実装状態: Issue #39 benchmark v3 protocol errata
+
+Issue #36の保存済みdevelopment 18 JSONと、attested final result
+`eb94b2b35d9de0c575b90342d517582e2304c766b3d8bb385ea22f2ac8c56a59`を
+読み取り専用で再集計した。checkpoint load、学習、推論、final再実行、marker変更は行っていない。
+事前登録primaryは`all.generation_frame_exact.accuracy`だが、旧selection実装は
+`all.free_generation_exact.accuracy`を使っていた。訂正primaryでもdevelopment/finalとも
+`H1L1 > H0L1 > H1L0 > H0L0 > D_AUX > NO_INPUT`で順位は同じだった。
+
+developmentのframe exact effectはactivation `+.011719`、locality `+.036024`、
+interaction `+.013021`。finalは`+.028212`、`+.036024`、`+.014757`。
+将来selection contractはprimary、triple、pair、mean balanced atomic、exact target text、
+arm ID昇順を完全field pathで一元定義し、ranking codeと回帰テストが同じcontractを参照する。
+
+旧介入は固定class 0 one-hotだった。保存済みscored artifactで主armはdevelopment/finalとも
+各48 probe中target change 0を再確認した。baseline probability vectorはscorer出力から欠落しており、
+baseline argmaxがclass 0か否かの事後分類はunavailable。0/48はalternate-value介入の結果ではない。
+将来runnerは`(baseline_argmax + 1) % width`を使い、baseline/selected classを保持し、
+source identity、decoder prefix、非対象probability vectorの不変条件もscorerが検査する。
+
+監査実装は`benchmark_v3_errata.py`、machine-readable記録は
+[benchmark-v3-protocol-errata.json](results/benchmark-v3-protocol-errata.json)。Luna
+(`gpt-5.6-luna`)へselection contract、alternate-value helper、保持済みartifact schema監査を分担し、
+親がread-only再集計、scorer contract、文書・OKF、統合検証を担当した。
+
+検証はfocused **37 passed**、Lunaレビュー修正後のaudit/selection **16 passed**、
+全体 **594 passed, 1 skipped, 1 warning,
+2 subtests passed**。辞書・encoder demoは終了コード0。OKFは11 files / 9 concepts / errors 0 /
+warnings 0、knowledge fullは215 sourcesでhealthy、MCP self/live check成功。最初のfocused
+pytestはWindows一時ディレクトリACLで12 errorsとなり、同じ変更を権限付きの専用basetempで
+再実行して37 passedを確認した。raw artifact監査を担当したLunaも同ACLでfinal resultを読めず、
+親が読み取り専用の権限付きauditを実行してSHA一致と18 evaluationを確認した。PyTorchの
+NumPy未導入warningは既存環境警告。GitHub Actions結果はPR作成後に別途確認する。
+
 ## 最新の実装状態: Issue #37 plastic memory prototype
 
 `codex/issue-37`で、固定CPU toy coreへ差し込む小型associative adapterを追加した。
@@ -80,7 +114,8 @@ diagnostic-validationのfree exact 3-seed平均は
 `H1L1=.217014 > H0L1=.201389 > H1L0=.177083 > H0L0=.171007 > D_AUX=.004340 > NO_INPUT=0`。
 主2x2のfree exact effectはactivation `+.010851`、locality `+.035156`、
 interaction `+.009549`。全sourceありarmでunseen-pairがseen-pair/unseen-tripleより低い。
-人工one-hot中間介入は主arm合計0/12で対象slotを変えず、factor controlの成功証拠ではない。
+当時の記録は人工one-hot中間介入を主arm合計0/12と集計したが、Issue #39で0/48へ訂正した。
+いずれもfactor controlの成功証拠ではない。
 詳細とseed別値は[benchmark-v3-development.md](results/benchmark-v3-development.md)。
 ユーザーの明示承認後、保存済み18 checkpointからfinal-confirmationを一度だけ評価した。
 384行、18 evaluation、0 failed。result SHA-256は

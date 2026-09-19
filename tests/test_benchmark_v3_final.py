@@ -136,16 +136,16 @@ def test_attestation_write_failure_publishes_only_a_complete_failure_pair(
 
 
 def test_selection_summary_reports_three_seed_means_and_tie_break_trace():
-    def evaluation(arm, seed, free, pair, triple, balanced):
+    def evaluation(arm, seed, frame, pair, triple, balanced, target):
         return {
             "arm": arm,
             "seed": seed,
             "result": {
                 "all": {
-                    "free_generation_exact": {"accuracy": free},
+                    "generation_frame_exact": {"accuracy": frame},
                     "pair_exact": {"accuracy": pair},
                     "triple_exact": {"accuracy": triple},
-                    "exact_target_text": {"accuracy": free},
+                    "exact_target_text": {"accuracy": target},
                     "atomic_balanced_accuracy": {
                         "participant": balanced,
                         "time": balanced,
@@ -157,11 +157,11 @@ def test_selection_summary_reports_three_seed_means_and_tie_break_trace():
         }
 
     evaluations = [
-        evaluation(arm, seed, free, frame, triple, balanced)
-        for arm, free, frame, triple, balanced in (
-            ("H0L0", 0.4, 0.2, 0.1, 0.5),
-            ("H0L1", 0.4, 0.3, 0.1, 0.5),
-            ("H1L0", 0.8, 0.1, 0.1, 0.1),
+        evaluation(arm, seed, frame, pair, triple, balanced, target)
+        for arm, frame, pair, triple, balanced, target in (
+            ("H0L0", 0.4, 0.2, 0.1, 0.5, 0.1),
+            ("H0L1", 0.4, 0.3, 0.1, 0.5, 0.1),
+            ("H1L0", 0.8, 0.1, 0.1, 0.1, 0.1),
         )
         for seed in SEEDS
     ]
@@ -170,11 +170,74 @@ def test_selection_summary_reports_three_seed_means_and_tie_break_trace():
     assert summary["status"] == "complete"
     assert summary["ranking"] == ["H1L0", "H0L1", "H0L0"]
     assert summary["three_seed_means"]["H0L0"]["three_seed_mean"][
-        "free_generation_exact.accuracy"
+        "all.generation_frame_exact.accuracy"
     ] == pytest.approx(0.4)
     tie = next(item for item in summary["tie_break_trace"] if item["stage"] == "tie_break_2")
     assert tie["candidates"] == ["H0L0", "H0L1"]
     assert tie["survivors"] == ["H0L1"]
+
+
+def test_selection_contract_freezes_exact_path_order():
+    assert final_gate.SELECTION_CONTRACT == {
+        "schema": "norishio.issue39.selection-contract.v1",
+        "aggregation": "unweighted_three_seed_mean",
+        "direction": "maximize",
+        "primary": "all.generation_frame_exact.accuracy",
+        "tie_breakers": [
+            "all.triple_exact.accuracy",
+            "all.pair_exact.accuracy",
+            "all.atomic_balanced_accuracy.mean",
+            "all.exact_target_text.accuracy",
+            "arm_id_ascending",
+        ],
+        "derived_metrics": {
+            "all.atomic_balanced_accuracy.mean": {
+                "source_paths": [
+                    "all.atomic_balanced_accuracy.participant",
+                    "all.atomic_balanced_accuracy.time",
+                    "all.atomic_balanced_accuracy.event",
+                    "all.atomic_balanced_accuracy.operator",
+                ],
+                "reducer": "unweighted_arithmetic_mean",
+            },
+        },
+    }
+    assert final_gate._SELECTION_PATHS == (
+        "all.generation_frame_exact.accuracy",
+        "all.triple_exact.accuracy",
+        "all.pair_exact.accuracy",
+        "all.atomic_balanced_accuracy.mean",
+        "all.exact_target_text.accuracy",
+    )
+
+
+def test_selection_contract_uses_arm_id_as_the_fifth_tie_breaker():
+    def evaluation(arm, seed):
+        return {
+            "arm": arm,
+            "seed": seed,
+            "result": {"all": {
+                "generation_frame_exact": {"accuracy": 0.5},
+                "triple_exact": {"accuracy": 0.5},
+                "pair_exact": {"accuracy": 0.5},
+                "atomic_balanced_accuracy": {
+                    "participant": 0.5, "time": 0.5, "event": 0.5, "operator": 0.5,
+                },
+                "exact_target_text": {"accuracy": 0.5},
+            }},
+        }
+
+    summary = final_gate._selection_summary([
+        evaluation(arm, seed) for arm in ("H0L1", "H0L0") for seed in SEEDS
+    ])
+
+    assert summary["ranking"] == ["H0L0", "H0L1"]
+    assert summary["tie_break_trace"][-1] == {
+        "stage": "tie_break_5",
+        "metric": "arm_id_ascending",
+        "candidates": [["H0L0", "H0L1"]],
+        "survivors": ["H0L0"],
+    }
 
 
 def test_default_evaluator_metric_drift_consumes_and_records_failure(tmp_path, monkeypatch):
