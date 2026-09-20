@@ -2,6 +2,76 @@
 
 検証日: 2026-09-19
 
+## 最新の実装状態: Issue #42 post-v3 research handoff
+
+PR #41 merge `9331eda9d918adbc1b415e01fddeae62249cb5ed`時点の研究状態を
+[post-v3 research status](research-status-post-v3.md)へ整理した。実装済み、実測済み、
+未測定、補正不能、仮説を分け、各主張へrepo内path・section・実装/結果SHAを付けた。
+v1 concept toy、benchmark v2、benchmark v3は異なるfixture・目的のため、単一の性能向上曲線にしない。
+
+`okf/research/open-questions.md`に残っていた「benchmark v2 Phase 2、3 seed学習、final評価が未実装」
+という古い現在形を訂正した。v2は6 arm × 3 seedと一度限りのfinalまで完了し、arm Eの
+historical intermediate/head/2×2はraw logits等がないため補正不能。v3も6 arm × 3 seedと
+final-confirmationを完了し、Issue #39の訂正primaryは
+`all.generation_frame_exact.accuracy`。historical fixed-class-0 0/48はその固定介入の結果であり、baseline確率がないため
+alternate-class介入の否定結果にはしない。
+
+[next factor-path confirmation experiment](factor-path-next-experiment.md)は**review未承認の計画**。
+PR #43のhead `3c31a5c48b0af8413d9ce050c36890a2780d7154`に対するblocking reviewを受け、
+優先するlearned比較をH1L1対D_AUXからH1L1対H1L1_ANCHORへ変更した。H1L1_ANCHORは実source latentを
+factor heads/projectionsへ渡したまま、同じ共有encoderで固定`[BOS, SEP]`をencodeしたanchorだけを
+decoder h0へ渡す。両armは同一module、seeded初期state、32,120 parameter、decoder、語彙、loss、
+sampling、seed 7/17/29、各600 updateを使い、最大6 attempted run・3,600 scheduled update、
+失敗分を含むCPU 2時間上限とする。D_AUXは旧fixtureの参考情報だけで、新runや比較根拠にしない。
+constant-source inferenceはOOD診断のままで、learned-path根拠へ昇格しない。
+
+新しい96-row確認setを事前固定し、primary分母96、support分母48、source swapは各arm 24 probe。
+各internal probeはsame-class soft-shape、alternate-class one-hot、同じrequested classの
+alternate donor-softを事前固定する。donor tableに該当soft argmaxがなければmissingとして
+失敗・0と分け、same-classで形状が変わらないprobeも別のunavailableとして記録する。
+PR #43のR3 review後は各controlのbaseline生成を介入前に固定し、
+`baseline_already_requested`、baseline/intervention parse failure、
+`nontrivial_requested_success`とそのnon-target-preserved jointを分ける。baselineからすでに
+requested classだったprobeはH_bypass/H_semanticの成功に数えない。scheduled 24を維持した
+保守的nontrivial joint rateとnontrivial-eligible分母のrateを併記する。全probability map、
+従来のtarget change/requested-value/joint outcomeも保持する。head/通常frameを保ったまま
+H1L1_ANCHORのjoint追随だけが改善する場合、両armが強い場合、headは強いが両armが追随しない場合、
+head自体が弱い場合を別の結論枝にする。既存future-protocol digestはselection/intervention契約
+だけで、新experiment descriptor/digestは未作成である。
+
+PR #43のhead `e34435b8c6e5aa34cc42ceb68580b0d218685e4f`に対するR4 review後は、
+internal interventionのprimary prefixを`[BOS_ID]`開始へ固定し、common-prefixは別stratumとして
+primaryへ混ぜない。各probeの一意なauthored targetからtraining前のexpected L1 gate schedule/maskを
+作り、対象factorがprefix後に到達可能であることを全primary probeで機械検証する。baselineと
+interventionの自己生成履歴からobserved gate traceを別々に保存し、実生成のgate未到達を事後的な
+structural unavailableへ変えない。common-prefixではUTF-8 byteの半開slot区間からfull/partial emissionを
+判定し、gate到達不能またはslot出力済みをreason付きunavailableとしてscheduledに残しつつ
+follow-through失敗から除外する。`available_count`はmissing donor、unchanged shape、gate/slot unavailableを
+すべて除いた値とし、BOS primaryのgate/slot unavailableが1件でもあればtraining前のprotocol violationとする。
+
+このIssueでは文書だけを変更し、データ生成、学習、推論、checkpoint load、使用済みfinalの再開封、
+外部辞書取得を行っていない。Luna (`gpt-5.6-luna`)へ根拠監査、次実験案、blocking review対応を
+分担し、親が実装原本・git履歴との照合、統合、最終検証を担当した。各review修正後の独立再監査で
+R1/R2/R3/R4の残存blockerがないことを確認した。
+
+検証結果:
+
+- 初回quick knowledge checkはworktree内のindex未生成でinvalid。`build_context.py`で再生成後に
+  quickを通し、最終source変更後は222 entryを生成してfull check **healthy / errors 0**。
+- `validate_okf.py`: **11 files / 9 concepts / errors 0 / warnings 0**。
+- MCP `--self-check`とlive check: **ok**（11 concepts、6 tools）。
+- 変更7 Markdownのlocal linkと59件の40-character commit SHA: missing/invalid **0**。
+- 最初の全pytestはrepo共有venvにTorchがなく3 collection error。既存Issue #39 CPU Torch
+  2.14.0環境へ切り替えたsandbox再試行もWindows一時ディレクトリACLで失敗したため、
+  同じ明示範囲を専用basetemp・権限付きで再実行し、**626 passed / 1 skipped /
+  1 warning / 2 subtests passed**。未解決のtest failureはない。
+
+最終pytestコマンド:
+
+```powershell
+& 'D:\projects\codex\norishio-lm\codex\work_output\issue-worker\issue-39\.venv\Scripts\python.exe' -m pytest tests codex\tools\tests codex\okf_mcp\tests -q -p no:cacheprovider --basetemp D:\projects\codex\norishio-lm\codex\work_output\pytest-issue42-r4-admin
+```
+
 ## 最新の実装状態: Issue #39 benchmark v3 protocol errata
 
 Issue #36の保存済みdevelopment 18 JSONと、attested final result

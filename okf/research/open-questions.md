@@ -2,8 +2,8 @@
 type: OpenQuestion
 title: 未解決課題と次の実験
 status: draft
-generated: { by: ai-assisted-source-review, at: 2026-09-13 }
-stale_after: 2026-10-13
+generated: { by: ai-assisted-source-review, at: 2026-09-19 }
+stale_after: 2026-10-19
 sources:
   - id: handoff
     resource: docs/handoff.md
@@ -17,9 +17,22 @@ sources:
   - id: benchmark-v2
     resource: docs/benchmark-v2.md
     title: Frozen four-factor benchmark protocol
+  - id: post-v3-status
+    resource: docs/research-status-post-v3.md
+    title: Implemented, measured, unavailable, unmeasured, and hypothesis boundaries
+  - id: benchmark-v3-results
+    resource: docs/results/benchmark-v3-final.md
+    title: Attested final observations and Issue 39 protocol erratum
+  - id: next-factor-plan
+    resource: docs/factor-path-next-experiment.md
+    title: Review-unapproved minimal factor-path confirmation proposal
 ---
 
 # 未解決課題と次の実験
+
+現在の根拠区分とcommitは`docs/research-status-post-v3.md`を参照する。
+v1 concept toy、benchmark v2、benchmark v3はfixture・分割・目的が異なり、単一の性能向上曲線にしない。
+次のfactor-path案`docs/factor-path-next-experiment.md`はreview未承認であり、データ生成・学習・推論を許可しない。
 
 - 実装済み: 辞書入力と関係三つ組の検証、由来・出典・版の追跡。根拠のない信頼度は補わない。
 - 未解決: 出典本文の妥当性確認、関係端点のオントロジー検証、評価可能な信頼度の定義。
@@ -65,9 +78,23 @@ sources:
   この単発成功とgold介入の小差だけでは改善を主張できない。
 - 未解決: global clipping・共有encoderを含む経路差の分離、より大きいcompositional split、
   自由生成とtest評価。routing診断は意味層の一般有効性や学習済みLLM性能を証明しない。
-- 実装済み: Issue #34 Phase 1で4因子benchmark v2、pair/triple holdout、共通scorer、
-  predetermined factor shuffle、manifest-bound final gateを学習前に固定。
-- 未実装: 5 architecture familyとparameter/schedule/checkpoint条件のPhase 2事前固定、
-  3 seed学習、全arm完了後の一度だけのfinal評価。fixture検査はモデル性能ではない。
+- 実測済み: Issue #34 benchmark v2はprotocol/tournamentを事前固定し、6 arm × 3 seedの学習、
+  diagnostic-validation、一度限りのfinal-holdout評価まで完了。Eの保存済みintermediate/head/2×2は
+  raw logits等がなく補正不能。free generationと順位を意味層の一般性能へ外挿しない。
+- 実測済み: Issue #36 benchmark v3は6 arm × 3 seedと一度限りのfinal-confirmationを完了。
+  訂正primary `all.generation_frame_exact.accuracy`でもH1L1が先頭だが、全source armで
+  unseen-pairがpair既知/unseen-tripleより大幅に低い。
+- 訂正済み: v3主armの旧介入はfixed class 0で0/48 target change。baseline確率未保存のため
+  argmax class分類は補正不能で、alternate-class介入の否定結果ではない。
+- 実装済み・未測定: future-only protocol/digestとalternate-class validatorは存在するが、
+  その契約を使った学習・推論・確認実験は未実施。
+- 未承認案: H1L1と、実sourceをfactor pathに残しつつdecoder h0だけ固定anchor由来にする
+  parameter-matched H1L1_ANCHORを比較する。same-class soft-shape、alternate one-hot、同じrequested
+  classのdonor-softを分け、head精度、decoder追随、連続分布形状、unseen-pair失敗を切り分ける。
+  baseline生成がすでにrequested classのprobeは非自明な追随成功に数えず、parse failureと分母を
+  別記する。internal interventionのprimaryはBOS開始に固定し、authored targetから事前計算した
+  L1 gate scheduleで対象factorの到達可能性をtraining前に検証する。実生成gate traceはbaseline/
+  intervention別に保存し、common-prefixはslot出力済み・partialを区別する別stratumにする。
+  D_AUXは旧fixtureの参考情報だけで、新runや新比較根拠にしない。旧2×2を無条件に再実行しない。
 
 実験の順序は [意味層の分離](semantic-separation.md) と既存 architecture に従う。
