@@ -2,8 +2,8 @@
 type: ResearchConstraint
 title: Benchmark v3 factor-path freeze
 status: draft
-generated: { by: ai-assisted-source-review, at: 2026-09-19 }
-stale_after: 2026-10-19
+generated: { by: ai-assisted-source-review, at: 2026-09-20 }
+stale_after: 2026-10-20
 sources:
   - id: protocol
     resource: docs/benchmark-v3-factor-path.md
@@ -80,6 +80,18 @@ sources:
   - id: errata-audit-code
     resource: src/norishio_lm/benchmark_v3_errata.py
     title: Saved-JSON-only protocol errata audit
+  - id: h0-experiment-descriptor
+    resource: data/benchmark_v3_h0_confirmation/experiment-descriptor-v1.json
+    title: Issue 44 frozen h0-bypass descriptor
+  - id: h0-confirmation-summary
+    resource: docs/results/benchmark-v3-h0-confirmation/summary.json
+    title: Issue 44 machine-readable aggregate result
+  - id: h0-confirmation-report
+    resource: docs/results/benchmark-v3-h0-confirmation/README.md
+    title: Issue 44 decision record and interpretation limits
+  - id: h0-head-factor-audit
+    resource: docs/results/benchmark-v3-h0-confirmation/head-factor-audit.json
+    title: Saved-raw-only factor head and intervention audit
 ---
 
 # Benchmark v3 factor-path freeze
@@ -168,3 +180,42 @@ the class indices and requiring the actual intervened one-hot to select that
 exact class while preserving source identity, decoder prefix, and non-target
 factor probabilities. Historical Issue #36 execution code and all
 existing final artifacts, marker, checkpoints, and attestations remain unchanged.
+
+Issue #44 executes a separate future-only confirmation without reopening any
+historical v3 final artifact. A new authored fixture contains 384 train and 96
+confirmation rows, split evenly between unseen-pair and pair-known/unseen-triple
+support. Its content digest is
+`296f32138f9ee448ca8fe975200047f53a6679343af35cbe7423d1e3435e1945`.
+The experiment descriptor SHA-256 is
+`19c11e5fa7b5ae90dd2bc3b6ddca20366e6d2b9798b98e3ccf1c7c8bcdf10533`.
+It freezes H1L1/H1L1_ANCHOR, seeds 7/17/29, six runs, 3,600 updates, one CPU
+thread, the run/evaluation order, BOS-start probes, expected and observed gate
+traces, donor bindings, denominators, raw fields, and decision thresholds.
+
+All six runs completed. H1L1 versus H1L1_ANCHOR three-seed means were 0.03125
+versus 0.06597 for ordinary generation-frame exact and 0.07639 versus 0.08333
+for intermediate head-frame exact. The anchor preserves the two metrics under
+the frozen drop rule, but neither head is close to the 0.80 strong-head floor.
+Alternate-one-hot scheduled nontrivial joint success was 12/24 versus 7/24, so
+the anchor fails the preregistered improvement rule. The recorded conclusion is
+`decoder_path_inconclusive_due_to_weak_heads`; the h0-bypass hypothesis is not
+supported. ANCHOR unseen-pair frame exact was 0.00694 versus 0.125 for
+pair-known/unseen-triple, meeting the preregistered fixture-specific
+compositional-failure condition. These are authored structural-factor results,
+not learned modern semantics, sememes, concepts, or general language quality.
+
+The first summary aggregation failed after all six raw runs had been saved. The
+retained raw records prove 3,600 updates and 115.189 seconds of summed training
+wall time, but they do not retain the original executor wall time covering
+evaluation, interventions, and the failed aggregation. Total-wall budget
+compliance is therefore unavailable rather than reconstructed as false; no
+training or inference was repeated to fill the missing evidence.
+
+A saved-raw-only post-hoc audit decomposes the weak four-factor joint head result.
+Across all 288 confirmation rows per arm, H1L1 atomic rates are 0.69444 event,
+0.69792 operator, 0.51736 participant, and 0.28819 time. H1L1_ANCHOR rates are
+0.69444, 0.69792, 0.49653, and 0.30556. Weakness is concentrated in participant
+and especially time rather than being uniform across all heads. The audit also
+retains seed and support-group denominators and factor-specific scheduled-six
+alternate-one-hot/donor-soft counts. It is diagnostic only and does not change
+the frozen decision, thresholds, or ranking.

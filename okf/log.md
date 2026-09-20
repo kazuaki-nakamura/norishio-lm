@@ -1,5 +1,17 @@
 # OKF 更新履歴
 
+- 2026-09-20: Issue #44でreview済みh0-bypass確認をfuture-onlyに実行。新fixture digest
+  `296f3213...1945`、descriptor digest `19c11e5f...0533`をtraining前に固定し、H1L1/
+  H1L1_ANCHOR × seed 7/17/29の6 run、計3,600 updateをCPU 1 threadで完了。通常frame exactは
+  0.03125/0.06597だがhead exactは0.07639/0.08333でstrong-head条件を満たさず、decoder-pathは
+  不確定。alternate-one-hot jointは12/24対7/24で改善条件を満たさず、h0 bypassを支持しない。
+  旧v3 final/checkpoint/result/markerは未使用・未変更。手書き構造fixtureを意味学習成果としない。
+
+- 2026-09-20: PR #45 reviewのR1/R2を保存済み6 rawだけで修正。失われたexecutor総wallを
+  非超過へ補完せず`unavailable`とし、3,600 updateとtraining wall 115.189秒だけを確認済みとした。
+  factor別post-hoc auditはevent/operator約0.69に対しparticipant約0.50、time約0.30の非対称を記録。
+  凍結decision/threshold/ranking、raw run、学習、推論、historical artifactは変更していない。
+
 - 2026-09-20: Issue #42 PR #43のR4 reviewに合わせ、future-only internal interventionの
   primary prefixをBOS開始へ固定。authored target由来のexpected L1 gate scheduleとtraining前の
   到達可能性検査、baseline/intervention別のobserved gate trace、common-prefixのfull/partial slot、

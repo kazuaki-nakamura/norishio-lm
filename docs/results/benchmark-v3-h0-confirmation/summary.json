@@ -1,0 +1,663 @@
+{
+  "arms": {
+    "H1L1": {
+      "constant_source_diagnostic": {
+        "claim_scope": "out_of_distribution_inference_diagnostic_not_learned_path_evidence",
+        "generation_frame_exact_mean": 0.0
+      },
+      "controls": {
+        "alternate_class_donor_soft": {
+          "available_count": 9,
+          "baseline_already_requested": {
+            "count": 0,
+            "denominator": 9,
+            "rate": 0.0
+          },
+          "baseline_already_requested_count": 0,
+          "baseline_parse_failed": {
+            "count": 0,
+            "denominator": 9,
+            "rate": 0.0
+          },
+          "baseline_parse_failed_count": 0,
+          "control_type": "alternate_class_donor_soft",
+          "denominator": 24,
+          "intervention_parse_failed": {
+            "count": 0,
+            "denominator": 9,
+            "rate": 0.0
+          },
+          "intervention_parse_failed_count": 0,
+          "intervention_unavailable_count": 0,
+          "missing_count": 15,
+          "non_target_preserved": {
+            "count": 7,
+            "denominator": 9,
+            "rate": 0.7777777777777778
+          },
+          "non_target_preserved_count": 7,
+          "nontrivial_eligible_count": 9,
+          "nontrivial_joint_success_count": 6,
+          "nontrivial_joint_success_eligible": {
+            "count": 6,
+            "denominator": 9,
+            "rate": 0.6666666666666666
+          },
+          "nontrivial_joint_success_scheduled": {
+            "count": 6,
+            "denominator": 24,
+            "rate": 0.25
+          },
+          "nontrivial_requested_success": {
+            "count": 8,
+            "denominator": 9,
+            "rate": 0.8888888888888888
+          },
+          "nontrivial_requested_success_count": 8,
+          "prefix_stratum": "bos_start_primary",
+          "requested_value_success": {
+            "count": 8,
+            "denominator": 9,
+            "rate": 0.8888888888888888
+          },
+          "requested_value_success_and_non_target_preserved": {
+            "count": 6,
+            "denominator": 9,
+            "rate": 0.6666666666666666
+          },
+          "requested_value_success_count": 8,
+          "scheduled_count": 24,
+          "scored_count": 9,
+          "structural_unavailable_count": 15,
+          "target_changed": {
+            "count": 9,
+            "denominator": 9,
+            "rate": 1.0
+          },
+          "target_changed_count": 9,
+          "unchanged_shape_count": 0
+        },
+        "alternate_class_one_hot": {
+          "available_count": 24,
+          "baseline_already_requested": {
+            "count": 0,
+            "denominator": 24,
+            "rate": 0.0
+          },
+          "baseline_already_requested_count": 0,
+          "baseline_parse_failed": {
+            "count": 0,
+            "denominator": 24,
+            "rate": 0.0
+          },
+          "baseline_parse_failed_count": 0,
+          "control_type": "alternate_class_one_hot",
+          "denominator": 24,
+          "intervention_parse_failed": {
+            "count": 1,
+            "denominator": 24,
+            "rate": 0.041666666666666664
+          },
+          "intervention_parse_failed_count": 1,
+          "intervention_unavailable_count": 0,
+          "missing_count": 0,
+          "non_target_preserved": {
+            "count": 17,
+            "denominator": 23,
+            "rate": 0.7391304347826086
+          },
+          "non_target_preserved_count": 17,
+          "nontrivial_eligible_count": 23,
+          "nontrivial_joint_success_count": 12,
+          "nontrivial_joint_success_eligible": {
+            "count": 12,
+            "denominator": 23,
+            "rate": 0.5217391304347826
+          },
+          "nontrivial_joint_success_scheduled": {
+            "count": 12,
+            "denominator": 24,
+            "rate": 0.5
+          },
+          "nontrivial_requested_success": {
+            "count": 16,
+            "denominator": 23,
+            "rate": 0.6956521739130435
+          },
+          "nontrivial_requested_success_count": 16,
+          "prefix_stratum": "bos_start_primary",
+          "requested_value_success": {
+            "count": 16,
+            "denominator": 24,
+            "rate": 0.6666666666666666
+          },
+          "requested_value_success_and_non_target_preserved": {
+            "count": 12,
+            "denominator": 24,
+            "rate": 0.5
+          },
+          "requested_value_success_count": 16,
+          "scheduled_count": 24,
+          "scored_count": 23,
+          "structural_unavailable_count": 0,
+          "target_changed": {
+            "count": 20,
+            "denominator": 23,
+            "rate": 0.8695652173913043
+          },
+          "target_changed_count": 20,
+          "unchanged_shape_count": 0
+        },
+        "same_class_soft_shape": {
+          "available_count": 24,
+          "baseline_already_requested": {
+            "count": 21,
+            "denominator": 24,
+            "rate": 0.875
+          },
+          "baseline_already_requested_count": 21,
+          "baseline_parse_failed": {
+            "count": 0,
+            "denominator": 24,
+            "rate": 0.0
+          },
+          "baseline_parse_failed_count": 0,
+          "control_type": "same_class_soft_shape",
+          "denominator": 24,
+          "intervention_parse_failed": {
+            "count": 0,
+            "denominator": 24,
+            "rate": 0.0
+          },
+          "intervention_parse_failed_count": 0,
+          "intervention_unavailable_count": 0,
+          "missing_count": 0,
+          "non_target_preserved": {
+            "count": 24,
+            "denominator": 24,
+            "rate": 1.0
+          },
+          "non_target_preserved_count": 24,
+          "nontrivial_eligible_count": 3,
+          "nontrivial_joint_success_count": 0,
+          "nontrivial_joint_success_eligible": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0
+          },
+          "nontrivial_joint_success_scheduled": {
+            "count": 0,
+            "denominator": 24,
+            "rate": 0.0
+          },
+          "nontrivial_requested_success": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0
+          },
+          "nontrivial_requested_success_count": 0,
+          "prefix_stratum": "bos_start_primary",
+          "requested_value_success": {
+            "count": 20,
+            "denominator": 24,
+            "rate": 0.8333333333333334
+          },
+          "requested_value_success_and_non_target_preserved": {
+            "count": 20,
+            "denominator": 24,
+            "rate": 0.8333333333333334
+          },
+          "requested_value_success_count": 20,
+          "scheduled_count": 24,
+          "scored_count": 24,
+          "structural_unavailable_count": 0,
+          "target_changed": {
+            "count": 1,
+            "denominator": 24,
+            "rate": 0.041666666666666664
+          },
+          "target_changed_count": 1,
+          "unchanged_shape_count": 0
+        }
+      },
+      "ordinary": {
+        "exact_target_text_mean": 0.01736111111111111,
+        "generation_frame_exact_mean": 0.03125,
+        "intermediate_frame_exact_mean": 0.0763888888888889,
+        "seen_pair_generation_frame_exact_mean": 0.04861111111111111,
+        "unseen_pair_generation_frame_exact_mean": 0.013888888888888888
+      },
+      "seeds": [
+        7,
+        17,
+        29
+      ],
+      "source_swaps": {
+        "by_factor": {
+          "event": {
+            "scheduled_count": 6,
+            "target_changed": {
+              "count": 2,
+              "denominator": 6,
+              "rate": 0.3333333333333333
+            }
+          },
+          "operator": {
+            "scheduled_count": 6,
+            "target_changed": {
+              "count": 3,
+              "denominator": 6,
+              "rate": 0.5
+            }
+          },
+          "participant": {
+            "scheduled_count": 6,
+            "target_changed": {
+              "count": 1,
+              "denominator": 6,
+              "rate": 0.16666666666666666
+            }
+          },
+          "time": {
+            "scheduled_count": 6,
+            "target_changed": {
+              "count": 1,
+              "denominator": 6,
+              "rate": 0.16666666666666666
+            }
+          }
+        },
+        "by_support_group": {
+          "seen_pair/unseen_triple": {
+            "scheduled_count": 12,
+            "target_changed": {
+              "count": 5,
+              "denominator": 12,
+              "rate": 0.4166666666666667
+            }
+          },
+          "unseen_pair": {
+            "scheduled_count": 12,
+            "target_changed": {
+              "count": 2,
+              "denominator": 12,
+              "rate": 0.16666666666666666
+            }
+          }
+        },
+        "comparable_count": 24,
+        "exact_target_text": {
+          "count": 0,
+          "denominator": 24,
+          "rate": 0.0
+        },
+        "non_target_preserved": {
+          "count": 12,
+          "denominator": 24,
+          "rate": 0.5
+        },
+        "parse_failure": {
+          "count": 0,
+          "denominator": 24,
+          "rate": 0.0
+        },
+        "scheduled_count": 24,
+        "target_change_correct": {
+          "count": 6,
+          "denominator": 24,
+          "rate": 0.25
+        },
+        "target_changed": {
+          "count": 7,
+          "denominator": 24,
+          "rate": 0.2916666666666667
+        }
+      }
+    },
+    "H1L1_ANCHOR": {
+      "controls": {
+        "alternate_class_donor_soft": {
+          "available_count": 9,
+          "baseline_already_requested": {
+            "count": 0,
+            "denominator": 9,
+            "rate": 0.0
+          },
+          "baseline_already_requested_count": 0,
+          "baseline_parse_failed": {
+            "count": 0,
+            "denominator": 9,
+            "rate": 0.0
+          },
+          "baseline_parse_failed_count": 0,
+          "control_type": "alternate_class_donor_soft",
+          "denominator": 24,
+          "intervention_parse_failed": {
+            "count": 0,
+            "denominator": 9,
+            "rate": 0.0
+          },
+          "intervention_parse_failed_count": 0,
+          "intervention_unavailable_count": 0,
+          "missing_count": 15,
+          "non_target_preserved": {
+            "count": 3,
+            "denominator": 9,
+            "rate": 0.3333333333333333
+          },
+          "non_target_preserved_count": 3,
+          "nontrivial_eligible_count": 9,
+          "nontrivial_joint_success_count": 3,
+          "nontrivial_joint_success_eligible": {
+            "count": 3,
+            "denominator": 9,
+            "rate": 0.3333333333333333
+          },
+          "nontrivial_joint_success_scheduled": {
+            "count": 3,
+            "denominator": 24,
+            "rate": 0.125
+          },
+          "nontrivial_requested_success": {
+            "count": 9,
+            "denominator": 9,
+            "rate": 1.0
+          },
+          "nontrivial_requested_success_count": 9,
+          "prefix_stratum": "bos_start_primary",
+          "requested_value_success": {
+            "count": 9,
+            "denominator": 9,
+            "rate": 1.0
+          },
+          "requested_value_success_and_non_target_preserved": {
+            "count": 3,
+            "denominator": 9,
+            "rate": 0.3333333333333333
+          },
+          "requested_value_success_count": 9,
+          "scheduled_count": 24,
+          "scored_count": 9,
+          "structural_unavailable_count": 15,
+          "target_changed": {
+            "count": 9,
+            "denominator": 9,
+            "rate": 1.0
+          },
+          "target_changed_count": 9,
+          "unchanged_shape_count": 0
+        },
+        "alternate_class_one_hot": {
+          "available_count": 24,
+          "baseline_already_requested": {
+            "count": 2,
+            "denominator": 24,
+            "rate": 0.08333333333333333
+          },
+          "baseline_already_requested_count": 2,
+          "baseline_parse_failed": {
+            "count": 0,
+            "denominator": 24,
+            "rate": 0.0
+          },
+          "baseline_parse_failed_count": 0,
+          "control_type": "alternate_class_one_hot",
+          "denominator": 24,
+          "intervention_parse_failed": {
+            "count": 1,
+            "denominator": 24,
+            "rate": 0.041666666666666664
+          },
+          "intervention_parse_failed_count": 1,
+          "intervention_unavailable_count": 0,
+          "missing_count": 0,
+          "non_target_preserved": {
+            "count": 11,
+            "denominator": 23,
+            "rate": 0.4782608695652174
+          },
+          "non_target_preserved_count": 11,
+          "nontrivial_eligible_count": 21,
+          "nontrivial_joint_success_count": 7,
+          "nontrivial_joint_success_eligible": {
+            "count": 7,
+            "denominator": 21,
+            "rate": 0.3333333333333333
+          },
+          "nontrivial_joint_success_scheduled": {
+            "count": 7,
+            "denominator": 24,
+            "rate": 0.2916666666666667
+          },
+          "nontrivial_requested_success": {
+            "count": 18,
+            "denominator": 21,
+            "rate": 0.8571428571428571
+          },
+          "nontrivial_requested_success_count": 18,
+          "prefix_stratum": "bos_start_primary",
+          "requested_value_success": {
+            "count": 19,
+            "denominator": 24,
+            "rate": 0.7916666666666666
+          },
+          "requested_value_success_and_non_target_preserved": {
+            "count": 7,
+            "denominator": 24,
+            "rate": 0.2916666666666667
+          },
+          "requested_value_success_count": 19,
+          "scheduled_count": 24,
+          "scored_count": 23,
+          "structural_unavailable_count": 0,
+          "target_changed": {
+            "count": 20,
+            "denominator": 23,
+            "rate": 0.8695652173913043
+          },
+          "target_changed_count": 20,
+          "unchanged_shape_count": 0
+        },
+        "same_class_soft_shape": {
+          "available_count": 24,
+          "baseline_already_requested": {
+            "count": 18,
+            "denominator": 24,
+            "rate": 0.75
+          },
+          "baseline_already_requested_count": 18,
+          "baseline_parse_failed": {
+            "count": 0,
+            "denominator": 24,
+            "rate": 0.0
+          },
+          "baseline_parse_failed_count": 0,
+          "control_type": "same_class_soft_shape",
+          "denominator": 24,
+          "intervention_parse_failed": {
+            "count": 0,
+            "denominator": 24,
+            "rate": 0.0
+          },
+          "intervention_parse_failed_count": 0,
+          "intervention_unavailable_count": 0,
+          "missing_count": 0,
+          "non_target_preserved": {
+            "count": 24,
+            "denominator": 24,
+            "rate": 1.0
+          },
+          "non_target_preserved_count": 24,
+          "nontrivial_eligible_count": 6,
+          "nontrivial_joint_success_count": 1,
+          "nontrivial_joint_success_eligible": {
+            "count": 1,
+            "denominator": 6,
+            "rate": 0.16666666666666666
+          },
+          "nontrivial_joint_success_scheduled": {
+            "count": 1,
+            "denominator": 24,
+            "rate": 0.041666666666666664
+          },
+          "nontrivial_requested_success": {
+            "count": 1,
+            "denominator": 6,
+            "rate": 0.16666666666666666
+          },
+          "nontrivial_requested_success_count": 1,
+          "prefix_stratum": "bos_start_primary",
+          "requested_value_success": {
+            "count": 19,
+            "denominator": 24,
+            "rate": 0.7916666666666666
+          },
+          "requested_value_success_and_non_target_preserved": {
+            "count": 19,
+            "denominator": 24,
+            "rate": 0.7916666666666666
+          },
+          "requested_value_success_count": 19,
+          "scheduled_count": 24,
+          "scored_count": 24,
+          "structural_unavailable_count": 0,
+          "target_changed": {
+            "count": 2,
+            "denominator": 24,
+            "rate": 0.08333333333333333
+          },
+          "target_changed_count": 2,
+          "unchanged_shape_count": 0
+        }
+      },
+      "ordinary": {
+        "exact_target_text_mean": 0.027777777777777776,
+        "generation_frame_exact_mean": 0.06597222222222222,
+        "intermediate_frame_exact_mean": 0.08333333333333333,
+        "seen_pair_generation_frame_exact_mean": 0.125,
+        "unseen_pair_generation_frame_exact_mean": 0.006944444444444444
+      },
+      "seeds": [
+        7,
+        17,
+        29
+      ],
+      "source_swaps": {
+        "by_factor": {
+          "event": {
+            "scheduled_count": 6,
+            "target_changed": {
+              "count": 2,
+              "denominator": 6,
+              "rate": 0.3333333333333333
+            }
+          },
+          "operator": {
+            "scheduled_count": 6,
+            "target_changed": {
+              "count": 3,
+              "denominator": 6,
+              "rate": 0.5
+            }
+          },
+          "participant": {
+            "scheduled_count": 6,
+            "target_changed": {
+              "count": 0,
+              "denominator": 6,
+              "rate": 0.0
+            }
+          },
+          "time": {
+            "scheduled_count": 6,
+            "target_changed": {
+              "count": 0,
+              "denominator": 6,
+              "rate": 0.0
+            }
+          }
+        },
+        "by_support_group": {
+          "seen_pair/unseen_triple": {
+            "scheduled_count": 12,
+            "target_changed": {
+              "count": 5,
+              "denominator": 12,
+              "rate": 0.4166666666666667
+            }
+          },
+          "unseen_pair": {
+            "scheduled_count": 12,
+            "target_changed": {
+              "count": 0,
+              "denominator": 12,
+              "rate": 0.0
+            }
+          }
+        },
+        "comparable_count": 24,
+        "exact_target_text": {
+          "count": 1,
+          "denominator": 24,
+          "rate": 0.041666666666666664
+        },
+        "non_target_preserved": {
+          "count": 15,
+          "denominator": 24,
+          "rate": 0.625
+        },
+        "parse_failure": {
+          "count": 0,
+          "denominator": 24,
+          "rate": 0.0
+        },
+        "scheduled_count": 24,
+        "target_change_correct": {
+          "count": 7,
+          "denominator": 24,
+          "rate": 0.2916666666666667
+        },
+        "target_changed": {
+          "count": 5,
+          "denominator": 24,
+          "rate": 0.20833333333333334
+        }
+      }
+    }
+  },
+  "attempted_runs": 6,
+  "budget": {
+    "attempted_runs": 6,
+    "max_attempts": 6,
+    "max_optimizer_updates": 3600,
+    "max_wall_seconds": 7200,
+    "optimizer_updates": 3600,
+    "wall_budget_breach_detected": null,
+    "wall_budget_breach_reason": "aggregation_recovered_from_completed_raw_runs_after_summary_path_error"
+  },
+  "decisions": {
+    "both_arms_strong_heads": false,
+    "claim": "decoder_path_inconclusive_due_to_weak_heads",
+    "constant_source_close_withhold_source_dependence": true,
+    "decoder_path_inconclusive_due_to_weak_heads": true,
+    "donor_soft_only_follow_through": false,
+    "fixture_specific_compositional_failure": true,
+    "frame_recovery_without_exact_text": true,
+    "h0_bypass_supported": false,
+    "improvement_rule_met": false,
+    "one_hot_only_follow_through": false,
+    "preservation_rule_met": true,
+    "same_class_probability_shape_material_effect": false
+  },
+  "descriptor_sha256": "19c11e5fa7b5ae90dd2bc3b6ddca20366e6d2b9798b98e3ccf1c7c8bcdf10533",
+  "fixture_content_digest_sha256": "296f32138f9ee448ca8fe975200047f53a6679343af35cbe7423d1e3435e1945",
+  "optimizer_updates": 3600,
+  "ranking": null,
+  "run_count": 6,
+  "schema": "norishio.issue44.h0-confirmation-summary.v1",
+  "scope": "authored structural-factor confirmation; not a learned modern-semantic or linguistic-quality claim",
+  "status": "complete",
+  "total_wall_seconds": null,
+  "total_wall_seconds_reason": "aggregation_recovered_from_completed_raw_runs_after_summary_path_error",
+  "training_wall_seconds": 115.18900000001304
+}
