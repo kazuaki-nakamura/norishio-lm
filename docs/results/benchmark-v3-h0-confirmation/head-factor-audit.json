@@ -1,0 +1,590 @@
+{
+  "schema": "norishio.issue44.h0-head-factor-posthoc-audit.v1",
+  "bindings": {
+    "descriptor_sha256": "19c11e5fa7b5ae90dd2bc3b6ddca20366e6d2b9798b98e3ccf1c7c8bcdf10533",
+    "fixture_content_digest_sha256": "296f32138f9ee448ca8fe975200047f53a6679343af35cbe7423d1e3435e1945",
+    "all_saved_runs_match_bindings": true
+  },
+  "scope": {
+    "source": "saved docs/results/benchmark-v3-h0-confirmation/run-*.json raw records only",
+    "ordinary_raw_rows_per_run": 96,
+    "run_order": [
+      "H1L1 seed7",
+      "H1L1_ANCHOR seed7",
+      "H1L1 seed17",
+      "H1L1_ANCHOR seed17",
+      "H1L1 seed29",
+      "H1L1_ANCHOR seed29"
+    ],
+    "arms": [
+      "H1L1",
+      "H1L1_ANCHOR"
+    ],
+    "seeds": [
+      7,
+      17,
+      29
+    ],
+    "factors": [
+      "event",
+      "operator",
+      "participant",
+      "time"
+    ],
+    "support_groups": [
+      "unseen_pair",
+      "seen_pair/unseen_triple"
+    ],
+    "control_types": [
+      "alternate_class_one_hot",
+      "alternate_class_donor_soft"
+    ]
+  },
+  "decision_policy": {
+    "kind": "post_hoc_diagnostic",
+    "uses_saved_raw_only": true,
+    "changes_frozen_decision": false,
+    "changes_frozen_thresholds": false,
+    "changes_frozen_ranking": false,
+    "frozen_decision_threshold_ranking_are_external": true
+  },
+  "atomic_head": {
+    "H1L1": {
+      "7": {
+        "event": {
+          "correct": 67,
+          "count": 96,
+          "denominator": 96,
+          "rate": 0.6979166666666666
+        },
+        "operator": {
+          "correct": 67,
+          "count": 96,
+          "denominator": 96,
+          "rate": 0.6979166666666666
+        },
+        "participant": {
+          "correct": 54,
+          "count": 96,
+          "denominator": 96,
+          "rate": 0.5625
+        },
+        "time": {
+          "correct": 30,
+          "count": 96,
+          "denominator": 96,
+          "rate": 0.3125
+        }
+      },
+      "17": {
+        "event": {
+          "correct": 65,
+          "count": 96,
+          "denominator": 96,
+          "rate": 0.6770833333333334
+        },
+        "operator": {
+          "correct": 67,
+          "count": 96,
+          "denominator": 96,
+          "rate": 0.6979166666666666
+        },
+        "participant": {
+          "correct": 64,
+          "count": 96,
+          "denominator": 96,
+          "rate": 0.6666666666666666
+        },
+        "time": {
+          "correct": 31,
+          "count": 96,
+          "denominator": 96,
+          "rate": 0.3229166666666667
+        }
+      },
+      "29": {
+        "event": {
+          "correct": 68,
+          "count": 96,
+          "denominator": 96,
+          "rate": 0.7083333333333334
+        },
+        "operator": {
+          "correct": 67,
+          "count": 96,
+          "denominator": 96,
+          "rate": 0.6979166666666666
+        },
+        "participant": {
+          "correct": 31,
+          "count": 96,
+          "denominator": 96,
+          "rate": 0.3229166666666667
+        },
+        "time": {
+          "correct": 22,
+          "count": 96,
+          "denominator": 96,
+          "rate": 0.22916666666666666
+        }
+      }
+    },
+    "H1L1_ANCHOR": {
+      "7": {
+        "event": {
+          "correct": 67,
+          "count": 96,
+          "denominator": 96,
+          "rate": 0.6979166666666666
+        },
+        "operator": {
+          "correct": 67,
+          "count": 96,
+          "denominator": 96,
+          "rate": 0.6979166666666666
+        },
+        "participant": {
+          "correct": 56,
+          "count": 96,
+          "denominator": 96,
+          "rate": 0.5833333333333334
+        },
+        "time": {
+          "correct": 30,
+          "count": 96,
+          "denominator": 96,
+          "rate": 0.3125
+        }
+      },
+      "17": {
+        "event": {
+          "correct": 65,
+          "count": 96,
+          "denominator": 96,
+          "rate": 0.6770833333333334
+        },
+        "operator": {
+          "correct": 67,
+          "count": 96,
+          "denominator": 96,
+          "rate": 0.6979166666666666
+        },
+        "participant": {
+          "correct": 59,
+          "count": 96,
+          "denominator": 96,
+          "rate": 0.6145833333333334
+        },
+        "time": {
+          "correct": 38,
+          "count": 96,
+          "denominator": 96,
+          "rate": 0.3958333333333333
+        }
+      },
+      "29": {
+        "event": {
+          "correct": 68,
+          "count": 96,
+          "denominator": 96,
+          "rate": 0.7083333333333334
+        },
+        "operator": {
+          "correct": 67,
+          "count": 96,
+          "denominator": 96,
+          "rate": 0.6979166666666666
+        },
+        "participant": {
+          "correct": 28,
+          "count": 96,
+          "denominator": 96,
+          "rate": 0.2916666666666667
+        },
+        "time": {
+          "correct": 20,
+          "count": 96,
+          "denominator": 96,
+          "rate": 0.20833333333333334
+        }
+      }
+    }
+  },
+  "support_aggregate": {
+    "H1L1": {
+      "event": {
+        "unseen_pair": {
+          "correct": 97,
+          "count": 144,
+          "denominator": 144,
+          "rate": 0.6736111111111112
+        },
+        "seen_pair/unseen_triple": {
+          "correct": 103,
+          "count": 144,
+          "denominator": 144,
+          "rate": 0.7152777777777778
+        }
+      },
+      "operator": {
+        "unseen_pair": {
+          "correct": 99,
+          "count": 144,
+          "denominator": 144,
+          "rate": 0.6875
+        },
+        "seen_pair/unseen_triple": {
+          "correct": 102,
+          "count": 144,
+          "denominator": 144,
+          "rate": 0.7083333333333334
+        }
+      },
+      "participant": {
+        "unseen_pair": {
+          "correct": 59,
+          "count": 144,
+          "denominator": 144,
+          "rate": 0.4097222222222222
+        },
+        "seen_pair/unseen_triple": {
+          "correct": 90,
+          "count": 144,
+          "denominator": 144,
+          "rate": 0.625
+        }
+      },
+      "time": {
+        "unseen_pair": {
+          "correct": 57,
+          "count": 144,
+          "denominator": 144,
+          "rate": 0.3958333333333333
+        },
+        "seen_pair/unseen_triple": {
+          "correct": 26,
+          "count": 144,
+          "denominator": 144,
+          "rate": 0.18055555555555555
+        }
+      }
+    },
+    "H1L1_ANCHOR": {
+      "event": {
+        "unseen_pair": {
+          "correct": 97,
+          "count": 144,
+          "denominator": 144,
+          "rate": 0.6736111111111112
+        },
+        "seen_pair/unseen_triple": {
+          "correct": 103,
+          "count": 144,
+          "denominator": 144,
+          "rate": 0.7152777777777778
+        }
+      },
+      "operator": {
+        "unseen_pair": {
+          "correct": 99,
+          "count": 144,
+          "denominator": 144,
+          "rate": 0.6875
+        },
+        "seen_pair/unseen_triple": {
+          "correct": 102,
+          "count": 144,
+          "denominator": 144,
+          "rate": 0.7083333333333334
+        }
+      },
+      "participant": {
+        "unseen_pair": {
+          "correct": 61,
+          "count": 144,
+          "denominator": 144,
+          "rate": 0.4236111111111111
+        },
+        "seen_pair/unseen_triple": {
+          "correct": 82,
+          "count": 144,
+          "denominator": 144,
+          "rate": 0.5694444444444444
+        }
+      },
+      "time": {
+        "unseen_pair": {
+          "correct": 55,
+          "count": 144,
+          "denominator": 144,
+          "rate": 0.3819444444444444
+        },
+        "seen_pair/unseen_triple": {
+          "correct": 33,
+          "count": 144,
+          "denominator": 144,
+          "rate": 0.22916666666666666
+        }
+      }
+    }
+  },
+  "controls": {
+    "H1L1": {
+      "event": {
+        "alternate_class_one_hot": {
+          "nontrivial_joint_success": {
+            "correct": 5,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.8333333333333334
+          },
+          "missing": {
+            "correct": 0,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.0
+          }
+        },
+        "alternate_class_donor_soft": {
+          "nontrivial_joint_success": {
+            "correct": 3,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.5
+          },
+          "missing": {
+            "correct": 3,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.5
+          }
+        }
+      },
+      "operator": {
+        "alternate_class_one_hot": {
+          "nontrivial_joint_success": {
+            "correct": 2,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.3333333333333333
+          },
+          "missing": {
+            "correct": 0,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.0
+          }
+        },
+        "alternate_class_donor_soft": {
+          "nontrivial_joint_success": {
+            "correct": 1,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.16666666666666666
+          },
+          "missing": {
+            "correct": 3,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.5
+          }
+        }
+      },
+      "participant": {
+        "alternate_class_one_hot": {
+          "nontrivial_joint_success": {
+            "correct": 3,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.5
+          },
+          "missing": {
+            "correct": 0,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.0
+          }
+        },
+        "alternate_class_donor_soft": {
+          "nontrivial_joint_success": {
+            "correct": 1,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.16666666666666666
+          },
+          "missing": {
+            "correct": 5,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.8333333333333334
+          }
+        }
+      },
+      "time": {
+        "alternate_class_one_hot": {
+          "nontrivial_joint_success": {
+            "correct": 2,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.3333333333333333
+          },
+          "missing": {
+            "correct": 0,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.0
+          }
+        },
+        "alternate_class_donor_soft": {
+          "nontrivial_joint_success": {
+            "correct": 1,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.16666666666666666
+          },
+          "missing": {
+            "correct": 4,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.6666666666666666
+          }
+        }
+      }
+    },
+    "H1L1_ANCHOR": {
+      "event": {
+        "alternate_class_one_hot": {
+          "nontrivial_joint_success": {
+            "correct": 2,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.3333333333333333
+          },
+          "missing": {
+            "correct": 0,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.0
+          }
+        },
+        "alternate_class_donor_soft": {
+          "nontrivial_joint_success": {
+            "correct": 1,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.16666666666666666
+          },
+          "missing": {
+            "correct": 3,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.5
+          }
+        }
+      },
+      "operator": {
+        "alternate_class_one_hot": {
+          "nontrivial_joint_success": {
+            "correct": 0,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.0
+          },
+          "missing": {
+            "correct": 0,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.0
+          }
+        },
+        "alternate_class_donor_soft": {
+          "nontrivial_joint_success": {
+            "correct": 0,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.0
+          },
+          "missing": {
+            "correct": 3,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.5
+          }
+        }
+      },
+      "participant": {
+        "alternate_class_one_hot": {
+          "nontrivial_joint_success": {
+            "correct": 3,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.5
+          },
+          "missing": {
+            "correct": 0,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.0
+          }
+        },
+        "alternate_class_donor_soft": {
+          "nontrivial_joint_success": {
+            "correct": 0,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.0
+          },
+          "missing": {
+            "correct": 5,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.8333333333333334
+          }
+        }
+      },
+      "time": {
+        "alternate_class_one_hot": {
+          "nontrivial_joint_success": {
+            "correct": 2,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.3333333333333333
+          },
+          "missing": {
+            "correct": 0,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.0
+          }
+        },
+        "alternate_class_donor_soft": {
+          "nontrivial_joint_success": {
+            "correct": 2,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.3333333333333333
+          },
+          "missing": {
+            "correct": 4,
+            "count": 6,
+            "denominator": 6,
+            "rate": 0.6666666666666666
+          }
+        }
+      }
+    }
+  },
+  "regeneration": {
+    "deterministic": true,
+    "input_record_order_checked": true,
+    "json_encoding": "utf-8",
+    "derived_from_raw_fields": [
+      "intermediate_frame",
+      "target_frame",
+      "support_group",
+      "nontrivial_joint_success",
+      "missing_donor"
+    ],
+    "raw_artifact_mutation": false
+  }
+}

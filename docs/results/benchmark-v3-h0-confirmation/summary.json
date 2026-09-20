@@ -632,7 +632,8 @@
     "max_optimizer_updates": 3600,
     "max_wall_seconds": 7200,
     "optimizer_updates": 3600,
-    "wall_budget_breach_detected": false
+    "wall_budget_breach_detected": null,
+    "wall_budget_breach_reason": "aggregation_recovered_from_completed_raw_runs_after_summary_path_error"
   },
   "decisions": {
     "both_arms_strong_heads": false,

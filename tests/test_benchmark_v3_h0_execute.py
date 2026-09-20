@@ -1,9 +1,21 @@
 from __future__ import annotations
 
 import copy
+import json
 
-from norishio_lm.benchmark_v3_h0_execute import aggregate_completed_runs
-from norishio_lm.benchmark_v3_h0_protocol import load_protocol
+from norishio_lm.benchmark_v3_h0_execute import (
+    RUN_SCHEMA,
+    WALL_TIME_UNAVAILABLE_REASON,
+    _markdown,
+    aggregate_completed_runs,
+    finalize_existing_runs,
+)
+from norishio_lm.benchmark_v3_h0_protocol import (
+    FIXTURE_CONTENT_SHA256,
+    MAX_WALL_SECONDS,
+    PROTOCOL_SHA256,
+    load_protocol,
+)
 from norishio_lm.benchmark_v3_model import BOS_ID, FACTOR_ORDER, FACTOR_SIZES
 
 
@@ -114,3 +126,69 @@ def test_complete_set_uses_frozen_denominators_and_decision_rules() -> None:
     assert result["decisions"]["improvement_rule_met"] is True
     assert result["decisions"]["h0_bypass_supported"] is True
     assert result["decisions"]["fixture_specific_compositional_failure"] is True
+
+
+def test_aggregation_without_executor_wall_time_keeps_budget_status_unavailable() -> None:
+    runs = [
+        _run("H1L1", 7), _run("H1L1_ANCHOR", 7),
+        _run("H1L1", 17), _run("H1L1_ANCHOR", 17),
+        _run("H1L1", 29), _run("H1L1_ANCHOR", 29),
+    ]
+
+    result = aggregate_completed_runs(copy.deepcopy(runs), load_protocol())
+
+    assert result["budget"]["wall_budget_breach_detected"] is None
+    assert result["budget"]["wall_budget_breach_reason"] == WALL_TIME_UNAVAILABLE_REASON
+
+
+def test_new_executor_measurement_drives_wall_budget_boolean() -> None:
+    runs = [
+        _run("H1L1", 7), _run("H1L1_ANCHOR", 7),
+        _run("H1L1", 17), _run("H1L1_ANCHOR", 17),
+        _run("H1L1", 29), _run("H1L1_ANCHOR", 29),
+    ]
+
+    within_budget = aggregate_completed_runs(
+        copy.deepcopy(runs),
+        load_protocol(),
+        total_wall_seconds=MAX_WALL_SECONDS - 0.001,
+    )
+    over_budget = aggregate_completed_runs(
+        copy.deepcopy(runs),
+        load_protocol(),
+        total_wall_seconds=MAX_WALL_SECONDS,
+    )
+
+    assert within_budget["budget"]["wall_budget_breach_detected"] is False
+    assert within_budget["budget"]["wall_budget_breach_reason"] is None
+    assert over_budget["budget"]["wall_budget_breach_detected"] is True
+    assert over_budget["budget"]["wall_budget_breach_reason"] is None
+
+
+def test_finalize_existing_runs_keeps_wall_budget_status_unavailable(tmp_path) -> None:
+    runs = [
+        _run("H1L1", 7), _run("H1L1_ANCHOR", 7),
+        _run("H1L1", 17), _run("H1L1_ANCHOR", 17),
+        _run("H1L1", 29), _run("H1L1_ANCHOR", 29),
+    ]
+    for index, run in enumerate(runs, start=1):
+        record = {
+            "schema": RUN_SCHEMA,
+            "descriptor_sha256": PROTOCOL_SHA256,
+            "fixture_content_digest_sha256": FIXTURE_CONTENT_SHA256,
+            **run,
+        }
+        path = tmp_path / f"run-{index:02d}-{run['arm'].lower()}-seed{run['seed']}.json"
+        path.write_text(json.dumps(record), encoding="utf-8")
+
+    result = finalize_existing_runs(tmp_path)
+
+    assert result["summary"]["total_wall_seconds"] is None
+    assert result["summary"]["total_wall_seconds_reason"] == WALL_TIME_UNAVAILABLE_REASON
+    assert result["summary"]["budget"]["wall_budget_breach_detected"] is None
+    assert result["summary"]["budget"]["wall_budget_breach_reason"] == WALL_TIME_UNAVAILABLE_REASON
+    readme = _markdown(result["summary"])
+    assert "total-wall budget compliance is unavailable" in readme
+    assert "No training or inference was rerun" in readme
+    assert "`head-factor-audit.json`" in readme
+    assert "does not change the frozen decision" in readme

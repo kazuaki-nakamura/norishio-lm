@@ -1,8 +1,12 @@
 {
   "artifacts": {
     "README.md": {
-      "bytes": 1320,
-      "sha256": "2e12c8e152a7d2f6432c95be8b8303b112e12e797e06586b83579bb63fd1a569"
+      "bytes": 1734,
+      "sha256": "cf0a4d46ac7cb12419ad0bf565d970a104ce8a81ca29d0a7c2f407b28b742e89"
+    },
+    "head-factor-audit.json": {
+      "bytes": 14103,
+      "sha256": "6a1f1a8cf4a99e3110f5d56fd9fb8580ba81cb0991cf66f13a7ee323bb4926d9"
     },
     "run-01-h1l1-seed7.json": {
       "bytes": 2519964,
@@ -29,8 +33,8 @@
       "sha256": "f957f28c8961e5906aa6f582bef6cfa833e5a0376d830959eaea80e4ad3ddc0b"
     },
     "summary.json": {
-      "bytes": 20330,
-      "sha256": "fc40986bd929914a3070c39d529e50add69fd4dd6b5bebba100979a808215173"
+      "bytes": 20436,
+      "sha256": "bedc6a7684d02bc706d562de99b85e23f369ce1d7ea3cb6a999af758f5e92c2c"
     }
   },
   "descriptor_sha256": "19c11e5fa7b5ae90dd2bc3b6ddca20366e6d2b9798b98e3ccf1c7c8bcdf10533",

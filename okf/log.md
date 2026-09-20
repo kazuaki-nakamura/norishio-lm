@@ -7,6 +7,11 @@
   不確定。alternate-one-hot jointは12/24対7/24で改善条件を満たさず、h0 bypassを支持しない。
   旧v3 final/checkpoint/result/markerは未使用・未変更。手書き構造fixtureを意味学習成果としない。
 
+- 2026-09-20: PR #45 reviewのR1/R2を保存済み6 rawだけで修正。失われたexecutor総wallを
+  非超過へ補完せず`unavailable`とし、3,600 updateとtraining wall 115.189秒だけを確認済みとした。
+  factor別post-hoc auditはevent/operator約0.69に対しparticipant約0.50、time約0.30の非対称を記録。
+  凍結decision/threshold/ranking、raw run、学習、推論、historical artifactは変更していない。
+
 - 2026-09-20: Issue #42 PR #43のR4 reviewに合わせ、future-only internal interventionの
   primary prefixをBOS開始へ固定。authored target由来のexpected L1 gate scheduleとtraining前の
   到達可能性検査、baseline/intervention別のobserved gate trace、common-prefixのfull/partial slot、

@@ -31,6 +31,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUTPUT_DIR = ROOT / "docs" / "results" / "benchmark-v3-h0-confirmation"
 RUN_SCHEMA = "norishio.issue44.h0-confirmation-run.v1"
 SUMMARY_SCHEMA = "norishio.issue44.h0-confirmation-summary.v1"
+WALL_TIME_UNAVAILABLE_REASON = "aggregation_recovered_from_completed_raw_runs_after_summary_path_error"
 
 
 def _json_bytes(value: Any) -> bytes:
@@ -133,7 +134,13 @@ def _aggregate_swaps(records: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     return result
 
 
-def aggregate_completed_runs(runs: Sequence[Mapping[str, Any]], descriptor: Mapping[str, Any]) -> dict[str, Any]:
+def aggregate_completed_runs(
+    runs: Sequence[Mapping[str, Any]],
+    descriptor: Mapping[str, Any],
+    *,
+    total_wall_seconds: float | None = None,
+    total_wall_seconds_reason: str | None = None,
+) -> dict[str, Any]:
     """Aggregate exactly six completed runs under the frozen denominators."""
 
     if len(runs) != MAX_ATTEMPTS or any(run.get("status") != "complete" for run in runs):
@@ -240,6 +247,14 @@ def aggregate_completed_runs(runs: Sequence[Mapping[str, Any]], descriptor: Mapp
         "donor_soft_only_follow_through": donor_only,
         "claim": claim,
     }
+    if total_wall_seconds is None:
+        wall_budget_breach_detected: bool | None = None
+        wall_budget_breach_reason = (
+            total_wall_seconds_reason or WALL_TIME_UNAVAILABLE_REASON
+        )
+    else:
+        wall_budget_breach_detected = total_wall_seconds >= MAX_WALL_SECONDS
+        wall_budget_breach_reason = None
     return {
         "schema": SUMMARY_SCHEMA,
         "status": "complete",
@@ -255,7 +270,8 @@ def aggregate_completed_runs(runs: Sequence[Mapping[str, Any]], descriptor: Mapp
             "optimizer_updates": sum(int(run["training"]["optimizer_updates"]) for run in runs),
             "max_optimizer_updates": MAX_UPDATES,
             "max_wall_seconds": MAX_WALL_SECONDS,
-            "wall_budget_breach_detected": False,
+            "wall_budget_breach_detected": wall_budget_breach_detected,
+            "wall_budget_breach_reason": wall_budget_breach_reason,
         },
         "arms": arms,
         "decisions": decisions,
@@ -313,9 +329,28 @@ def _markdown(summary: Mapping[str, Any]) -> str:
         f"- Fixture-specific compositional failure condition: `{decisions['fixture_specific_compositional_failure']}`",
         f"- Frame recovery without exact target text: `{decisions['frame_recovery_without_exact_text']}`",
         "",
-        f"The six runs used {summary['optimizer_updates']} optimizer updates. Training took {summary['training_wall_seconds']:.3f} CPU seconds with one Torch thread. No GPU, network data, or paid compute was used.",
+    ])
+    if summary.get("total_wall_seconds") is None:
+        lines.append(
+            f"The six runs used {summary['optimizer_updates']} optimizer updates. Training took "
+            f"{summary['training_wall_seconds']:.3f} CPU seconds with one Torch thread. The original "
+            "total executor wall time, including evaluation, interventions, and the failed first "
+            "summary aggregation, was not retained, so total-wall budget compliance is unavailable. "
+            "No training or inference was rerun to fill that missing evidence. No GPU, network data, "
+            "or paid compute was used."
+        )
+    else:
+        lines.append(
+            f"The six runs used {summary['optimizer_updates']} optimizer updates. Training took "
+            f"{summary['training_wall_seconds']:.3f} CPU seconds and the measured executor took "
+            f"{summary['total_wall_seconds']:.3f} wall seconds with one Torch thread. No GPU, network "
+            "data, or paid compute was used."
+        )
+    lines.extend([
         "",
         "The low intermediate head-frame rates make the decoder-path interpretation inconclusive. The outputs are results on an authored structural-factor fixture and are not learned modern-semantic, sememe, concept, or linguistic-quality evidence.",
+        "",
+        "The saved-raw-only factor breakdown is in `head-factor-audit.json`. It is a post-hoc diagnostic and does not change the frozen decision, thresholds, or ranking.",
     ])
     return "\n".join(lines)
 
@@ -376,8 +411,13 @@ def run_frozen_experiment(output_dir: str | Path = DEFAULT_OUTPUT_DIR) -> dict[s
             break
         if time.monotonic() - started >= MAX_WALL_SECONDS:
             break
-    summary = aggregate_completed_runs(attempts, descriptor)
-    summary["total_wall_seconds"] = time.monotonic() - started
+    total_wall_seconds = time.monotonic() - started
+    summary = aggregate_completed_runs(
+        attempts,
+        descriptor,
+        total_wall_seconds=total_wall_seconds,
+    )
+    summary["total_wall_seconds"] = total_wall_seconds
     summary["attempted_runs"] = len(attempts)
     _write_json(destination / "summary.json", summary)
     (destination / "README.md").write_text(_markdown(summary), encoding="utf-8")
@@ -408,10 +448,14 @@ def finalize_existing_runs(output_dir: str | Path = DEFAULT_OUTPUT_DIR) -> dict[
         runs.append(dict(record))
     descriptor = load_protocol()
     preflight_protocol(descriptor)
-    summary = aggregate_completed_runs(runs, descriptor)
+    summary = aggregate_completed_runs(
+        runs,
+        descriptor,
+        total_wall_seconds_reason=WALL_TIME_UNAVAILABLE_REASON,
+    )
     summary["attempted_runs"] = len(runs)
     summary["total_wall_seconds"] = None
-    summary["total_wall_seconds_reason"] = "aggregation_recovered_from_completed_raw_runs_after_summary_path_error"
+    summary["total_wall_seconds_reason"] = WALL_TIME_UNAVAILABLE_REASON
     _write_json(destination / "summary.json", summary)
     (destination / "README.md").write_text(_markdown(summary), encoding="utf-8")
     _write_artifact_manifest(destination)

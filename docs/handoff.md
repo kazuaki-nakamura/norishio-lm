@@ -2077,8 +2077,10 @@ experiment descriptor digestは
 
 H1L1と、decoder h0だけをshared encoder(`[BOS, SEP]`)由来にするparameter-matched
 H1L1_ANCHORをseed 7/17/29、各600 update、batch 16、Adam 0.003、gradient clip 1.0、CPU
-Torch 1 threadで実行した。6/6 run、3,600/3,600 update、training 115.189 CPU秒。再試行、GPU、
-network data、有料computeはない。各runは96行通常生成、8 source swap、8 probe × 3 controlを保持する。
+Torch 1 threadで実行した。6/6 run、3,600/3,600 update、保存済みtraining wall合計115.189秒。
+再試行、GPU、network data、有料computeはない。各runは96行通常生成、8 source swap、8 probe ×
+3 controlを保持する。最初のexecutor全体wallはsummary集約失敗まで含めて保存されなかったため、
+2時間の総wall遵守は`unavailable`であり、training wallから`false`へ補完しない。
 最初の集約処理は全6 raw artifact保存後にsupport-group参照パスの`KeyError`で停止したが、学習・推論を
 再実行せず、同じ6 artifactだけから集約を修正・再生成した。
 
@@ -2095,11 +2097,18 @@ strong-head閾値0.80を大幅に下回った。結論は`decoder_path_inconclus
 事前定義したfixture-specific compositional failure条件を満たす。donor-softは両armとも15/24がprebound
 donorの学習後argmax不一致でstructural unavailableであり、eligible率をscheduled-24率の代用にしない。
 
+PR #45 review後、追加学習・推論・checkpoint loadなしで、保存済み6 rawのfactor別post-hoc auditを
+追加した。三seed合算288行のatomic head rateはH1L1でevent 0.69444、operator 0.69792、
+participant 0.51736、time 0.28819、H1L1_ANCHORで0.69444、0.69792、0.49653、0.30556。
+joint head exactの低さは全factor一様ではなく、participant/time、とくにtimeがボトルネックである。
+support別、seed別、alternate-one-hot/donor-softのfactor別scheduled-6集計は
+`head-factor-audit.json`へ保存した。これは凍結decision、閾値、rankingを変更しない診断である。
+
 実装、全raw run、集約、decision recordは
 [benchmark-v3 h0 confirmation](results/benchmark-v3-h0-confirmation/README.md)に置いた。この結果は手書きの
 構造factor fixture上の小型CPU実験であり、現代語義、sememe、concept、一般日本語能力を学習した証拠ではない。
-残課題は、弱いhead学習の原因、donor unavailableを結果依存で再選択せず減らす事前固定法、unseen-pair失敗と
-decoder follow-throughを分ける非等価な目的設計である。
+残課題は、participant/time headのlearnabilityとgeneralizationを直接分ける反証実験、donor unavailableを
+結果依存で再選択せず減らす事前固定法、unseen-pair失敗とdecoder follow-throughを分ける非等価な目的設計である。
 
 ## AI 作業基盤の追加（2026-09-05）
 

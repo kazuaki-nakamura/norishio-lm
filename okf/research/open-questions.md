@@ -29,6 +29,9 @@ sources:
   - id: h0-confirmation-results
     resource: docs/results/benchmark-v3-h0-confirmation/README.md
     title: Issue 44 bounded h0-bypass confirmation result
+  - id: h0-head-factor-audit
+    resource: docs/results/benchmark-v3-h0-confirmation/head-factor-audit.json
+    title: Issue 44 saved-raw factor head audit
 ---
 
 # 未解決課題と次の実験
@@ -101,6 +104,13 @@ Issue #44はreview済みfactor-path案をfuture-only descriptorで凍結し、�
 - 観測: ANCHORのunseen-pair generation-frame exact 0.00694に対しseen-pair/unseen-tripleは
   0.125で、事前定義のfixture-specific compositional failure条件を満たす。exact target textは
   0.02778で、frame回復とsurface回復を同一視しない。
+- 事後監査: 保存済みrawだけの三seed合算atomic head rateはH1L1でevent 0.69444、operator
+  0.69792、participant 0.51736、time 0.28819、ANCHORで0.69444、0.69792、0.49653、0.30556。
+  joint exactの弱さは一様でなくparticipant/timeに集中する。factor別controlもscheduled 6を分母に保持し、
+  凍結decision、閾値、rankingは変更しない。新しい学習・推論・checkpoint loadはない。
+- 証拠欠損: 3,600 updateとtraining wall合計115.189秒は保存済みrawから確認できるが、評価・介入・
+  最初の集約失敗を含むexecutor総wallは保存されていない。2時間総wall遵守は`unavailable`とし、
+  training wallから非超過へ補完しない。
 - 実装済み・実測済み: H1L1と、実sourceをfactor pathに残しつつdecoder h0だけ固定anchor由来にする
   parameter-matched H1L1_ANCHORを比較する。same-class soft-shape、alternate one-hot、同じrequested
   classのdonor-softを分け、head精度、decoder追随、連続分布形状、unseen-pair失敗を切り分ける。
@@ -109,7 +119,7 @@ Issue #44はreview済みfactor-path案をfuture-only descriptorで凍結し、�
   L1 gate scheduleで対象factorの到達可能性をtraining前に検証する。実生成gate traceはbaseline/
   intervention別に保存し、common-prefixはslot出力済み・partialを区別する別stratumにする。
   D_AUXは旧fixtureの参考情報だけで、新runや新比較根拠にしない。旧2×2は再実行していない。
-- 未解決: head学習自体が弱かった原因、donor-softの15/24 unavailableを減らす事前固定方法、
+- 未解決: participant/time headのlearnabilityとgeneralization、donor-softの15/24 unavailableを減らす事前固定方法、
   unseen-pair失敗とdecoder follow-throughを分ける非等価な目的設計。今回の手書きfixture結果を
   現代語義・sememe・concept・一般日本語能力の学習成果へ外挿しない。
 

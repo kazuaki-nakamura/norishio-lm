@@ -21,6 +21,8 @@ Decision: `decoder_path_inconclusive_due_to_weak_heads`.
 - Fixture-specific compositional failure condition: `True`
 - Frame recovery without exact target text: `True`
 
-The six runs used 3600 optimizer updates. Training took 115.189 CPU seconds with one Torch thread. No GPU, network data, or paid compute was used.
+The six runs used 3600 optimizer updates. Training took 115.189 CPU seconds with one Torch thread. The original total executor wall time, including evaluation, interventions, and the failed first summary aggregation, was not retained, so total-wall budget compliance is unavailable. No training or inference was rerun to fill that missing evidence. No GPU, network data, or paid compute was used.
 
 The low intermediate head-frame rates make the decoder-path interpretation inconclusive. The outputs are results on an authored structural-factor fixture and are not learned modern-semantic, sememe, concept, or linguistic-quality evidence.
+
+The saved-raw-only factor breakdown is in `head-factor-audit.json`. It is a post-hoc diagnostic and does not change the frozen decision, thresholds, or ranking.

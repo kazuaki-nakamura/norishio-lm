@@ -89,6 +89,9 @@ sources:
   - id: h0-confirmation-report
     resource: docs/results/benchmark-v3-h0-confirmation/README.md
     title: Issue 44 decision record and interpretation limits
+  - id: h0-head-factor-audit
+    resource: docs/results/benchmark-v3-h0-confirmation/head-factor-audit.json
+    title: Saved-raw-only factor head and intervention audit
 ---
 
 # Benchmark v3 factor-path freeze
@@ -200,3 +203,19 @@ supported. ANCHOR unseen-pair frame exact was 0.00694 versus 0.125 for
 pair-known/unseen-triple, meeting the preregistered fixture-specific
 compositional-failure condition. These are authored structural-factor results,
 not learned modern semantics, sememes, concepts, or general language quality.
+
+The first summary aggregation failed after all six raw runs had been saved. The
+retained raw records prove 3,600 updates and 115.189 seconds of summed training
+wall time, but they do not retain the original executor wall time covering
+evaluation, interventions, and the failed aggregation. Total-wall budget
+compliance is therefore unavailable rather than reconstructed as false; no
+training or inference was repeated to fill the missing evidence.
+
+A saved-raw-only post-hoc audit decomposes the weak four-factor joint head result.
+Across all 288 confirmation rows per arm, H1L1 atomic rates are 0.69444 event,
+0.69792 operator, 0.51736 participant, and 0.28819 time. H1L1_ANCHOR rates are
+0.69444, 0.69792, 0.49653, and 0.30556. Weakness is concentrated in participant
+and especially time rather than being uniform across all heads. The audit also
+retains seed and support-group denominators and factor-specific scheduled-six
+alternate-one-hot/donor-soft counts. It is diagnostic only and does not change
+the frozen decision, thresholds, or ranking.

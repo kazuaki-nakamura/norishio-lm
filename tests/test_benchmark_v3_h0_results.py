@@ -91,4 +91,7 @@ def test_saved_ordinary_and_intervention_aggregates_recompute_from_raw() -> None
         assert _aggregate_swaps(swaps) == summary["arms"][arm]["source_swaps"]
     assert summary["status"] == "complete"
     assert summary["optimizer_updates"] == 3600
+    assert summary["total_wall_seconds"] is None
+    assert summary["budget"]["wall_budget_breach_detected"] is None
+    assert summary["budget"]["wall_budget_breach_reason"] == summary["total_wall_seconds_reason"]
     assert summary["decisions"]["claim"] == "decoder_path_inconclusive_due_to_weak_heads"
