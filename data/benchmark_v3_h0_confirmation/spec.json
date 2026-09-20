@@ -1,0 +1,51 @@
+{
+  "version": "norishio-benchmark-v3-h0-confirmation.v1",
+  "generator_seed": 20260920,
+  "split_seed": 44017,
+  "authorship": {
+    "kind": "authored_future_fixture",
+    "source": "data/benchmark_v3_h0_confirmation/spec.json",
+    "human_verified": false,
+    "private_data_used": false,
+    "derived_from": "new_h0_namespace_only; prior_v2_v3_artifacts_unopened"
+  },
+  "participants": [
+    {"id": "P0", "surface": "h0p0"},
+    {"id": "P1", "surface": "h0p1"},
+    {"id": "P2", "surface": "h0p2"},
+    {"id": "P3", "surface": "h0p3"},
+    {"id": "P4", "surface": "h0p4"},
+    {"id": "P5", "surface": "h0p5"}
+  ],
+  "times": [
+    {"id": "T0", "surface": "h0t0"},
+    {"id": "T1", "surface": "h0t1"},
+    {"id": "T2", "surface": "h0t2"},
+    {"id": "T3", "surface": "h0t3"},
+    {"id": "T4", "surface": "h0t4"},
+    {"id": "T5", "surface": "h0t5"}
+  ],
+  "events": [
+    {"id": "E0", "predicates": {"O0": "h0e0o0", "O1": "h0e0o1", "O2": "h0e0o2", "O3": "h0e0o3"}},
+    {"id": "E1", "predicates": {"O0": "h0e1o0", "O1": "h0e1o1", "O2": "h0e1o2", "O3": "h0e1o3"}},
+    {"id": "E2", "predicates": {"O0": "h0e2o0", "O1": "h0e2o1", "O2": "h0e2o2", "O3": "h0e2o3"}},
+    {"id": "E3", "predicates": {"O0": "h0e3o0", "O1": "h0e3o1", "O2": "h0e3o2", "O3": "h0e3o3"}}
+  ],
+  "operators": ["O0", "O1", "O2", "O3"],
+  "source_templates": [
+    "h0-source-0|p={participant}|t={time}|v={predicate}",
+    "h0-source-1|t={time}|p={participant}|v={predicate}"
+  ],
+  "target_templates": [
+    "h0-target-0|p={participant}|t={time}|v={predicate}",
+    "h0-target-1|v={predicate}|t={time}|p={participant}"
+  ],
+  "selection": {
+    "unseen_pair_grid": "participant indices 0,1 crossed with time indices 0,1,2",
+    "seen_pair_grid": "participant indices 2,3 crossed with time indices 3,4,5",
+    "train_pair_exclusion": "participant indices 4,5 crossed with time indices 3,4,5 are unused",
+    "train_event_rule": "non-seen confirmation pair uses (participant+time)%4 and the next event; seen confirmation pairs use events 0,1",
+    "confirmation_event_rule": "unseen_pair uses events 0,1; seen_pair/unseen_triple uses events 2,3",
+    "confirmation_operator_rule": "both confirmation groups use their corresponding 2x2 event/operator block: operators 0,1 for unseen_pair and 2,3 for seen_pair/unseen_triple"
+  }
+}

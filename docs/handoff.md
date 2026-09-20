@@ -2066,6 +2066,41 @@ canonical化してからscorerへ渡すよう修正し、完全正答E headがca
 R1/R2対応後のfocused testは17 passed、全test rootは **480 passed, 1 warning, 2 subtests passed**。
 split auditは独立再生成したJSON/Markdownがbyte一致し、2群から全体値を復元する72 metric照合もerrors 0。
 
+## Issue #44 h0-bypass factor-path confirmation（2026-09-20）
+
+Issue #42 / PR #43でreviewされたfuture-only計画を実装し、historical v1/v2/v3のfinal、checkpoint、
+marker、result、attestationを開かず変更もしなかった。新fixtureは384 train / 96 confirmationで、
+confirmationは`unseen_pair` 48行と`seen_pair/unseen_triple` 48行。fixture digestは
+`296f32138f9ee448ca8fe975200047f53a6679343af35cbe7423d1e3435e1945`、training前に固定した
+experiment descriptor digestは
+`19c11e5fa7b5ae90dd2bc3b6ddca20366e6d2b9798b98e3ccf1c7c8bcdf10533`。
+
+H1L1と、decoder h0だけをshared encoder(`[BOS, SEP]`)由来にするparameter-matched
+H1L1_ANCHORをseed 7/17/29、各600 update、batch 16、Adam 0.003、gradient clip 1.0、CPU
+Torch 1 threadで実行した。6/6 run、3,600/3,600 update、training 115.189 CPU秒。再試行、GPU、
+network data、有料computeはない。各runは96行通常生成、8 source swap、8 probe × 3 controlを保持する。
+最初の集約処理は全6 raw artifact保存後にsupport-group参照パスの`KeyError`で停止したが、学習・推論を
+再実行せず、同じ6 artifactだけから集約を修正・再生成した。
+
+三seed平均は次のとおり。
+
+| arm | generation frame exact | head frame exact | exact target text | alternate one-hot nontrivial joint / 24 |
+|---|---:|---:|---:|---:|
+| H1L1 | 0.03125 | 0.07639 | 0.01736 | 12/24 |
+| H1L1_ANCHOR | 0.06597 | 0.08333 | 0.02778 | 7/24 |
+
+ANCHORはpreservation ruleを満たしたが、alternate-one-hotの絶対改善+0.10を満たさず、両armのheadも
+strong-head閾値0.80を大幅に下回った。結論は`decoder_path_inconclusive_due_to_weak_heads`で、h0 bypass
+仮説を支持しない。ANCHORのunseen-pair frame exact 0.00694に対しseen-pair/unseen-tripleは0.125で、
+事前定義したfixture-specific compositional failure条件を満たす。donor-softは両armとも15/24がprebound
+donorの学習後argmax不一致でstructural unavailableであり、eligible率をscheduled-24率の代用にしない。
+
+実装、全raw run、集約、decision recordは
+[benchmark-v3 h0 confirmation](results/benchmark-v3-h0-confirmation/README.md)に置いた。この結果は手書きの
+構造factor fixture上の小型CPU実験であり、現代語義、sememe、concept、一般日本語能力を学習した証拠ではない。
+残課題は、弱いhead学習の原因、donor unavailableを結果依存で再選択せず減らす事前固定法、unseen-pair失敗と
+decoder follow-throughを分ける非等価な目的設計である。
+
 ## AI 作業基盤の追加（2026-09-05）
 
 ユーザー指定の ai-project-foundation から、開発用 OKF、読取専用 MCP、索引・整合性検査を取り込んだ。

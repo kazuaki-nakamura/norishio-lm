@@ -1,0 +1,85 @@
+{
+  "checks": {
+    "confirmation_support_semantics": true,
+    "no_full_surface_categorical_id": true,
+    "prior_v2_v3_evaluation_surfaces_disjoint": true,
+    "probe_identities_complete": true,
+    "selection_not_reseated": true,
+    "source_allowlist": true,
+    "source_swap_pairs_complete": true,
+    "source_target_disjoint": true,
+    "target_grammar_unambiguous": true,
+    "teacher_forcing_alignment": true,
+    "train_atomic_coverage": true,
+    "two_variants_per_frame": true,
+    "unique_frame_groups": true,
+    "unique_ids": true,
+    "unique_sources": true,
+    "unique_targets": true
+  },
+  "content_digest_sha256": "296f32138f9ee448ca8fe975200047f53a6679343af35cbe7423d1e3435e1945",
+  "counts": {"confirmation": 96, "train": 384},
+  "generator_sha256": "09845576c2cdd9e1f3aa6c58fef825a87911c50f4ff47a87da96471f386d184f",
+  "groups": {"confirmation": 48, "train": 192},
+  "leakage_contract": {
+    "consumed_artifacts_opened": false,
+    "encoding": "canonical UTF-8 bytes with BOS/SEP; no whole-surface categorical id",
+    "forbidden_row_fields": ["id", "group_id", "split", "template", "support_class", "gold", "targets"],
+    "model_inputs": ["context", "text"],
+    "prior_surface_source": ["data/benchmark_v2/spec.json", "data/benchmark_v3_factor_path/spec.json"]
+  },
+  "schema": "norishio.benchmark-v3-h0-confirmation-fixture.v1",
+  "scope": "future-only authored H0 confirmation fixture; no trained-model or linguistic-quality claim",
+  "selection": {
+    "probe_identities": {
+      "seen_pair/unseen_triple": {
+        "event": "h0-frame-p2-t3-e3-o2-v0",
+        "operator": "h0-frame-p2-t3-e3-o3-v0",
+        "participant": "h0-frame-p2-t3-e2-o2-v0",
+        "time": "h0-frame-p2-t3-e2-o3-v0"
+      },
+      "unseen_pair": {
+        "event": "h0-frame-p0-t0-e1-o0-v0",
+        "operator": "h0-frame-p0-t0-e1-o1-v0",
+        "participant": "h0-frame-p0-t0-e0-o0-v0",
+        "time": "h0-frame-p0-t0-e0-o1-v0"
+      }
+    },
+    "source_swap_pairs": {
+      "seen_pair/unseen_triple": {
+        "event": ["h0-frame-p2-t3-e2-o2-v0", "h0-frame-p2-t3-e3-o2-v0"],
+        "operator": ["h0-frame-p2-t3-e2-o2-v0", "h0-frame-p2-t3-e2-o3-v0"],
+        "participant": ["h0-frame-p2-t3-e2-o2-v0", "h0-frame-p3-t3-e2-o2-v0"],
+        "time": ["h0-frame-p2-t3-e2-o2-v0", "h0-frame-p2-t4-e2-o2-v0"]
+      },
+      "unseen_pair": {
+        "event": ["h0-frame-p0-t0-e0-o0-v0", "h0-frame-p0-t0-e1-o0-v0"],
+        "operator": ["h0-frame-p0-t0-e0-o0-v0", "h0-frame-p0-t0-e0-o1-v0"],
+        "participant": ["h0-frame-p0-t0-e0-o0-v0", "h0-frame-p1-t0-e0-o0-v0"],
+        "time": ["h0-frame-p0-t0-e0-o0-v0", "h0-frame-p0-t1-e0-o0-v0"]
+      }
+    }
+  },
+  "sha256": {
+    "confirmation.jsonl": "b43fd4184f7573a82b596541f7abe381beacc5cfc649adacc5caad215e50c8fa",
+    "train.jsonl": "fb9d1a36a992074768a0d5be244c59ed89cfe7a5bbaf858c66b8fc85860d45b6"
+  },
+  "spec_sha256": "1cdf8a1b7b0e12e62f3c836c05b820f4852176fa0723830bc4450a525bac997a",
+  "split_plan": {
+    "confirmation_rule": "unseen pair grid uses events 0,1 and operators 0,1; seen pair grid uses events 2,3 and operators 2,3",
+    "generator_seed": 20260920,
+    "name": "h0-2x3-support-grid-v1",
+    "seed": 44017,
+    "seen_confirmation_coordinates": [[2, 3], [2, 4], [2, 5], [3, 3], [3, 4], [3, 5]],
+    "train_event_rule": "non_seen_pair=(participant+time)%4 and next modulo 4; seen_confirmation pairs use 0 and 1",
+    "train_pair_count": 24,
+    "unseen_pair_coordinates": [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2]],
+    "unused_pair_coordinates": [[4, 3], [4, 4], [4, 5], [5, 3], [5, 4], [5, 5]]
+  },
+  "support_classes": {
+    "confirmation": {"seen_pair/unseen_triple": 48, "unseen_pair": 48},
+    "train": {"train": 384}
+  },
+  "train_support": {"participant_time": 24, "participant_time_event": 48},
+  "version": "norishio-benchmark-v3-h0-confirmation.v1"
+}

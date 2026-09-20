@@ -2,8 +2,8 @@
 type: OpenQuestion
 title: 未解決課題と次の実験
 status: draft
-generated: { by: ai-assisted-source-review, at: 2026-09-19 }
-stale_after: 2026-10-19
+generated: { by: ai-assisted-source-review, at: 2026-09-20 }
+stale_after: 2026-10-20
 sources:
   - id: handoff
     resource: docs/handoff.md
@@ -25,14 +25,17 @@ sources:
     title: Attested final observations and Issue 39 protocol erratum
   - id: next-factor-plan
     resource: docs/factor-path-next-experiment.md
-    title: Review-unapproved minimal factor-path confirmation proposal
+    title: Reviewed minimal factor-path confirmation protocol
+  - id: h0-confirmation-results
+    resource: docs/results/benchmark-v3-h0-confirmation/README.md
+    title: Issue 44 bounded h0-bypass confirmation result
 ---
 
 # 未解決課題と次の実験
 
 現在の根拠区分とcommitは`docs/research-status-post-v3.md`を参照する。
 v1 concept toy、benchmark v2、benchmark v3はfixture・分割・目的が異なり、単一の性能向上曲線にしない。
-次のfactor-path案`docs/factor-path-next-experiment.md`はreview未承認であり、データ生成・学習・推論を許可しない。
+Issue #44はreview済みfactor-path案をfuture-only descriptorで凍結し、承認された6 runだけを完了した。
 
 - 実装済み: 辞書入力と関係三つ組の検証、由来・出典・版の追跡。根拠のない信頼度は補わない。
 - 未解決: 出典本文の妥当性確認、関係端点のオントロジー検証、評価可能な信頼度の定義。
@@ -86,15 +89,28 @@ v1 concept toy、benchmark v2、benchmark v3はfixture・分割・目的が異�
   unseen-pairがpair既知/unseen-tripleより大幅に低い。
 - 訂正済み: v3主armの旧介入はfixed class 0で0/48 target change。baseline確率未保存のため
   argmax class分類は補正不能で、alternate-class介入の否定結果ではない。
-- 実装済み・未測定: future-only protocol/digestとalternate-class validatorは存在するが、
-  その契約を使った学習・推論・確認実験は未実施。
-- 未承認案: H1L1と、実sourceをfactor pathに残しつつdecoder h0だけ固定anchor由来にする
+- 実測済み: Issue #44は新しい384 train / 96 confirmation fixture、H1L1とparameter-matched
+  H1L1_ANCHOR、seed 7/17/29、各600 updateをdescriptor SHA-256
+  `19c11e5fa7b5ae90dd2bc3b6ddca20366e6d2b9798b98e3ccf1c7c8bcdf10533`で凍結し、
+  6/6 run、3,600 updateを完了した。通常generation-frame exact三seed平均はH1L1
+  0.03125、ANCHOR 0.06597だが、head-frame exactは0.07639/0.08333でstrong-head閾値0.80を
+  大きく下回る。decoder-path結論は不確定で、h0 bypass仮説を支持しない。
+- 観測: alternate-one-hotのscheduled-24 nontrivial jointはH1L1 12/24、ANCHOR 7/24で、
+  preregistered +0.10改善条件を満たさない。donor-softは両armとも15/24がprebound donorの
+  学習後argmax不一致でstructural unavailable。成功率はscheduled分母とeligible分母を分離する。
+- 観測: ANCHORのunseen-pair generation-frame exact 0.00694に対しseen-pair/unseen-tripleは
+  0.125で、事前定義のfixture-specific compositional failure条件を満たす。exact target textは
+  0.02778で、frame回復とsurface回復を同一視しない。
+- 実装済み・実測済み: H1L1と、実sourceをfactor pathに残しつつdecoder h0だけ固定anchor由来にする
   parameter-matched H1L1_ANCHORを比較する。same-class soft-shape、alternate one-hot、同じrequested
   classのdonor-softを分け、head精度、decoder追随、連続分布形状、unseen-pair失敗を切り分ける。
   baseline生成がすでにrequested classのprobeは非自明な追随成功に数えず、parse failureと分母を
   別記する。internal interventionのprimaryはBOS開始に固定し、authored targetから事前計算した
   L1 gate scheduleで対象factorの到達可能性をtraining前に検証する。実生成gate traceはbaseline/
   intervention別に保存し、common-prefixはslot出力済み・partialを区別する別stratumにする。
-  D_AUXは旧fixtureの参考情報だけで、新runや新比較根拠にしない。旧2×2を無条件に再実行しない。
+  D_AUXは旧fixtureの参考情報だけで、新runや新比較根拠にしない。旧2×2は再実行していない。
+- 未解決: head学習自体が弱かった原因、donor-softの15/24 unavailableを減らす事前固定方法、
+  unseen-pair失敗とdecoder follow-throughを分ける非等価な目的設計。今回の手書きfixture結果を
+  現代語義・sememe・concept・一般日本語能力の学習成果へ外挿しない。
 
 実験の順序は [意味層の分離](semantic-separation.md) と既存 architecture に従う。
