@@ -1,0 +1,60 @@
+{
+  "version": "norishio-benchmark-v3-head-learning.v1",
+  "generator_seed": 20260923,
+  "split_seed": 46017,
+  "authorship": {
+    "kind": "authored_future_fixture",
+    "source": "data/benchmark_v3_head_learning/spec.json",
+    "human_verified": false,
+    "private_data_used": false,
+    "derived_from": "new_head_learning_namespace_only; prior_v2_v3_artifacts_unopened"
+  },
+  "participants": [
+    {"id": "P0", "surface": "hl-participant-0"},
+    {"id": "P1", "surface": "hl-participant-1"},
+    {"id": "P2", "surface": "hl-participant-2"},
+    {"id": "P3", "surface": "hl-participant-3"},
+    {"id": "P4", "surface": "hl-participant-4"},
+    {"id": "P5", "surface": "hl-participant-5"}
+  ],
+  "times": [
+    {"id": "T0", "surface": "hl-time-0"},
+    {"id": "T1", "surface": "hl-time-1"},
+    {"id": "T2", "surface": "hl-time-2"},
+    {"id": "T3", "surface": "hl-time-3"},
+    {"id": "T4", "surface": "hl-time-4"},
+    {"id": "T5", "surface": "hl-time-5"}
+  ],
+  "events": [
+    {"id": "E0", "predicates": {"O0": "hl-predicate-e0-o0", "O1": "hl-predicate-e0-o1", "O2": "hl-predicate-e0-o2", "O3": "hl-predicate-e0-o3"}},
+    {"id": "E1", "predicates": {"O0": "hl-predicate-e1-o0", "O1": "hl-predicate-e1-o1", "O2": "hl-predicate-e1-o2", "O3": "hl-predicate-e1-o3"}},
+    {"id": "E2", "predicates": {"O0": "hl-predicate-e2-o0", "O1": "hl-predicate-e2-o1", "O2": "hl-predicate-e2-o2", "O3": "hl-predicate-e2-o3"}},
+    {"id": "E3", "predicates": {"O0": "hl-predicate-e3-o0", "O1": "hl-predicate-e3-o1", "O2": "hl-predicate-e3-o2", "O3": "hl-predicate-e3-o3"}}
+  ],
+  "operators": ["O0", "O1", "O2", "O3"],
+  "source_templates": [
+    "hl-source-a::{participant}|{time}|{predicate}",
+    "hl-source-b::{participant}|{time}|{predicate}"
+  ],
+  "target_templates": [
+    "hl-target-a::{participant}|{time}|{predicate}",
+    "hl-target-b::{participant}|{time}|{predicate}"
+  ],
+  "selection": {
+    "unseen_pair_offsets": [0],
+    "unused_pair_offsets": [1],
+    "train_pair_offsets": [2, 3, 4, 5],
+    "train_events_by_offset": {
+      "2": ["E0", "E1"],
+      "3": ["E1", "E2"],
+      "4": ["E2", "E3"],
+      "5": ["E3", "E0"]
+    },
+    "unseen_pair_events": ["E0", "E1"],
+    "unseen_pair_operators": ["O0", "O1"],
+    "seen_pair_offset": 2,
+    "seen_pair_events": ["E2", "E3"],
+    "seen_pair_operators": ["O2", "O3"],
+    "variant_count": 2
+  }
+}

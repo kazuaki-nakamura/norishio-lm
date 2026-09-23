@@ -1,0 +1,51 @@
+{
+  "version": "norishio-benchmark-v3-head-learning.v1",
+  "schema": "norishio.benchmark-v3-head-learning-fixture.v1",
+  "counts": {"train": 384, "confirmation": 96},
+  "groups": {"train": 192, "confirmation": 48},
+  "support_classes": {
+    "train": {"train": 384},
+    "confirmation": {"unseen_pair": 48, "seen_pair/unseen_triple": 48}
+  },
+  "train_support": {"participant_time": 24, "participant_time_event": 48, "participant_time_predicate": 192},
+  "split_plan": {
+    "name": "head-learning-regular-bipartite-graph-v1",
+    "generator_seed": 20260923,
+    "seed": 46017,
+    "unseen_pair_offsets": [0],
+    "unused_pair_offsets": [1],
+    "train_pair_offsets": [2, 3, 4, 5],
+    "train_pair_count": 24,
+    "confirmation_pair_count_by_support": {"unseen_pair": 6, "seen_pair/unseen_triple": 6},
+    "graph_definition": "offset=(time_index-participant_index) mod 6; offsets 0 and 1 are held out, offsets 2..5 train"
+  },
+  "train_pair_offset_counts": {"2": 48, "3": 48, "4": 48, "5": 48},
+  "balance": {
+    "participant_event_count": 8,
+    "time_event_count": 8,
+    "participant_predicate_count": 2,
+    "time_predicate_count": 2,
+    "all_equal": true
+  },
+  "spec_sha256": "c1792d1bf8a48601f90f182b836bad37ffca56a9caec4c1a316e9f43c51ecf73",
+  "generator_sha256": "2db80b278eb33981620509f753d7e8d1180de25064f4721e06be01c4d63cd617",
+  "sha256": {
+    "train.jsonl": "75f61048c5bfed5b588be2c21ee41b9f63a7d955a1db052cb42645e3f2e37596",
+    "confirmation.jsonl": "a2a818b874c5994236f3932a7a21ebbadc0e1fe25117171f48081f322ab6ab89"
+  },
+  "checks": {
+    "unique_ids": true,
+    "variant_groups": true,
+    "unique_sources": true,
+    "unique_targets": true,
+    "source_target_disjoint": true,
+    "train_atomic_coverage": true,
+    "explicit_train_graph": true,
+    "pair_and_triple_holdouts": true,
+    "counterbalanced_predicates": true,
+    "prior_surfaces_disjoint": true,
+    "no_model_execution": true
+  },
+  "scope": "future-only authored structural fixture; no trained-model or linguistic-quality claim",
+  "content_digest_sha256": "b587c091e3499348c5e9bcfabff68ac3bb3bbd2c1df60edaac62833cf69cbed5"
+}
