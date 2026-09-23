@@ -2110,6 +2110,35 @@ support別、seed別、alternate-one-hot/donor-softのfactor別scheduled-6集計
 残課題は、participant/time headのlearnabilityとgeneralizationを直接分ける反証実験、donor unavailableを
 結果依存で再選択せず減らす事前固定法、unseen-pair失敗とdecoder follow-throughを分ける非等価な目的設計である。
 
+## Issue #46 source→factor head learnability（2026-09-24）
+
+新しい手書き構造factor fixture（384 train、96 confirmation、未見pairと既知pair/未見高次の各48行）を
+事前凍結し、H1L1の同一module tree・同一初期重み・32,120 trainable parameterで
+JOINT（LM + factor）とFACTOR_ONLY（factorのみ）を比較した。descriptor SHA-256は
+`210fdbab6bcd4f8604d8653835ea5f075df3a41a2c79fb0fbc95bc9a07967322`、
+凍結commitは`2bf95812daea5db9c5016782f6068cb0f11627c0`。seed 7/17/29、各600 update、
+計6/6 runと3,600/3,600 updateを一度だけ実行し、全train/confirmation行のhead確率・argmax、
+per-class分母、paired差分、training wall 87.097秒、executor wall 93.418秒を保存した。
+
+FACTOR_ONLYのtrain resubstitution三seed合算atomic rateはparticipant 501/1152（0.435）、
+time 488/1152（0.424）、event 665/1152（0.577）、operator 655/1152（0.569）。
+確認データではparticipant 174/288（0.604）、time 176/288（0.611）だが、両factorが全seedで
+JOINTを同方向に改善する条件は満たさない。凍結判定は
+`basic_optimization_or_capacity_unresolved`。decoder目的だけを原因と断定できず、
+source符号化・最適化・容量の切り分けが次の課題である。Issue #44のdecoder-path保留を変更しない。
+詳細は[Issue #46 results](results/benchmark-v3-head-learning/README.md)。
+手書き構造factorの分類結果は、現代語義・sememe・concept・一般日本語能力の学習成果ではない。
+実装済みは新fixture、同初期値対照、raw head保存、因子別/クラス別集計、no-retry実行器。
+未実装・未測定はsource符号化/容量/最適化の個別対照、強いheadが得られた後のdecoder追随実験、
+現代語義・sememe・concept層のablationである。次候補は、学習前に固定する小型source/head
+容量・最適化対照を用いて、trainの低精度をまず切り分けること。
+
+検証はCPU Torch環境で全test root **732 passed, 1 skipped, 2 subtests passed**、
+raw-only再集計とartifact hash検査、手書き辞書デモ、OKF形式検査（errors/warnings 0）、
+full索引検査（277原本、errors 0）、MCP self/live check成功。最初のpytestはWindowsの一時
+directory ACLでcollection error、旧JSONのCRLF変換ではbyte検査2件失敗した。明示test rootと
+repo-local一時directory、結果artifactの改行保持設定で解消して再検証した。失敗runを成功扱いにしていない。
+
 ## AI 作業基盤の追加（2026-09-05）
 
 ユーザー指定の ai-project-foundation から、開発用 OKF、読取専用 MCP、索引・整合性検査を取り込んだ。

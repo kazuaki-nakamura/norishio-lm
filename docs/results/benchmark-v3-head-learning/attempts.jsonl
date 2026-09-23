@@ -1,0 +1,12 @@
+{"arm":"JOINT","descriptor_sha256":"210fdbab6bcd4f8604d8653835ea5f075df3a41a2c79fb0fbc95bc9a07967322","event":"started","index":1,"seed":7}
+{"arm":"JOINT","event":"completed","index":1,"optimizer_updates":600,"raw_name":"run-01-joint-seed7.json","raw_sha256":"2ab7eac2a251139a5e3bb9474999b9445af08ffe99f544c3b37750c1bed596c4","seed":7}
+{"arm":"FACTOR_ONLY","descriptor_sha256":"210fdbab6bcd4f8604d8653835ea5f075df3a41a2c79fb0fbc95bc9a07967322","event":"started","index":2,"seed":7}
+{"arm":"FACTOR_ONLY","event":"completed","index":2,"optimizer_updates":600,"raw_name":"run-02-factor_only-seed7.json","raw_sha256":"9b0587fc6ab469287b9ea769feeea938c64b3711eb3952567a4fce0301567539","seed":7}
+{"arm":"JOINT","descriptor_sha256":"210fdbab6bcd4f8604d8653835ea5f075df3a41a2c79fb0fbc95bc9a07967322","event":"started","index":3,"seed":17}
+{"arm":"JOINT","event":"completed","index":3,"optimizer_updates":600,"raw_name":"run-03-joint-seed17.json","raw_sha256":"b70969165f56e4d0448774d87e80b9e11b74bcb3619620cacbf00be31325a479","seed":17}
+{"arm":"FACTOR_ONLY","descriptor_sha256":"210fdbab6bcd4f8604d8653835ea5f075df3a41a2c79fb0fbc95bc9a07967322","event":"started","index":4,"seed":17}
+{"arm":"FACTOR_ONLY","event":"completed","index":4,"optimizer_updates":600,"raw_name":"run-04-factor_only-seed17.json","raw_sha256":"ba2f9b0721545cf3adc018eaca6fe949a91eeb0dd7a0fca971e8aa4d31eac70c","seed":17}
+{"arm":"JOINT","descriptor_sha256":"210fdbab6bcd4f8604d8653835ea5f075df3a41a2c79fb0fbc95bc9a07967322","event":"started","index":5,"seed":29}
+{"arm":"JOINT","event":"completed","index":5,"optimizer_updates":600,"raw_name":"run-05-joint-seed29.json","raw_sha256":"8e062438919d5290e36cf95def0f9bc012a082efc0fc04a22ac7e854fe843262","seed":29}
+{"arm":"FACTOR_ONLY","descriptor_sha256":"210fdbab6bcd4f8604d8653835ea5f075df3a41a2c79fb0fbc95bc9a07967322","event":"started","index":6,"seed":29}
+{"arm":"FACTOR_ONLY","event":"completed","index":6,"optimizer_updates":600,"raw_name":"run-06-factor_only-seed29.json","raw_sha256":"c78978149984f28c5fdd26b1c7f50c894e7eaf02ee5095cbd6bddfb486e0ddc0","seed":29}
