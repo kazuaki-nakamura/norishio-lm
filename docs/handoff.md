@@ -2127,11 +2127,23 @@ JOINTを同方向に改善する条件は満たさない。凍結判定は
 `basic_optimization_or_capacity_unresolved`。decoder目的だけを原因と断定できず、
 source符号化・最適化・容量の切り分けが次の課題である。Issue #44のdecoder-path保留を変更しない。
 詳細は[Issue #46 results](results/benchmark-v3-head-learning/README.md)。
+
+PR #47 R1の事後・非学習監査で、実際の`source_ids`（BOS/SEPとJSON囲いを含む）の
+token-count signature衝突を確認した。train 384行は140署名、衝突群内340行。
+同じ署名ではmasked-mean `SourceByteEncoder`の出力が一致する。署名ごとの正解多数派から
+求めたtrain上限はparticipant 216/384、time 240/384、event 236/384、operator
+262/384。各factorのtrain class supportは均等なのでclass-balancedでも上限は0.80未満。
+これは現行fixture/encoderの役割情報喪失を確定する一方、追加的な最適化・容量の寄与は
+未測定。凍結判定と6 raw runは変更せず、[衝突監査](results/benchmark-v3-head-learning/README.md#post-run-source-encoding-collision-audit-pr-47-r1)を追記した。
+次候補は新しい事前凍結実験で、役割を共有する入力と役割を区別できる入力をfactor-onlyで比較すること。
+R1追記後の検証はCPU Torch環境で **737 passed, 1 skipped, 2 subtests passed**。
+監査JSONは凍結fixtureからの再生成と一致し、OKF形式検査はerrors/warnings 0、
+full索引検査は280原本・errors 0、MCP self/live checkも成功。
 手書き構造factorの分類結果は、現代語義・sememe・concept・一般日本語能力の学習成果ではない。
 実装済みは新fixture、同初期値対照、raw head保存、因子別/クラス別集計、no-retry実行器。
 未実装・未測定はsource符号化/容量/最適化の個別対照、強いheadが得られた後のdecoder追随実験、
 現代語義・sememe・concept層のablationである。次候補は、学習前に固定する小型source/head
-容量・最適化対照を用いて、trainの低精度をまず切り分けること。
+役割符号化対照を用いて、trainの識別不能性をまず切り分けること。
 
 検証はCPU Torch環境で全test root **732 passed, 1 skipped, 2 subtests passed**、
 raw-only再集計とartifact hash検査、手書き辞書デモ、OKF形式検査（errors/warnings 0）、

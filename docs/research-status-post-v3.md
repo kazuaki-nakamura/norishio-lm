@@ -32,6 +32,15 @@ atomic rates were 0.435/0.424 across three seeds, both below the preregistered
 `basic_optimization_or_capacity_unresolved`, with no all-seed paired
 participant/time confirmation improvement. Saved per-row head probabilities
 and results are in the [Issue #46 result](results/benchmark-v3-head-learning/README.md).
+An append-only input-signature audit then found that the masked-mean source
+encoder maps 340 of 384 training rows into collision groups: 140 distinct
+signatures in all. Even an ideal deterministic signature-only classifier has
+train ceilings of 216/384 participant, 240/384 time, 236/384 event, and 262/384
+operator. Equal train class support makes these class-balanced ceilings too;
+all are below the frozen 0.80 strong-head gate. This confirms an input-role
+identifiability defect in this fixture/encoder combination. Additional
+optimization and capacity effects remain unmeasured, and the frozen decision
+field and six run artifacts remain unchanged.
 Neither experiment measures modern lexical semantics or general language
 quality; neither changes the v3 or Issue #44 frozen decisions.
 
@@ -46,9 +55,9 @@ quality; neither changes the v3 or Issue #44 frozen decisions.
   decoder h0 rather than the explicit factor path remains inconclusive because
   the Issue #44 heads were weak. Canonical class use and sensitivity to the
   continuous probability shape are also unresolved.
-- Why FACTOR_ONLY fails to learn strong training heads on Issue #46's authored
-  fixture remains unresolved: source encoding, optimization, and capacity have
-  not been isolated.
+- The Issue #46 masked-mean encoder definitively loses role information on the
+  authored fixture; whether optimization or capacity adds further error remains
+  unmeasured. A separately frozen role-identifiable source control is needed.
 - External dictionary and morphology adapters, contextual lexical-sense
   selection, ordered/graph encoders, and sourced semantic-layer ablations remain
   unimplemented or unmeasured.

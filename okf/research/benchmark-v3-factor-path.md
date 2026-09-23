@@ -101,6 +101,12 @@ sources:
   - id: head-learning-summary
     resource: docs/results/benchmark-v3-head-learning/summary.json
     title: Issue 46 raw-bound factor and class-balanced metrics
+  - id: head-learning-collision-audit
+    resource: docs/results/benchmark-v3-head-learning/collision-audit.json
+    title: Issue 46 append-only source-token signature audit
+  - id: head-learning-collision-code
+    resource: src/norishio_lm/benchmark_v3_head_collision_audit.py
+    title: Deterministic fixture-only input collision analyzer
 ---
 
 # Benchmark v3 factor-path freeze
@@ -239,7 +245,15 @@ resubstitution participant/time correct rates were 501/1152 and 488/1152;
 all four factor heads were below the preregistered 0.80 class-balanced floor.
 Confirmation participant/time were 174/288 and 176/288, with paired deltas
 that did not improve both factors in all three seeds. The frozen branch is
-`basic_optimization_or_capacity_unresolved`. The comparison does not identify
-source encoding, optimization, or capacity as the cause, and it does not alter
+`basic_optimization_or_capacity_unresolved`. A subsequent deterministic audit
+of complete `source_ids` token-count signatures found only 140 distinct train
+signatures for 384 rows, with 340 rows in collision groups. For the fixed
+masked-mean source encoder, the theoretical train ceiling is 216/384 for
+participant, 240/384 for time, 236/384 for event, and 262/384 for operator.
+Equal train class supports make the class-balanced ceilings identical, all
+below the preregistered 0.80 gate. Source role information loss is therefore
+structurally confirmed on this fixture/encoder; any further optimization or
+capacity contribution remains unmeasured. The audit does not alter the frozen
+decision or raw runs, and the comparison does not alter
 Issue #44's decoder-path conclusion. No modern lexical-sense, sememe, concept,
 or general language-quality claim follows from this authored fixture.

@@ -86,3 +86,57 @@ The fixture, training runner, and metric aggregator were separate bounded
 integration read-only and identified raw-aggregation binding checks; the
 parent added those checks, froze the combined implementation, ran all six
 attempts, and verified the final suite and GitHub state.
+
+## Post-run source-encoding collision audit (PR #47 R1)
+
+This is an append-only, deterministic audit of the frozen authored fixture and
+`source_ids` inputs. It does not load a model or checkpoint, run inference, or
+change any of the six raw runs, descriptor, fixture, attempts, thresholds, or
+frozen decision. The executable audit and its machine-readable result are
+[`benchmark_v3_head_collision_audit.py`](../../../src/norishio_lm/benchmark_v3_head_collision_audit.py)
+and [`collision-audit.json`](collision-audit.json).
+
+The H1L1 `SourceByteEncoder` averages embeddings over non-padding source tokens
+and then applies a linear projection. The source templates reuse ASCII digits
+in the participant, time, and predicate slots. Rows with the same complete
+`source_ids` token-count multiset therefore produce the same encoder output,
+regardless of token order or the role in which a digit occurs. The signature
+includes BOS, SEP, and the canonical JSON wrapper; this is a property of the
+actual model input, not of a simplified surface string.
+
+| Frozen fixture slice | Rows | Unique signatures | Collision groups | Rows in collision groups | Participant ceiling | Time ceiling | Event ceiling | Operator ceiling |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Train | 384 | 140 | 96 | 340 | 216/384 (0.5625) | 240/384 (0.6250) | 236/384 (0.6146) | 262/384 (0.6823) |
+| Confirmation, all | 96 | 70 | 26 | 52 | 94/96 (0.9792) | 94/96 (0.9792) | 70/96 (0.7292) | 70/96 (0.7292) |
+| Unseen pair | 48 | 34 | 14 | 28 | 46/48 (0.9583) | 46/48 (0.9583) | 34/48 (0.7083) | 34/48 (0.7083) |
+| Seen pair / unseen higher order | 48 | 36 | 12 | 24 | 48/48 (1.0000) | 48/48 (1.0000) | 36/48 (0.7500) | 36/48 (0.7500) |
+
+For each factor, the ceiling sums the majority gold-label count within each
+signature and divides by the number of scheduled rows. It is the best possible
+**row accuracy for a deterministic signature-only classifier on that slice**,
+not an achieved model score. The JSON also reports per-factor counts of
+signatures with conflicting gold labels. All four train factors have equal
+per-class support (64 rows per participant/time class, 96 per event/operator
+class), so row accuracy and class-balanced accuracy coincide there. Thus the
+pre-registered 0.80 strong **training** gate is structurally unreachable for
+every factor with this frozen encoder/fixture combination. The confirmation
+strata have their own label support and ceilings; their high participant/time
+ceilings do not repair the train identifiability defect or establish
+generalization.
+
+This confirms a definite source-representation information loss, while the
+relative contribution of optimization or parameter capacity beyond that loss
+remains unmeasured. The frozen result field stays
+`basic_optimization_or_capacity_unresolved`; the new audit narrows its
+interpretation rather than retroactively selecting another branch. A future,
+separately frozen control should compare role-aliased and role-distinct or
+order-identifiable inputs under factor-only training before making a joint-loss
+or decoder-path claim. No such experiment was run in this audit.
+
+R1 validation: the five collision-audit tests and the integrated CPU suite
+passed (`737 passed, 1 skipped, 2 subtests passed`). The audit JSON exactly
+matches regeneration from the frozen fixture; OKF validation had 0 errors and
+0 warnings, its full index checked 280 sources without error, and MCP
+self/live checks passed. The initial unprivileged focused pytest command
+encountered the known Windows temp-directory ACL error; the successful run
+used an explicit writable temp directory with the required permission.

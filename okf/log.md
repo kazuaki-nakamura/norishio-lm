@@ -1,5 +1,13 @@
 # OKF 更新履歴
 
+- 2026-09-24: PR #47 R1の指摘を、Issue #46凍結fixtureの完全な`source_ids`数え上げで検証。
+  train 384行に140のtoken-count署名、衝突群内340行、factor別理論上限
+  participant 216/384、time 240/384、event 236/384、operator 262/384を確認。
+  train各classは均等で、事前0.80 strong-head閾値は現行masked-mean encoderでは到達不能。
+  source役割情報の喪失は確定し、追加的な最適化・容量の影響は未測定と明記。
+  凍結判定、6 raw run、descriptor、attempt logは変更せず、モデル実行・追加学習なし。
+  原本と事後AI監査を分離し、人の検証印は追加しない。
+
 - 2026-09-24: Issue #46のsource→factor head学習可能性比較を原本から追加。
   凍結descriptor `210fdbab...967322`、fixture `b587c091...cf69cbed5`、
   6/6 run・3,600 update、FACTOR_ONLYのtrain participant/time 501/1152・488/1152を記録。
