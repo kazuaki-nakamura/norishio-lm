@@ -1,0 +1,5 @@
+{
+  "executor_total_wall_seconds": 93.41810219991021,
+  "measurement": "perf_counter around six run attempts and raw writes; excludes raw-only aggregation",
+  "schema": "norishio.issue46.executor-wall.v1"
+}

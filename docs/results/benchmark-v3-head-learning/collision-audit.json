@@ -1,0 +1,289 @@
+{
+  "fixture_content_digest_sha256": "b587c091e3499348c5e9bcfabff68ac3bb3bbd2c1df60edaac62833cf69cbed5",
+  "schema": "norishio.issue46.head-collision-audit.v1",
+  "scopes": {
+    "confirmation_all": {
+      "collision_group_count": 26,
+      "collision_rows": 52,
+      "per_factor_conflicting_gold_rows": {
+        "event": 52,
+        "operator": 52,
+        "participant": 4,
+        "time": 4
+      },
+      "per_factor_conflicting_gold_signature_counts": {
+        "event": 26,
+        "operator": 26,
+        "participant": 2,
+        "time": 2
+      },
+      "per_factor_gold_support": {
+        "event": {
+          "E0": 24,
+          "E1": 24,
+          "E2": 24,
+          "E3": 24
+        },
+        "operator": {
+          "O0": 24,
+          "O1": 24,
+          "O2": 24,
+          "O3": 24
+        },
+        "participant": {
+          "P0": 16,
+          "P1": 16,
+          "P2": 16,
+          "P3": 16,
+          "P4": 16,
+          "P5": 16
+        },
+        "time": {
+          "T0": 16,
+          "T1": 16,
+          "T2": 16,
+          "T3": 16,
+          "T4": 16,
+          "T5": 16
+        }
+      },
+      "per_factor_representation_ceiling": {
+        "event": 0.7291666666666666,
+        "operator": 0.7291666666666666,
+        "participant": 0.9791666666666666,
+        "time": 0.9791666666666666
+      },
+      "per_factor_representation_ceiling_detail": {
+        "event": {
+          "majority_label_rows": 70,
+          "scheduled_rows": 96
+        },
+        "operator": {
+          "majority_label_rows": 70,
+          "scheduled_rows": 96
+        },
+        "participant": {
+          "majority_label_rows": 94,
+          "scheduled_rows": 96
+        },
+        "time": {
+          "majority_label_rows": 94,
+          "scheduled_rows": 96
+        }
+      },
+      "row_count": 96,
+      "unique_signatures": 70
+    },
+    "confirmation_by_support": {
+      "seen_pair/unseen_triple": {
+        "collision_group_count": 12,
+        "collision_rows": 24,
+        "per_factor_conflicting_gold_rows": {
+          "event": 24,
+          "operator": 24,
+          "participant": 0,
+          "time": 0
+        },
+        "per_factor_conflicting_gold_signature_counts": {
+          "event": 12,
+          "operator": 12,
+          "participant": 0,
+          "time": 0
+        },
+        "per_factor_gold_support": {
+          "event": {
+            "E2": 24,
+            "E3": 24
+          },
+          "operator": {
+            "O2": 24,
+            "O3": 24
+          },
+          "participant": {
+            "P0": 8,
+            "P1": 8,
+            "P2": 8,
+            "P3": 8,
+            "P4": 8,
+            "P5": 8
+          },
+          "time": {
+            "T0": 8,
+            "T1": 8,
+            "T2": 8,
+            "T3": 8,
+            "T4": 8,
+            "T5": 8
+          }
+        },
+        "per_factor_representation_ceiling": {
+          "event": 0.75,
+          "operator": 0.75,
+          "participant": 1.0,
+          "time": 1.0
+        },
+        "per_factor_representation_ceiling_detail": {
+          "event": {
+            "majority_label_rows": 36,
+            "scheduled_rows": 48
+          },
+          "operator": {
+            "majority_label_rows": 36,
+            "scheduled_rows": 48
+          },
+          "participant": {
+            "majority_label_rows": 48,
+            "scheduled_rows": 48
+          },
+          "time": {
+            "majority_label_rows": 48,
+            "scheduled_rows": 48
+          }
+        },
+        "row_count": 48,
+        "unique_signatures": 36
+      },
+      "unseen_pair": {
+        "collision_group_count": 14,
+        "collision_rows": 28,
+        "per_factor_conflicting_gold_rows": {
+          "event": 28,
+          "operator": 28,
+          "participant": 4,
+          "time": 4
+        },
+        "per_factor_conflicting_gold_signature_counts": {
+          "event": 14,
+          "operator": 14,
+          "participant": 2,
+          "time": 2
+        },
+        "per_factor_gold_support": {
+          "event": {
+            "E0": 24,
+            "E1": 24
+          },
+          "operator": {
+            "O0": 24,
+            "O1": 24
+          },
+          "participant": {
+            "P0": 8,
+            "P1": 8,
+            "P2": 8,
+            "P3": 8,
+            "P4": 8,
+            "P5": 8
+          },
+          "time": {
+            "T0": 8,
+            "T1": 8,
+            "T2": 8,
+            "T3": 8,
+            "T4": 8,
+            "T5": 8
+          }
+        },
+        "per_factor_representation_ceiling": {
+          "event": 0.7083333333333334,
+          "operator": 0.7083333333333334,
+          "participant": 0.9583333333333334,
+          "time": 0.9583333333333334
+        },
+        "per_factor_representation_ceiling_detail": {
+          "event": {
+            "majority_label_rows": 34,
+            "scheduled_rows": 48
+          },
+          "operator": {
+            "majority_label_rows": 34,
+            "scheduled_rows": 48
+          },
+          "participant": {
+            "majority_label_rows": 46,
+            "scheduled_rows": 48
+          },
+          "time": {
+            "majority_label_rows": 46,
+            "scheduled_rows": 48
+          }
+        },
+        "row_count": 48,
+        "unique_signatures": 34
+      }
+    },
+    "train": {
+      "collision_group_count": 96,
+      "collision_rows": 340,
+      "per_factor_conflicting_gold_rows": {
+        "event": 304,
+        "operator": 316,
+        "participant": 316,
+        "time": 310
+      },
+      "per_factor_conflicting_gold_signature_counts": {
+        "event": 80,
+        "operator": 84,
+        "participant": 84,
+        "time": 82
+      },
+      "per_factor_gold_support": {
+        "event": {
+          "E0": 96,
+          "E1": 96,
+          "E2": 96,
+          "E3": 96
+        },
+        "operator": {
+          "O0": 96,
+          "O1": 96,
+          "O2": 96,
+          "O3": 96
+        },
+        "participant": {
+          "P0": 64,
+          "P1": 64,
+          "P2": 64,
+          "P3": 64,
+          "P4": 64,
+          "P5": 64
+        },
+        "time": {
+          "T0": 64,
+          "T1": 64,
+          "T2": 64,
+          "T3": 64,
+          "T4": 64,
+          "T5": 64
+        }
+      },
+      "per_factor_representation_ceiling": {
+        "event": 0.6145833333333334,
+        "operator": 0.6822916666666666,
+        "participant": 0.5625,
+        "time": 0.625
+      },
+      "per_factor_representation_ceiling_detail": {
+        "event": {
+          "majority_label_rows": 236,
+          "scheduled_rows": 384
+        },
+        "operator": {
+          "majority_label_rows": 262,
+          "scheduled_rows": 384
+        },
+        "participant": {
+          "majority_label_rows": 216,
+          "scheduled_rows": 384
+        },
+        "time": {
+          "majority_label_rows": 240,
+          "scheduled_rows": 384
+        }
+      },
+      "row_count": 384,
+      "unique_signatures": 140
+    }
+  },
+  "signature": "sorted token-id counts from fixture.source_ids(row), including BOS/SEP and canonical JSON wrapper"
+}

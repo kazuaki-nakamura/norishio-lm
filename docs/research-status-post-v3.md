@@ -1,6 +1,6 @@
 # Post-v3 research status
 
-Status at merge `9331eda9d918adbc1b415e01fddeae62249cb5ed` (PR #41).
+Baseline at merge `9331eda9d918adbc1b415e01fddeae62249cb5ed` (PR #41).
 This note separates implemented wiring, measured observations, unavailable
 corrections, unmeasured questions, and research hypotheses. The v1 concept-toy,
 benchmark v2, and benchmark v3 fixtures differ; their scores are not one
@@ -16,6 +16,34 @@ performance-improvement curve.
 | v3 metric and intervention erratum | **Corrected by read-only audit** | Correcting the primary path does not change the ranking. Historical main-arm intervention is 0/48 target changes under **fixed class 0**. Baseline probability vectors were not retained, so baseline-argmax grouping is **unavailable and uncorrectable**; 0/48 is not alternate-class evidence. | [`docs/results/benchmark-v3-final.md` § Protocol erratum](results/benchmark-v3-final.md#protocol-erratum-issue-39); audit `f68d418b7e3bc5cf28f82d73ad3bd8e04158749d`, merged result `9331eda9d918adbc1b415e01fddeae62249cb5ed` |
 | Future v3 execution contract | **Implemented protocol; unmeasured experiment** | A separate descriptor binds the corrected selection paths and validates future execution callbacks. The alternate rule selects `(baseline_argmax + 1) % width` and binds the actual one-hot class. No run has used it. | [`docs/factor-path-tournament-v3.md` § Post-merge protocol erratum and future contract](factor-path-tournament-v3.md#post-merge-protocol-erratum-and-future-contract); binding `77d24f1c7e8a0939bec5c689c50141f1067d51c0`, actual-class validation `d6e7451bd384e7649c464b2d15c1116df9443a26` |
 
+## Later bounded evidence
+
+Issue #44 completed a separate six-run H1L1/H1L1_ANCHOR confirmation on a
+new authored fixture. Head-frame exact was only 0.07639/0.08333; the frozen
+decision remains `decoder_path_inconclusive_due_to_weak_heads`. Its total
+executor wall time was not retained, so total-wall budget compliance is
+unavailable. See the [Issue #44 result](results/benchmark-v3-h0-confirmation/README.md).
+
+Issue #46 then froze a disjoint structural-factor fixture and compared JOINT
+with FACTOR_ONLY on paired, identical H1L1 model trees. Six runs and 3,600
+updates completed once. FACTOR_ONLY train resubstitution participant/time
+atomic rates were 0.435/0.424 across three seeds, both below the preregistered
+0.80 strong-head floor. The decision is
+`basic_optimization_or_capacity_unresolved`, with no all-seed paired
+participant/time confirmation improvement. Saved per-row head probabilities
+and results are in the [Issue #46 result](results/benchmark-v3-head-learning/README.md).
+An append-only input-signature audit then found that the masked-mean source
+encoder maps 340 of 384 training rows into collision groups: 140 distinct
+signatures in all. Even an ideal deterministic signature-only classifier has
+train ceilings of 216/384 participant, 240/384 time, 236/384 event, and 262/384
+operator. Equal train class support makes these class-balanced ceilings too;
+all are below the frozen 0.80 strong-head gate. This confirms an input-role
+identifiability defect in this fixture/encoder combination. Additional
+optimization and capacity effects remain unmeasured, and the frozen decision
+field and six run artifacts remain unchanged.
+Neither experiment measures modern lexical semantics or general language
+quality; neither changes the v3 or Issue #44 frozen decisions.
+
 ## Current unknowns
 
 - Whether a correctly predicted factor is actually followed by the decoder under
@@ -24,8 +52,12 @@ performance-improvement curve.
   follow-through, surface realization, or fixture-specific grammatical priors
   may each contribute.
 - Whether row-specific source information reaches generation mainly through
-  decoder h0 rather than the explicit factor path is unmeasured. Canonical class
-  use and sensitivity to the continuous probability shape are also unresolved.
+  decoder h0 rather than the explicit factor path remains inconclusive because
+  the Issue #44 heads were weak. Canonical class use and sensitivity to the
+  continuous probability shape are also unresolved.
+- The Issue #46 masked-mean encoder definitively loses role information on the
+  authored fixture; whether optimization or capacity adds further error remains
+  unmeasured. A separately frozen role-identifiable source control is needed.
 - External dictionary and morphology adapters, contextual lexical-sense
   selection, ordered/graph encoders, and sourced semantic-layer ablations remain
   unimplemented or unmeasured.
@@ -33,6 +65,6 @@ performance-improvement curve.
   sememes, and concepts remains a **hypothesis**. Glyph and etymology channels
   cannot establish modern lexical meaning.
 
-The next factor-path proposal is [review-unapproved](factor-path-next-experiment.md).
-It does not authorize data generation, training, inference, or access to any
-consumed final split.
+The earlier factor-path proposal was reviewed before Issue #44 and remains
+historical context. Future experiments need a new scoped and frozen design;
+neither result authorizes access to any consumed final split.

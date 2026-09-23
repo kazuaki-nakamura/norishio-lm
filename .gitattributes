@@ -1,0 +1,4 @@
+# Frozen raw artifacts and their byte-level manifests must survive Windows checkout.
+docs/results/benchmark-v3-h0-confirmation/*.json -text
+docs/results/benchmark-v3-head-learning/*.json -text
+docs/results/benchmark-v3-head-learning/*.jsonl -text

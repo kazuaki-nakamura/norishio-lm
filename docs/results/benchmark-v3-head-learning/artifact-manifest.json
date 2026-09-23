@@ -1,0 +1,43 @@
+{
+  "artifacts": {
+    "attempts.jsonl": {
+      "bytes": 2082,
+      "sha256": "ccbeb0b976828b344c9c36a22ff3f8fc6e527e469a040c012b9a5c13beb807fe"
+    },
+    "execution-wall.json": {
+      "bytes": 207,
+      "sha256": "19b0108821eb4f99c39509e308a5e37f66607b08bd9137a7221248bf4dbded1e"
+    },
+    "run-01-joint-seed7.json": {
+      "bytes": 666546,
+      "sha256": "2ab7eac2a251139a5e3bb9474999b9445af08ffe99f544c3b37750c1bed596c4"
+    },
+    "run-02-factor_only-seed7.json": {
+      "bytes": 669538,
+      "sha256": "9b0587fc6ab469287b9ea769feeea938c64b3711eb3952567a4fce0301567539"
+    },
+    "run-03-joint-seed17.json": {
+      "bytes": 666816,
+      "sha256": "b70969165f56e4d0448774d87e80b9e11b74bcb3619620cacbf00be31325a479"
+    },
+    "run-04-factor_only-seed17.json": {
+      "bytes": 669635,
+      "sha256": "ba2f9b0721545cf3adc018eaca6fe949a91eeb0dd7a0fca971e8aa4d31eac70c"
+    },
+    "run-05-joint-seed29.json": {
+      "bytes": 667624,
+      "sha256": "8e062438919d5290e36cf95def0f9bc012a082efc0fc04a22ac7e854fe843262"
+    },
+    "run-06-factor_only-seed29.json": {
+      "bytes": 670590,
+      "sha256": "c78978149984f28c5fdd26b1c7f50c894e7eaf02ee5095cbd6bddfb486e0ddc0"
+    },
+    "summary.json": {
+      "bytes": 1190242,
+      "sha256": "836d49637a36616e0a09f397485118766102d6f5947091e5b27635e3c6977732"
+    }
+  },
+  "descriptor_sha256": "210fdbab6bcd4f8604d8653835ea5f075df3a41a2c79fb0fbc95bc9a07967322",
+  "freeze_commit_sha": "2bf95812daea5db9c5016782f6068cb0f11627c0",
+  "schema": "norishio.issue46.head-learning-artifact-manifest.v1"
+}

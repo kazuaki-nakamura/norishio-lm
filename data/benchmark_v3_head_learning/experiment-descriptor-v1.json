@@ -1,0 +1,202 @@
+{
+  "descriptor": {
+    "arms": {
+      "decoder_parameters_present_in_both": true,
+      "factor_loss": "sum of four source-head cross-entropies",
+      "ids": [
+        "JOINT",
+        "FACTOR_ONLY"
+      ],
+      "loss": {
+        "FACTOR_ONLY": "factor_loss",
+        "JOINT": "lm_loss + factor_loss"
+      },
+      "paired_initialization": {
+        "17": {
+          "bitwise_equal": true,
+          "parameter_count": 32120,
+          "state_sha256": "64214f5836d9bfb5c00d2368eb47c8b3d467f841862420160bae28b34d13867e"
+        },
+        "29": {
+          "bitwise_equal": true,
+          "parameter_count": 32120,
+          "state_sha256": "cee01f7bb62b043eb96e5e934ecf7a4475e397da679c4f92e3886e1b4745dd70"
+        },
+        "7": {
+          "bitwise_equal": true,
+          "parameter_count": 32120,
+          "state_sha256": "02ca5bc5bbe0fee070e68b17ec98c169b561b932c6cf6f6d15bc72973a538b89"
+        }
+      },
+      "shared_module_tree": "BenchmarkV3Model(H1L1)"
+    },
+    "code_sha256": {
+      ".gitattributes": "c0d2ecef0093dab6f51dee6aae0c083f71d3251e35882232eabe66d73715eab5",
+      "data/benchmark_v2/spec.json": "d88f0ed121cb2d9624014b8e82a77d86b23f9306a1c4a60b052cad9baa797375",
+      "data/benchmark_v3_factor_path/spec.json": "e77ceeb05e438bba8291dc65b4e6655e28b79254f10b09a92e5f0992fcac0ae7",
+      "src/norishio_lm/benchmark_v2_model.py": "5149da15048c1ebe47e7ba8f94e92b960ec1454758916a50a7c9a38812e87a63",
+      "src/norishio_lm/benchmark_v3_fsm.py": "6cce474eab2b56b135b3abf745aa8fdc83ee267863516bc415b90f6911966bb9",
+      "src/norishio_lm/benchmark_v3_head_execute.py": "566db1e0a97e1be93b1aed9041f99a449075e5f8c158387eed7ac0ea64a088b5",
+      "src/norishio_lm/benchmark_v3_head_fixture.py": "2db80b278eb33981620509f753d7e8d1180de25064f4721e06be01c4d63cd617",
+      "src/norishio_lm/benchmark_v3_head_metrics.py": "b739ef7d468540481d627964e544e378f897b15fd15ea673f0070948aac79073",
+      "src/norishio_lm/benchmark_v3_head_runner.py": "08f6c19d420175714d5e137b8303750b93d65095f78d7ffc6f2ac72a20f3cbf7",
+      "src/norishio_lm/benchmark_v3_model.py": "6a6fa20a7cb873f474f4ac893b517ca55845dad7edc2f2b392f7dfd27c349a67",
+      "src/norishio_lm/benchmark_v3_protocol.py": "efba8c135a8c1e70f796b963f9777f5d1d461a9807c963bb61d7bb8a3c551a34",
+      "src/norishio_lm/benchmark_v3_runner.py": "3753d469bd4ef0e33ff0d8c031e3c1b4ffcaaf23c8eaf66fc81d6defed1c18d1"
+    },
+    "evaluation": {
+      "confirmation_strata": [
+        "unseen_pair",
+        "seen_pair/unseen_triple"
+      ],
+      "generation_ranking": null,
+      "metrics": [
+        "factor_correct_count_rate",
+        "class_balanced_accuracy",
+        "per_class_denominators",
+        "missing_unavailable_counts",
+        "four_head_joint_exact_secondary",
+        "paired_seed_delta"
+      ],
+      "order": [
+        "train_resubstitution",
+        "confirmation"
+      ],
+      "paired_delta": "FACTOR_ONLY - JOINT",
+      "raw_row_fields": [
+        "arm",
+        "seed",
+        "row_id",
+        "split",
+        "support_group",
+        "target_frame",
+        "factor_probability_vectors",
+        "factor_argmax",
+        "available"
+      ],
+      "row_order": "frozen fixture list order in each split"
+    },
+    "fixture": {
+      "confirmation_row_ids_sha256": "8ce3f83f0ad5f8d168df5c6c66da114602b660b6be078d3eb03e2346ac5894f4",
+      "confirmation_rows": 96,
+      "confirmation_support_counts": {
+        "seen_pair/unseen_triple": 48,
+        "unseen_pair": 48
+      },
+      "content_digest_sha256": "b587c091e3499348c5e9bcfabff68ac3bb3bbd2c1df60edaac62833cf69cbed5",
+      "generator_sha256": "2db80b278eb33981620509f753d7e8d1180de25064f4721e06be01c4d63cd617",
+      "spec_sha256": "c1792d1bf8a48601f90f182b836bad37ffca56a9caec4c1a316e9f43c51ecf73",
+      "split_plan": {
+        "confirmation_pair_count_by_support": {
+          "seen_pair/unseen_triple": 6,
+          "unseen_pair": 6
+        },
+        "generator_seed": 20260923,
+        "graph_definition": "offset=(time_index-participant_index) mod 6; offsets 0 and 1 are held out, offsets 2..5 train",
+        "name": "head-learning-regular-bipartite-graph-v1",
+        "seed": 46017,
+        "train_pair_count": 24,
+        "train_pair_offsets": [
+          2,
+          3,
+          4,
+          5
+        ],
+        "unseen_pair_offsets": [
+          0
+        ],
+        "unused_pair_offsets": [
+          1
+        ]
+      },
+      "train_row_ids_sha256": "0b21ea905a9d6fc6ac4bdab9848181f81bc58a81aae6df8e50f8fba24457c2e7",
+      "train_rows": 384
+    },
+    "historical_consumed_runs": "excluded_immutable",
+    "interpretation": {
+      "branch_precedence": [
+        "incomplete",
+        "narrow_factor_follow_up",
+        "basic_optimization_or_capacity_unresolved",
+        "joint_objective_interference_leading",
+        "compositional_generalization_leading",
+        "fixture_specific_instability_leading",
+        "mixed_or_inconclusive"
+      ],
+      "heldout_train_minus_unseen_balanced_accuracy_min": 0.1,
+      "no_composite_score": true,
+      "noncollapsed_confirmation_balanced_accuracy_min": 0.5,
+      "noncollapsed_distinct_predicted_classes_min": 3,
+      "old_weakness_absent": "all participant/time train and confirmation balanced accuracies at least 0.8 in both arms and all seeds",
+      "paired_improvement": "strictly positive per factor in all 3 seeds on all confirmation rows",
+      "similar_arm_abs_confirmation_balanced_accuracy_delta_max": 0.05,
+      "strong_train_balanced_accuracy_min": 0.8,
+      "weak_factor": "train balanced accuracy below 0.8 in any FACTOR_ONLY seed"
+    },
+    "issue": 46,
+    "schema": "norishio.issue46.head-learning-protocol.v1",
+    "scope": "authored_structural_factor_head_transport_only",
+    "training": {
+      "batch_size": 16,
+      "deterministic_algorithms": true,
+      "gpu": false,
+      "gradient_clip": 1.0,
+      "max_attempts": 6,
+      "max_total_optimizer_updates": 3600,
+      "network_data": false,
+      "optimizer": {
+        "betas": [
+          0.9,
+          0.999
+        ],
+        "eps": 1e-08,
+        "learning_rate": 0.003,
+        "name": "Adam",
+        "weight_decay": 0.0
+      },
+      "paid_compute": false,
+      "retry": false,
+      "run_order": [
+        {
+          "arm": "JOINT",
+          "seed": 7
+        },
+        {
+          "arm": "FACTOR_ONLY",
+          "seed": 7
+        },
+        {
+          "arm": "JOINT",
+          "seed": 17
+        },
+        {
+          "arm": "FACTOR_ONLY",
+          "seed": 17
+        },
+        {
+          "arm": "JOINT",
+          "seed": 29
+        },
+        {
+          "arm": "FACTOR_ONLY",
+          "seed": 29
+        }
+      ],
+      "schedule": "seeded CPU torch.randint, with replacement, over 384 row indices",
+      "schedule_sha256": {
+        "17": "3917ef14ab86d0b30decf856a22ff1980bcca42a967b2708c19e5558ba028461",
+        "29": "fdfe0caf2b606d47e4464a1c0b27a4475a21442332f6f876e788df8d5d7cdfda",
+        "7": "eb4b9d97bef14afdf26bba6c229d1ba4cc96896351091abaab49c2c3711f825f"
+      },
+      "seeds": [
+        7,
+        17,
+        29
+      ],
+      "torch_num_threads": 1,
+      "updates_per_run": 600
+    }
+  },
+  "descriptor_sha256": "210fdbab6bcd4f8604d8653835ea5f075df3a41a2c79fb0fbc95bc9a07967322",
+  "schema": "norishio.issue46.head-learning-freeze.v1"
+}

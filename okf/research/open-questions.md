@@ -2,8 +2,8 @@
 type: OpenQuestion
 title: 未解決課題と次の実験
 status: draft
-generated: { by: ai-assisted-source-review, at: 2026-09-20 }
-stale_after: 2026-10-20
+generated: { by: ai-assisted-source-review, at: 2026-09-24 }
+stale_after: 2026-10-24
 sources:
   - id: handoff
     resource: docs/handoff.md
@@ -32,6 +32,15 @@ sources:
   - id: h0-head-factor-audit
     resource: docs/results/benchmark-v3-h0-confirmation/head-factor-audit.json
     title: Issue 44 saved-raw factor head audit
+  - id: head-learning-result
+    resource: docs/results/benchmark-v3-head-learning/README.md
+    title: Issue 46 JOINT versus FACTOR_ONLY observations and limits
+  - id: head-learning-collision-audit
+    resource: docs/results/benchmark-v3-head-learning/collision-audit.json
+    title: Issue 46 complete source-token signature collision audit
+  - id: head-learning-freeze
+    resource: data/benchmark_v3_head_learning/experiment-descriptor-v1.json
+    title: Issue 46 frozen design, decision rules, and code hashes
 ---
 
 # 未解決課題と次の実験
@@ -119,7 +128,14 @@ Issue #44はreview済みfactor-path案をfuture-only descriptorで凍結し、�
   L1 gate scheduleで対象factorの到達可能性をtraining前に検証する。実生成gate traceはbaseline/
   intervention別に保存し、common-prefixはslot出力済み・partialを区別する別stratumにする。
   D_AUXは旧fixtureの参考情報だけで、新runや新比較根拠にしない。旧2×2は再実行していない。
-- 未解決: participant/time headのlearnabilityとgeneralization、donor-softの15/24 unavailableを減らす事前固定方法、
+- Issue #46実測: 新fixtureの同一H1L1 module treeでJOINT/FACTOR_ONLY × 3 seed、各600更新を一度だけ完了。
+  FACTOR_ONLYのtrain resubstitutionはparticipant 501/1152、time 488/1152で強いhead閾値0.80未満。
+  confirmationのpaired改善は両factor・全seedで同方向ではなく、凍結判定は
+  `basic_optimization_or_capacity_unresolved`。事後の非学習監査でtrain 384行は140署名・衝突群内340行、
+  masked-mean encoderのtrain上限はparticipant 216/384、time 240/384、event 236/384、
+  operator 262/384と判明。全train class supportが均等なので0.80 class-balanced閾値は構造上到達不能。
+  このfixture/encoderの役割情報喪失は確認済みで、最適化・容量が追加的に寄与するかは未測定。
+- 未解決: 役割を区別できるsource入力の新しい事前凍結対照、追加的な最適化・容量誤差の切り分け、donor-softの15/24 unavailableを減らす事前固定方法、
   unseen-pair失敗とdecoder follow-throughを分ける非等価な目的設計。今回の手書きfixture結果を
   現代語義・sememe・concept・一般日本語能力の学習成果へ外挿しない。
 
