@@ -44,6 +44,20 @@ field and six run artifacts remain unchanged.
 Neither experiment measures modern lexical semantics or general language
 quality; neither changes the v3 or Issue #44 frozen decisions.
 
+Issue #48 then froze a separate role-aliased versus role-disjoint input-byte
+control on a new authored structural-factor fixture. The disjoint arm removes
+all audited token-count signature collisions while preserving the paired H1L1
+initial state and all 480 initial row embeddings/latents per seed; it also
+activates 20 instead of six value embedding rows, changing gradient sharing.
+Six factor-only runs and 3,600 updates completed once. Only event met the
+preregistered three-seed train rescue rule; participant and time stayed below
+0.80 on every seed, and unseen-pair confirmation remained weak. The frozen
+decision is `one_factor_rescued_narrow_follow_up`. See the
+[Issue #48 result](results/benchmark-v3-role-identifiability/README.md) and
+pretraining freeze `998ba03e0c4dff7e553bf1b21e0ca97c5d061e0a`.
+This does not isolate active embedding freedom from role observability or
+resolve decoder follow-through. Earlier frozen decisions remain unchanged.
+
 ## Current unknowns
 
 - Whether a correctly predicted factor is actually followed by the decoder under
@@ -56,8 +70,10 @@ quality; neither changes the v3 or Issue #44 frozen decisions.
   the Issue #44 heads were weak. Canonical class use and sensitivity to the
   continuous probability shape are also unresolved.
 - The Issue #46 masked-mean encoder definitively loses role information on the
-  authored fixture; whether optimization or capacity adds further error remains
-  unmeasured. A separately frozen role-identifiable source control is needed.
+  authored fixture. Issue #48 removed the audited collisions in a new fixture,
+  yet participant/time train heads remained weak. The separate contributions
+  of role observability, active embedding rows/gradient sharing, optimization,
+  and capacity remain unmeasured.
 - External dictionary and morphology adapters, contextual lexical-sense
   selection, ordered/graph encoders, and sourced semantic-layer ablations remain
   unimplemented or unmeasured.

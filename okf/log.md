@@ -1,5 +1,11 @@
 # OKF 更新履歴
 
+- 2026-09-24: Issue #48の役割識別可能source対照を、事前凍結descriptor、6 raw run、
+  ledger、raw-only集約、事後の最終state digest存在監査に基づき追加。6/6試行・3,600更新、
+  executor wall 22.383秒。eventだけが救済条件を満たし、participant/timeは強いtrain headに
+  到達しない。活性embedding行/gradient共有の差と意味・生成への外挿禁止を明記。
+  凍結コード・判定・rawを変更せず、人の検証印は追加しない。
+
 - 2026-09-24: PR #47 R1の指摘を、Issue #46凍結fixtureの完全な`source_ids`数え上げで検証。
   train 384行に140のtoken-count署名、衝突群内340行、factor別理論上限
   participant 216/384、time 240/384、event 236/384、operator 262/384を確認。

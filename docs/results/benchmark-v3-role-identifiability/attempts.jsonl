@@ -1,0 +1,12 @@
+{"arm":"ROLE_ALIASED","descriptor_sha256":"48388afdde53749620fb20a6c7fc72e4e42af6bf6e6dda02dee84589a0e461d6","event":"started","index":1,"seed":7}
+{"arm":"ROLE_ALIASED","event":"completed","index":1,"optimizer_updates":600,"raw_name":"run-01-role_aliased-seed7.json","raw_sha256":"0867774837eef8f9f3cb49d66266ef64818ab15a730f046945c2801c6540e17f","seed":7}
+{"arm":"ROLE_DISJOINT","descriptor_sha256":"48388afdde53749620fb20a6c7fc72e4e42af6bf6e6dda02dee84589a0e461d6","event":"started","index":2,"seed":7}
+{"arm":"ROLE_DISJOINT","event":"completed","index":2,"optimizer_updates":600,"raw_name":"run-02-role_disjoint-seed7.json","raw_sha256":"d8fbf783c4450d9993d5698c1a9871f476fa20c1cbbbbdd6d17d935b66fc216b","seed":7}
+{"arm":"ROLE_ALIASED","descriptor_sha256":"48388afdde53749620fb20a6c7fc72e4e42af6bf6e6dda02dee84589a0e461d6","event":"started","index":3,"seed":17}
+{"arm":"ROLE_ALIASED","event":"completed","index":3,"optimizer_updates":600,"raw_name":"run-03-role_aliased-seed17.json","raw_sha256":"0b224cb9ad487f85558d0ff27f0ab688c392724b974ff58aac9c41447f32496b","seed":17}
+{"arm":"ROLE_DISJOINT","descriptor_sha256":"48388afdde53749620fb20a6c7fc72e4e42af6bf6e6dda02dee84589a0e461d6","event":"started","index":4,"seed":17}
+{"arm":"ROLE_DISJOINT","event":"completed","index":4,"optimizer_updates":600,"raw_name":"run-04-role_disjoint-seed17.json","raw_sha256":"7bbf0c1326f47fca8fd05faadb3b3cd9f990f4c7260fad184e661e122b55e5f7","seed":17}
+{"arm":"ROLE_ALIASED","descriptor_sha256":"48388afdde53749620fb20a6c7fc72e4e42af6bf6e6dda02dee84589a0e461d6","event":"started","index":5,"seed":29}
+{"arm":"ROLE_ALIASED","event":"completed","index":5,"optimizer_updates":600,"raw_name":"run-05-role_aliased-seed29.json","raw_sha256":"43cde58bb043a6911436fe2bb85739463201408e193df48f865be6dfab4f770c","seed":29}
+{"arm":"ROLE_DISJOINT","descriptor_sha256":"48388afdde53749620fb20a6c7fc72e4e42af6bf6e6dda02dee84589a0e461d6","event":"started","index":6,"seed":29}
+{"arm":"ROLE_DISJOINT","event":"completed","index":6,"optimizer_updates":600,"raw_name":"run-06-role_disjoint-seed29.json","raw_sha256":"a072ccdce0a5d11d87abd8ce48e4400a2931b4efb89712bbe777629a2fe37b6b","seed":29}
