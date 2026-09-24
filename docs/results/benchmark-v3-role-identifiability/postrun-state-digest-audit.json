@@ -1,0 +1,56 @@
+{
+  "all_final_digests_present_valid_and_changed": true,
+  "checked_runs": 6,
+  "runs": [
+    {
+      "file": "run-01-role_aliased-seed7.json",
+      "final_differs_from_initial": true,
+      "final_digest_valid": true,
+      "final_state_sha256": "3c3d6a0ccb6fc6bdc94246454aa01d7e1ecd74210ec35a53f514c341f32d121e",
+      "initial_state_sha256": "b0968b8c1f410344bdd945a1503b05fee541ce1dd2f2500d8f5296e5e1cfd320",
+      "raw_sha256": "0867774837eef8f9f3cb49d66266ef64818ab15a730f046945c2801c6540e17f"
+    },
+    {
+      "file": "run-02-role_disjoint-seed7.json",
+      "final_differs_from_initial": true,
+      "final_digest_valid": true,
+      "final_state_sha256": "38580d2b54c25c940ef2a4037ac9e72c2b3a7e37d7fa1ba1275d94db26b90585",
+      "initial_state_sha256": "b0968b8c1f410344bdd945a1503b05fee541ce1dd2f2500d8f5296e5e1cfd320",
+      "raw_sha256": "d8fbf783c4450d9993d5698c1a9871f476fa20c1cbbbbdd6d17d935b66fc216b"
+    },
+    {
+      "file": "run-03-role_aliased-seed17.json",
+      "final_differs_from_initial": true,
+      "final_digest_valid": true,
+      "final_state_sha256": "e69b9bb5434e6c139f4f0895ef777e3e5f509cdc706643725fc9f4a04c21974a",
+      "initial_state_sha256": "3095d3837e1056c7d4c86c6e7f6a53bb72b894571b7c9435ea9a1bfe0e92dc5f",
+      "raw_sha256": "0b224cb9ad487f85558d0ff27f0ab688c392724b974ff58aac9c41447f32496b"
+    },
+    {
+      "file": "run-04-role_disjoint-seed17.json",
+      "final_differs_from_initial": true,
+      "final_digest_valid": true,
+      "final_state_sha256": "f6ec64895f08315f489d01d70f47c905d361b4cafd5236cd8682b858ce38dc14",
+      "initial_state_sha256": "3095d3837e1056c7d4c86c6e7f6a53bb72b894571b7c9435ea9a1bfe0e92dc5f",
+      "raw_sha256": "7bbf0c1326f47fca8fd05faadb3b3cd9f990f4c7260fad184e661e122b55e5f7"
+    },
+    {
+      "file": "run-05-role_aliased-seed29.json",
+      "final_differs_from_initial": true,
+      "final_digest_valid": true,
+      "final_state_sha256": "828f3d6a38c676859de19a7e08695d8ba29b4ec2c868e95c0aaf7e2913db168e",
+      "initial_state_sha256": "b4266b6d9cdb2bfd022b2606f479234208707bfaa2ee5a566c338260fe1f9736",
+      "raw_sha256": "43cde58bb043a6911436fe2bb85739463201408e193df48f865be6dfab4f770c"
+    },
+    {
+      "file": "run-06-role_disjoint-seed29.json",
+      "final_differs_from_initial": true,
+      "final_digest_valid": true,
+      "final_state_sha256": "a434fed3fb8e9e7ca857bf40edccd855516db6f1272a3c3d1d52fa1d73e0af09",
+      "initial_state_sha256": "b4266b6d9cdb2bfd022b2606f479234208707bfaa2ee5a566c338260fe1f9736",
+      "raw_sha256": "a072ccdce0a5d11d87abd8ce48e4400a2931b4efb89712bbe777629a2fe37b6b"
+    }
+  ],
+  "schema": "norishio.issue48.postrun-state-digest-audit.v1",
+  "scope": "saved_raw_only_no_model_load"
+}

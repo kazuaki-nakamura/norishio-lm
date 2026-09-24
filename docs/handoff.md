@@ -2157,3 +2157,28 @@ repo-local一時directory、結果artifactの改行保持設定で解消して�
 研究モデル内部の概念表現とは分離している。元コミット、導入範囲、実行コマンド、権限エラーを含む検証結果は [AI 作業基盤](ai-foundation.md) を参照。
 導入後はコンパイラと基盤を合わせて19テスト、2 subtests が成功し、デモ4例と MCP 実プロセス検証も成功した。
 GitHub への push と MCP クライアント登録は未実施。
+
+## Issue #48 役割識別可能なsource対照（2026-09-24）
+
+手書き構造factorの新fixtureを使い、sourceの4値byteだけを共有digitから役割別`A..T`へ
+変えるFACTOR_ONLYの同初期値・同schedule対照を事前commit `998ba03e0c4dff7e553bf1b21e0ca97c5d061e0a`
+で凍結した。descriptor SHA-256は`48388afdde53749620fb20a6c7fc72e4e42af6bf6e6dda02dee84589a0e461d6`。
+静的監査で共有digitのtrain 384行は140の完全source token-count署名（衝突群内340行）、
+役割別では384の一意署名・全factor上限1.0。両modelは32,120 parameter、
+各seedの初期状態と480行の初期embedding/latentが一致した。ただし役割別armは活性化する
+value embedding行が6から20に増え、gradient共有も変わる。
+
+seed 7/17/29の6/6試行・各600更新をCPUで一度だけ完了し、計3,600更新、学習loop
+19.033秒、executor wall 22.383秒。全2,880行のraw head確率・argmaxとsource hash、
+試行ledger、raw-only集約を保存した。凍結判定は`one_factor_rescued_narrow_follow_up`。
+役割別trainの三seed合算atomicはparticipant 687/1152、time 671/1152、event 969/1152、
+operator 886/1152。0.80強度条件と共有digit静的上限+0.05条件を全て満たしたのはeventのみ。
+participant/timeは全seedでtrain 0.80未満で、確認用unseen-pairも39/144・29/144。
+これらは手書き構造ラベルのsource head観測であり、現代語義・sememe・conceptや自由生成の
+成果ではない。Issue #44/#46の凍結判定を変更しない。
+
+実装済みは新fixture、署名/頻度の静的監査、同初期値対照、no-retryのCPU実行器、全row raw保存と
+raw-only検証。未実装・未測定は役割符号化と活性embedding行/gradient共有・head容量・最適化の
+個別寄与、強いparticipant/time head後のdecoder追随、意味層ablation。次候補は新規事前凍結の
+source役割可視性対照で、活性行と容量を明示的に一致・測定する小型CPU実験。
+詳細と分母・各seed・限界は[Issue #48結果](results/benchmark-v3-role-identifiability/README.md)。

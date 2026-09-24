@@ -41,6 +41,15 @@ sources:
   - id: head-learning-freeze
     resource: data/benchmark_v3_head_learning/experiment-descriptor-v1.json
     title: Issue 46 frozen design, decision rules, and code hashes
+  - id: role-identifiability-result
+    resource: docs/results/benchmark-v3-role-identifiability/README.md
+    title: Issue 48 role-distinct source comparison, saved raw observations and limits
+  - id: role-identifiability-freeze
+    resource: data/benchmark_v3_role_identifiability/experiment-descriptor-v1.json
+    title: Issue 48 pretraining freeze, pairing and interpretation rules
+  - id: role-identifiability-postrun-audit
+    resource: docs/results/benchmark-v3-role-identifiability/postrun-state-digest-audit.json
+    title: Issue 48 saved-raw final-state digest presence audit
 ---
 
 # 未解決課題と次の実験
@@ -135,8 +144,16 @@ Issue #44はreview済みfactor-path案をfuture-only descriptorで凍結し、�
   masked-mean encoderのtrain上限はparticipant 216/384、time 240/384、event 236/384、
   operator 262/384と判明。全train class supportが均等なので0.80 class-balanced閾値は構造上到達不能。
   このfixture/encoderの役割情報喪失は確認済みで、最適化・容量が追加的に寄与するかは未測定。
-- 未解決: 役割を区別できるsource入力の新しい事前凍結対照、追加的な最適化・容量誤差の切り分け、donor-softの15/24 unavailableを減らす事前固定方法、
+- 未解決: 追加的な最適化・容量誤差の切り分け、donor-softの15/24 unavailableを減らす事前固定方法、
   unseen-pair失敗とdecoder follow-throughを分ける非等価な目的設計。今回の手書きfixture結果を
   現代語義・sememe・concept・一般日本語能力の学習成果へ外挿しない。
+- Issue #48実測: 新しい手書き構造factor fixtureで共有digit/役割別byteの同初期値・同schedule
+  FACTOR_ONLY対照を凍結commit `998ba03e`から6/6回、3,600更新で完了。役割別入力は
+  train 384行で署名衝突なし。ただし活性化embedding行は6対20でgradient共有も異なる。
+  eventだけが事前0.80強度と共有digit静的上限+0.05の救済条件を満たし、participant/timeは
+  全seedでtrain 0.80未満。凍結判定は`one_factor_rescued_narrow_follow_up`。
+  source役割可視性だけの効果とは言えず、head容量・最適化・活性行の寄与は未測定。
+  保存rawの最終state digestは別監査で6件すべて存在・形式・初期との差を確認したが、
+  凍結集約器の必須field検査は今後の改善候補。追加学習や判定変更はしていない。
 
 実験の順序は [意味層の分離](semantic-separation.md) と既存 architecture に従う。
