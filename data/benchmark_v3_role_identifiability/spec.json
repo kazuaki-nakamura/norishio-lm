@@ -1,0 +1,232 @@
+{
+  "authorship": {
+    "derived_from": "new_role_identifiability_namespace_only",
+    "human_verified": false,
+    "kind": "authored_future_fixture",
+    "private_data_used": false,
+    "source": "data/benchmark_v3_role_identifiability/spec.json"
+  },
+  "codebooks": {
+    "ROLE_ALIASED": {
+      "event": [
+        "0",
+        "1",
+        "2",
+        "3"
+      ],
+      "operator": [
+        "0",
+        "1",
+        "2",
+        "3"
+      ],
+      "participant": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "time": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ]
+    },
+    "ROLE_DISJOINT": {
+      "event": [
+        "M",
+        "N",
+        "O",
+        "P"
+      ],
+      "operator": [
+        "Q",
+        "R",
+        "S",
+        "T"
+      ],
+      "participant": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "time": [
+        "G",
+        "H",
+        "I",
+        "J",
+        "K",
+        "L"
+      ]
+    }
+  },
+  "events": [
+    {
+      "id": "E0",
+      "predicates": {
+        "O0": "ri-e0-o0",
+        "O1": "ri-e0-o1",
+        "O2": "ri-e0-o2",
+        "O3": "ri-e0-o3"
+      }
+    },
+    {
+      "id": "E1",
+      "predicates": {
+        "O0": "ri-e1-o0",
+        "O1": "ri-e1-o1",
+        "O2": "ri-e1-o2",
+        "O3": "ri-e1-o3"
+      }
+    },
+    {
+      "id": "E2",
+      "predicates": {
+        "O0": "ri-e2-o0",
+        "O1": "ri-e2-o1",
+        "O2": "ri-e2-o2",
+        "O3": "ri-e2-o3"
+      }
+    },
+    {
+      "id": "E3",
+      "predicates": {
+        "O0": "ri-e3-o0",
+        "O1": "ri-e3-o1",
+        "O2": "ri-e3-o2",
+        "O3": "ri-e3-o3"
+      }
+    }
+  ],
+  "generator_seed": 20260924,
+  "operators": [
+    "O0",
+    "O1",
+    "O2",
+    "O3"
+  ],
+  "participants": [
+    {
+      "id": "P0",
+      "surface": "ri-person-0"
+    },
+    {
+      "id": "P1",
+      "surface": "ri-person-1"
+    },
+    {
+      "id": "P2",
+      "surface": "ri-person-2"
+    },
+    {
+      "id": "P3",
+      "surface": "ri-person-3"
+    },
+    {
+      "id": "P4",
+      "surface": "ri-person-4"
+    },
+    {
+      "id": "P5",
+      "surface": "ri-person-5"
+    }
+  ],
+  "roles": [
+    "ROLE_ALIASED",
+    "ROLE_DISJOINT"
+  ],
+  "selection": {
+    "seen_pair_events": [
+      "E0",
+      "E3"
+    ],
+    "seen_pair_offset": 3,
+    "seen_pair_operators": [
+      "O2",
+      "O3"
+    ],
+    "train_events_by_offset": {
+      "2": [
+        "E0",
+        "E1"
+      ],
+      "3": [
+        "E1",
+        "E2"
+      ],
+      "4": [
+        "E2",
+        "E3"
+      ],
+      "5": [
+        "E3",
+        "E0"
+      ]
+    },
+    "train_pair_offsets": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "unseen_pair_events": [
+      "E1",
+      "E2"
+    ],
+    "unseen_pair_offsets": [
+      1
+    ],
+    "unseen_pair_operators": [
+      "O0",
+      "O1"
+    ],
+    "unused_pair_offsets": [
+      0
+    ],
+    "variant_count": 2
+  },
+  "source_templates": [
+    "ri-source-a::ri-participant-{p}|ri-time-{t}|ri-predicate-e{e}-o{o}",
+    "ri-source-b::ri-participant-{p}|ri-time-{t}|ri-predicate-e{e}-o{o}"
+  ],
+  "split_seed": 48017,
+  "target_templates": [
+    "ri-target-a::ri-participant-{p}|ri-time-{t}|ri-predicate-e{e}-o{o}",
+    "ri-target-b::ri-participant-{p}|ri-time-{t}|ri-predicate-e{e}-o{o}"
+  ],
+  "times": [
+    {
+      "id": "T0",
+      "surface": "ri-time-0"
+    },
+    {
+      "id": "T1",
+      "surface": "ri-time-1"
+    },
+    {
+      "id": "T2",
+      "surface": "ri-time-2"
+    },
+    {
+      "id": "T3",
+      "surface": "ri-time-3"
+    },
+    {
+      "id": "T4",
+      "surface": "ri-time-4"
+    },
+    {
+      "id": "T5",
+      "surface": "ri-time-5"
+    }
+  ],
+  "version": "norishio-benchmark-v3-role-identifiability.v1"
+}

@@ -1,0 +1,654 @@
+{
+  "ROLE_ALIASED": {
+    "confirmation_all": {
+      "by_factor": {
+        "event": {
+          "conflicting_gold_rows": 16,
+          "conflicting_gold_signature_count": 6,
+          "gold_support": {
+            "E0": 24,
+            "E1": 24,
+            "E2": 24,
+            "E3": 24
+          },
+          "majority_rows": 90,
+          "representation_ceiling": 0.9375,
+          "scheduled_rows": 96
+        },
+        "operator": {
+          "conflicting_gold_rows": 16,
+          "conflicting_gold_signature_count": 6,
+          "gold_support": {
+            "O0": 24,
+            "O1": 24,
+            "O2": 24,
+            "O3": 24
+          },
+          "majority_rows": 90,
+          "representation_ceiling": 0.9375,
+          "scheduled_rows": 96
+        },
+        "participant": {
+          "conflicting_gold_rows": 56,
+          "conflicting_gold_signature_count": 26,
+          "gold_support": {
+            "P0": 16,
+            "P1": 16,
+            "P2": 16,
+            "P3": 16,
+            "P4": 16,
+            "P5": 16
+          },
+          "majority_rows": 66,
+          "representation_ceiling": 0.6875,
+          "scheduled_rows": 96
+        },
+        "time": {
+          "conflicting_gold_rows": 56,
+          "conflicting_gold_signature_count": 26,
+          "gold_support": {
+            "T0": 16,
+            "T1": 16,
+            "T2": 16,
+            "T3": 16,
+            "T4": 16,
+            "T5": 16
+          },
+          "majority_rows": 70,
+          "representation_ceiling": 0.7291666666666666,
+          "scheduled_rows": 96
+        }
+      },
+      "collision_group_count": 26,
+      "collision_rows": 56,
+      "conflicting_frame_signature_count": 26,
+      "row_count": 96,
+      "unique_count_signatures": 66,
+      "unique_normalized_frequency_signatures": 66
+    },
+    "confirmation_by_support": {
+      "seen_pair/unseen_triple": {
+        "by_factor": {
+          "event": {
+            "conflicting_gold_rows": 0,
+            "conflicting_gold_signature_count": 0,
+            "gold_support": {
+              "E0": 24,
+              "E3": 24
+            },
+            "majority_rows": 48,
+            "representation_ceiling": 1.0,
+            "scheduled_rows": 48
+          },
+          "operator": {
+            "conflicting_gold_rows": 0,
+            "conflicting_gold_signature_count": 0,
+            "gold_support": {
+              "O2": 24,
+              "O3": 24
+            },
+            "majority_rows": 48,
+            "representation_ceiling": 1.0,
+            "scheduled_rows": 48
+          },
+          "participant": {
+            "conflicting_gold_rows": 48,
+            "conflicting_gold_signature_count": 24,
+            "gold_support": {
+              "P0": 8,
+              "P1": 8,
+              "P2": 8,
+              "P3": 8,
+              "P4": 8,
+              "P5": 8
+            },
+            "majority_rows": 24,
+            "representation_ceiling": 0.5,
+            "scheduled_rows": 48
+          },
+          "time": {
+            "conflicting_gold_rows": 48,
+            "conflicting_gold_signature_count": 24,
+            "gold_support": {
+              "T0": 8,
+              "T1": 8,
+              "T2": 8,
+              "T3": 8,
+              "T4": 8,
+              "T5": 8
+            },
+            "majority_rows": 24,
+            "representation_ceiling": 0.5,
+            "scheduled_rows": 48
+          }
+        },
+        "collision_group_count": 24,
+        "collision_rows": 48,
+        "conflicting_frame_signature_count": 24,
+        "row_count": 48,
+        "unique_count_signatures": 24,
+        "unique_normalized_frequency_signatures": 24
+      },
+      "unseen_pair": {
+        "by_factor": {
+          "event": {
+            "conflicting_gold_rows": 4,
+            "conflicting_gold_signature_count": 2,
+            "gold_support": {
+              "E1": 24,
+              "E2": 24
+            },
+            "majority_rows": 46,
+            "representation_ceiling": 0.9583333333333334,
+            "scheduled_rows": 48
+          },
+          "operator": {
+            "conflicting_gold_rows": 4,
+            "conflicting_gold_signature_count": 2,
+            "gold_support": {
+              "O0": 24,
+              "O1": 24
+            },
+            "majority_rows": 46,
+            "representation_ceiling": 0.9583333333333334,
+            "scheduled_rows": 48
+          },
+          "participant": {
+            "conflicting_gold_rows": 4,
+            "conflicting_gold_signature_count": 2,
+            "gold_support": {
+              "P0": 8,
+              "P1": 8,
+              "P2": 8,
+              "P3": 8,
+              "P4": 8,
+              "P5": 8
+            },
+            "majority_rows": 46,
+            "representation_ceiling": 0.9583333333333334,
+            "scheduled_rows": 48
+          },
+          "time": {
+            "conflicting_gold_rows": 4,
+            "conflicting_gold_signature_count": 2,
+            "gold_support": {
+              "T0": 8,
+              "T1": 8,
+              "T2": 8,
+              "T3": 8,
+              "T4": 8,
+              "T5": 8
+            },
+            "majority_rows": 46,
+            "representation_ceiling": 0.9583333333333334,
+            "scheduled_rows": 48
+          }
+        },
+        "collision_group_count": 2,
+        "collision_rows": 4,
+        "conflicting_frame_signature_count": 2,
+        "row_count": 48,
+        "unique_count_signatures": 46,
+        "unique_normalized_frequency_signatures": 46
+      }
+    },
+    "train": {
+      "by_factor": {
+        "event": {
+          "conflicting_gold_rows": 304,
+          "conflicting_gold_signature_count": 80,
+          "gold_support": {
+            "E0": 96,
+            "E1": 96,
+            "E2": 96,
+            "E3": 96
+          },
+          "majority_rows": 236,
+          "representation_ceiling": 0.6145833333333334,
+          "scheduled_rows": 384
+        },
+        "operator": {
+          "conflicting_gold_rows": 316,
+          "conflicting_gold_signature_count": 84,
+          "gold_support": {
+            "O0": 96,
+            "O1": 96,
+            "O2": 96,
+            "O3": 96
+          },
+          "majority_rows": 262,
+          "representation_ceiling": 0.6822916666666666,
+          "scheduled_rows": 384
+        },
+        "participant": {
+          "conflicting_gold_rows": 316,
+          "conflicting_gold_signature_count": 84,
+          "gold_support": {
+            "P0": 64,
+            "P1": 64,
+            "P2": 64,
+            "P3": 64,
+            "P4": 64,
+            "P5": 64
+          },
+          "majority_rows": 216,
+          "representation_ceiling": 0.5625,
+          "scheduled_rows": 384
+        },
+        "time": {
+          "conflicting_gold_rows": 310,
+          "conflicting_gold_signature_count": 82,
+          "gold_support": {
+            "T0": 64,
+            "T1": 64,
+            "T2": 64,
+            "T3": 64,
+            "T4": 64,
+            "T5": 64
+          },
+          "majority_rows": 240,
+          "representation_ceiling": 0.625,
+          "scheduled_rows": 384
+        }
+      },
+      "collision_group_count": 96,
+      "collision_rows": 340,
+      "conflicting_frame_signature_count": 96,
+      "row_count": 384,
+      "unique_count_signatures": 140,
+      "unique_normalized_frequency_signatures": 140
+    },
+    "union": {
+      "by_factor": {
+        "event": {
+          "conflicting_gold_rows": 398,
+          "conflicting_gold_signature_count": 94,
+          "gold_support": {
+            "E0": 120,
+            "E1": 120,
+            "E2": 120,
+            "E3": 120
+          },
+          "majority_rows": 296,
+          "representation_ceiling": 0.6166666666666667,
+          "scheduled_rows": 480
+        },
+        "operator": {
+          "conflicting_gold_rows": 420,
+          "conflicting_gold_signature_count": 102,
+          "gold_support": {
+            "O0": 120,
+            "O1": 120,
+            "O2": 120,
+            "O3": 120
+          },
+          "majority_rows": 300,
+          "representation_ceiling": 0.625,
+          "scheduled_rows": 480
+        },
+        "participant": {
+          "conflicting_gold_rows": 414,
+          "conflicting_gold_signature_count": 100,
+          "gold_support": {
+            "P0": 80,
+            "P1": 80,
+            "P2": 80,
+            "P3": 80,
+            "P4": 80,
+            "P5": 80
+          },
+          "majority_rows": 266,
+          "representation_ceiling": 0.5541666666666667,
+          "scheduled_rows": 480
+        },
+        "time": {
+          "conflicting_gold_rows": 418,
+          "conflicting_gold_signature_count": 102,
+          "gold_support": {
+            "T0": 80,
+            "T1": 80,
+            "T2": 80,
+            "T3": 80,
+            "T4": 80,
+            "T5": 80
+          },
+          "majority_rows": 282,
+          "representation_ceiling": 0.5875,
+          "scheduled_rows": 480
+        }
+      },
+      "collision_group_count": 110,
+      "collision_rows": 436,
+      "conflicting_frame_signature_count": 110,
+      "row_count": 480,
+      "unique_count_signatures": 154,
+      "unique_normalized_frequency_signatures": 154
+    }
+  },
+  "ROLE_DISJOINT": {
+    "confirmation_all": {
+      "by_factor": {
+        "event": {
+          "conflicting_gold_rows": 0,
+          "conflicting_gold_signature_count": 0,
+          "gold_support": {
+            "E0": 24,
+            "E1": 24,
+            "E2": 24,
+            "E3": 24
+          },
+          "majority_rows": 96,
+          "representation_ceiling": 1.0,
+          "scheduled_rows": 96
+        },
+        "operator": {
+          "conflicting_gold_rows": 0,
+          "conflicting_gold_signature_count": 0,
+          "gold_support": {
+            "O0": 24,
+            "O1": 24,
+            "O2": 24,
+            "O3": 24
+          },
+          "majority_rows": 96,
+          "representation_ceiling": 1.0,
+          "scheduled_rows": 96
+        },
+        "participant": {
+          "conflicting_gold_rows": 0,
+          "conflicting_gold_signature_count": 0,
+          "gold_support": {
+            "P0": 16,
+            "P1": 16,
+            "P2": 16,
+            "P3": 16,
+            "P4": 16,
+            "P5": 16
+          },
+          "majority_rows": 96,
+          "representation_ceiling": 1.0,
+          "scheduled_rows": 96
+        },
+        "time": {
+          "conflicting_gold_rows": 0,
+          "conflicting_gold_signature_count": 0,
+          "gold_support": {
+            "T0": 16,
+            "T1": 16,
+            "T2": 16,
+            "T3": 16,
+            "T4": 16,
+            "T5": 16
+          },
+          "majority_rows": 96,
+          "representation_ceiling": 1.0,
+          "scheduled_rows": 96
+        }
+      },
+      "collision_group_count": 0,
+      "collision_rows": 0,
+      "conflicting_frame_signature_count": 0,
+      "row_count": 96,
+      "unique_count_signatures": 96,
+      "unique_normalized_frequency_signatures": 96
+    },
+    "confirmation_by_support": {
+      "seen_pair/unseen_triple": {
+        "by_factor": {
+          "event": {
+            "conflicting_gold_rows": 0,
+            "conflicting_gold_signature_count": 0,
+            "gold_support": {
+              "E0": 24,
+              "E3": 24
+            },
+            "majority_rows": 48,
+            "representation_ceiling": 1.0,
+            "scheduled_rows": 48
+          },
+          "operator": {
+            "conflicting_gold_rows": 0,
+            "conflicting_gold_signature_count": 0,
+            "gold_support": {
+              "O2": 24,
+              "O3": 24
+            },
+            "majority_rows": 48,
+            "representation_ceiling": 1.0,
+            "scheduled_rows": 48
+          },
+          "participant": {
+            "conflicting_gold_rows": 0,
+            "conflicting_gold_signature_count": 0,
+            "gold_support": {
+              "P0": 8,
+              "P1": 8,
+              "P2": 8,
+              "P3": 8,
+              "P4": 8,
+              "P5": 8
+            },
+            "majority_rows": 48,
+            "representation_ceiling": 1.0,
+            "scheduled_rows": 48
+          },
+          "time": {
+            "conflicting_gold_rows": 0,
+            "conflicting_gold_signature_count": 0,
+            "gold_support": {
+              "T0": 8,
+              "T1": 8,
+              "T2": 8,
+              "T3": 8,
+              "T4": 8,
+              "T5": 8
+            },
+            "majority_rows": 48,
+            "representation_ceiling": 1.0,
+            "scheduled_rows": 48
+          }
+        },
+        "collision_group_count": 0,
+        "collision_rows": 0,
+        "conflicting_frame_signature_count": 0,
+        "row_count": 48,
+        "unique_count_signatures": 48,
+        "unique_normalized_frequency_signatures": 48
+      },
+      "unseen_pair": {
+        "by_factor": {
+          "event": {
+            "conflicting_gold_rows": 0,
+            "conflicting_gold_signature_count": 0,
+            "gold_support": {
+              "E1": 24,
+              "E2": 24
+            },
+            "majority_rows": 48,
+            "representation_ceiling": 1.0,
+            "scheduled_rows": 48
+          },
+          "operator": {
+            "conflicting_gold_rows": 0,
+            "conflicting_gold_signature_count": 0,
+            "gold_support": {
+              "O0": 24,
+              "O1": 24
+            },
+            "majority_rows": 48,
+            "representation_ceiling": 1.0,
+            "scheduled_rows": 48
+          },
+          "participant": {
+            "conflicting_gold_rows": 0,
+            "conflicting_gold_signature_count": 0,
+            "gold_support": {
+              "P0": 8,
+              "P1": 8,
+              "P2": 8,
+              "P3": 8,
+              "P4": 8,
+              "P5": 8
+            },
+            "majority_rows": 48,
+            "representation_ceiling": 1.0,
+            "scheduled_rows": 48
+          },
+          "time": {
+            "conflicting_gold_rows": 0,
+            "conflicting_gold_signature_count": 0,
+            "gold_support": {
+              "T0": 8,
+              "T1": 8,
+              "T2": 8,
+              "T3": 8,
+              "T4": 8,
+              "T5": 8
+            },
+            "majority_rows": 48,
+            "representation_ceiling": 1.0,
+            "scheduled_rows": 48
+          }
+        },
+        "collision_group_count": 0,
+        "collision_rows": 0,
+        "conflicting_frame_signature_count": 0,
+        "row_count": 48,
+        "unique_count_signatures": 48,
+        "unique_normalized_frequency_signatures": 48
+      }
+    },
+    "train": {
+      "by_factor": {
+        "event": {
+          "conflicting_gold_rows": 0,
+          "conflicting_gold_signature_count": 0,
+          "gold_support": {
+            "E0": 96,
+            "E1": 96,
+            "E2": 96,
+            "E3": 96
+          },
+          "majority_rows": 384,
+          "representation_ceiling": 1.0,
+          "scheduled_rows": 384
+        },
+        "operator": {
+          "conflicting_gold_rows": 0,
+          "conflicting_gold_signature_count": 0,
+          "gold_support": {
+            "O0": 96,
+            "O1": 96,
+            "O2": 96,
+            "O3": 96
+          },
+          "majority_rows": 384,
+          "representation_ceiling": 1.0,
+          "scheduled_rows": 384
+        },
+        "participant": {
+          "conflicting_gold_rows": 0,
+          "conflicting_gold_signature_count": 0,
+          "gold_support": {
+            "P0": 64,
+            "P1": 64,
+            "P2": 64,
+            "P3": 64,
+            "P4": 64,
+            "P5": 64
+          },
+          "majority_rows": 384,
+          "representation_ceiling": 1.0,
+          "scheduled_rows": 384
+        },
+        "time": {
+          "conflicting_gold_rows": 0,
+          "conflicting_gold_signature_count": 0,
+          "gold_support": {
+            "T0": 64,
+            "T1": 64,
+            "T2": 64,
+            "T3": 64,
+            "T4": 64,
+            "T5": 64
+          },
+          "majority_rows": 384,
+          "representation_ceiling": 1.0,
+          "scheduled_rows": 384
+        }
+      },
+      "collision_group_count": 0,
+      "collision_rows": 0,
+      "conflicting_frame_signature_count": 0,
+      "row_count": 384,
+      "unique_count_signatures": 384,
+      "unique_normalized_frequency_signatures": 384
+    },
+    "union": {
+      "by_factor": {
+        "event": {
+          "conflicting_gold_rows": 0,
+          "conflicting_gold_signature_count": 0,
+          "gold_support": {
+            "E0": 120,
+            "E1": 120,
+            "E2": 120,
+            "E3": 120
+          },
+          "majority_rows": 480,
+          "representation_ceiling": 1.0,
+          "scheduled_rows": 480
+        },
+        "operator": {
+          "conflicting_gold_rows": 0,
+          "conflicting_gold_signature_count": 0,
+          "gold_support": {
+            "O0": 120,
+            "O1": 120,
+            "O2": 120,
+            "O3": 120
+          },
+          "majority_rows": 480,
+          "representation_ceiling": 1.0,
+          "scheduled_rows": 480
+        },
+        "participant": {
+          "conflicting_gold_rows": 0,
+          "conflicting_gold_signature_count": 0,
+          "gold_support": {
+            "P0": 80,
+            "P1": 80,
+            "P2": 80,
+            "P3": 80,
+            "P4": 80,
+            "P5": 80
+          },
+          "majority_rows": 480,
+          "representation_ceiling": 1.0,
+          "scheduled_rows": 480
+        },
+        "time": {
+          "conflicting_gold_rows": 0,
+          "conflicting_gold_signature_count": 0,
+          "gold_support": {
+            "T0": 80,
+            "T1": 80,
+            "T2": 80,
+            "T3": 80,
+            "T4": 80,
+            "T5": 80
+          },
+          "majority_rows": 480,
+          "representation_ceiling": 1.0,
+          "scheduled_rows": 480
+        }
+      },
+      "collision_group_count": 0,
+      "collision_rows": 0,
+      "conflicting_frame_signature_count": 0,
+      "row_count": 480,
+      "unique_count_signatures": 480,
+      "unique_normalized_frequency_signatures": 480
+    }
+  }
+}

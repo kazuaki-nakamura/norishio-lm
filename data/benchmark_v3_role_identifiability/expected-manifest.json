@@ -1,0 +1,36 @@
+{
+  "counts": {
+    "ROLE_ALIASED": {
+      "confirmation": 96,
+      "train": 384
+    },
+    "ROLE_DISJOINT": {
+      "confirmation": 96,
+      "train": 384
+    }
+  },
+  "generator_sha256": "cfc1e14da7b0df5c13ab9460793bac7bcd14d20b005b226ed9c5aca8fa2666e6",
+  "preflight": {
+    "aliased_train_ceiling": {
+      "event": 0.6145833333333334,
+      "operator": 0.6822916666666666,
+      "participant": 0.5625,
+      "time": 0.625
+    },
+    "disjoint_all_factor_ceilings_one": true,
+    "paired_correspondence": {
+      "only_four_value_bytes_changed": true,
+      "same_ids_targets_splits_metadata": true
+    },
+    "status": "pass"
+  },
+  "row_files_sha256": {
+    "role_aliased-confirmation.jsonl": "54170e91215a859629750883b0fdf5b466627673fb0d394e415e614d52820731",
+    "role_aliased-train.jsonl": "40add650bdc1dc2b6a5a124a2b3dfe5f4c63f392765fc200d0e7221d7fc6b57d",
+    "role_disjoint-confirmation.jsonl": "14dd59c1cdd46a21892fc5ad87a52273775dcfabceda06b450c79f79fbb41e56",
+    "role_disjoint-train.jsonl": "346f4442b3fbaa5189f0a8d520639becd0ef420c5d7c12eaa9dd17c3452ef802"
+  },
+  "schema": "norishio.issue48.role-fixture.v1",
+  "spec_sha256": "b83fdd4852a9b0636c83ebb923e29ce6bb6d4fddf4e0cc4465b2145e175815a5",
+  "static_audit_sha256": "4c8a46a78cf640d76b8ad12893d558c1a3ef653f0171fff5fc6ad06c98b9b71e"
+}
